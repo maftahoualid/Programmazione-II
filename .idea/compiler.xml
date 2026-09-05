@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="es01" />
+        <module name="es12" />
+        <module name="es11" />
+        <module name="es10" />
+        <module name="es09" />
+        <module name="es08" />
+        <module name="es07" />
+        <module name="es06" />
+        <module name="es05" />
+        <module name="es04" />
+        <module name="es15" />
+        <module name="es03" />
+        <module name="es14" />
+        <module name="es02" />
+        <module name="es13" />
+      </profile>
+    </annotationProcessing>
+  </component>
+</project>

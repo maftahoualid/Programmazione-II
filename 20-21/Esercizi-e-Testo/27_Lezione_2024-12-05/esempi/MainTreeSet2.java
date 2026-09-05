@@ -1,0 +1,31 @@
+package it.univr.collections;
+
+import java.util.Set;
+import java.util.TreeSet;
+
+import it.univr.dates.AmericanDate;
+import it.univr.dates.AustralianDateAndTime;
+import it.univr.dates.Date;
+import it.univr.dates.ItalianDate;
+
+public class MainTreeSet2 {
+
+	public static void main(String[] args) {
+		Set<Date> s = new TreeSet<Date>();
+		Date d1 = new ItalianDate(5, 12, 2024);
+		Date d2 = new ItalianDate(25, 12, 2024);
+		Date d3 = new AmericanDate(29, 2, 2028);
+		Date d4 = new ItalianDate(5, 12, 2024);
+		Date d5 = new AustralianDateAndTime(20, 10, 18, 7, 1, 2025);
+		s.add(d1);
+		s.add(d2);
+		s.add(d3);
+		s.add(d5);
+		System.out.println(s);
+		System.out.println("contiene 5/12/2024? " + s.contains(d4));
+		s.add(d4);
+		System.out.println(s);
+		
+	}
+
+}
