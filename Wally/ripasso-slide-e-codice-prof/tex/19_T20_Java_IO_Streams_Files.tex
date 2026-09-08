@@ -1,0 +1,720 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T20 --- Java I/O, Streams, File, NIO.2 e Serializzazione}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T20 --- Java I/O, Streams, File, NIO.2 e Serializzazione \\[0.3em] \large\sffamily Byte Streams vs Character Streams, Bufferizzazione, Decorator Pattern I/O e Serializzazione}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{1. Analisi Teorica Approfondita (Slide
+T20)}\label{analisi-teorica-approfondita-slide-t20}
+
+La lezione 20 conclude il percorso teorico del corso esplorando il
+sottosistema di \textbf{Input/Output (I/O)} di Java
+(\passthrough{\lstinline!java.io!} e
+\passthrough{\lstinline!java.net!}), la persistenza su disco, la
+comunicazione di rete, e la gestione di formati dati strutturati moderni
+(\textbf{CSV} e \textbf{JSON}) tramite librerie terze gestite con Maven.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.1 L'Astrazione di I/O Stream (Slide
+3-4)}\label{lastrazione-di-io-stream-slide-3-4}
+
+In Java, qualsiasi trasferimento di dati da o verso l'esterno è
+modellato tramite l'astrazione di \textbf{I/O Stream} (\emph{flusso
+sequenziale unidirezionale di dati}): * \textbf{Differenza tassonomica
+cruciale}: Gli \textbf{I/O Streams} (\passthrough{\lstinline!java.io!})
+non vanno confusi con gli \textbf{Stream funzionali} di Java 8
+(\passthrough{\lstinline!java.util.stream.Stream!}). Gli I/O Stream
+trasportano byte o caratteri fisici verso periferiche o file; gli Stream
+di Java 8 elaborano pipeline di trasformazione di oggetti in memoria. *
+Un I/O Stream può essere agganciato a: * File su disco. * Flussi
+standard di processo: \passthrough{\lstinline!System.in!} (standard
+input), \passthrough{\lstinline!System.out!} (standard output),
+\passthrough{\lstinline!System.err!} (standard error). * Connessioni di
+rete (\emph{socket} TCP/IP o endpoint HTTP). * Buffer di memoria (array
+di byte o stringhe).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.2 Il Dualismo dell'I/O in Java: Byte Streams vs
+Character Streams (Slide
+4-9)}\label{il-dualismo-dellio-in-java-byte-streams-vs-character-streams-slide-4-9}
+
+L'architettura di \passthrough{\lstinline!java.io!} è rigorosamente
+bipartita in due gerarchie parallele:
+
+\needspace{7cm}
+\begin{asciibox}
+                      ┌─────────────────────────┐
+                      │ java.io Stream Classes  │
+                      └────────────┬────────────┘
+                                   │
+             ┌─────────────────────┴─────────────────────┐
+             ▼                                           ▼
+  ┌─────────────────────┐                     ┌─────────────────────┐
+  │    Byte Streams     │                     │  Character Streams  │
+  │  (8-bit dati grezzi)│                     │ (16-bit Unicode UTF)│
+  └──────────┬──────────┘                     └──────────┬──────────┘
+             │                                           │
+  ┌──────────┴──────────┐                     ┌──────────┴──────────┐
+  ▼                     ▼                     ▼                     ▼
+┌─────────────┐ ┌──────────────┐       ┌─────────────┐ ┌─────────────┐
+│ InputStream │ │ OutputStream │       │   Reader    │ │   Writer    │
+└──────┬──────┘ └──────┬───────┘       └──────┬──────┘ └──────┬──────┘
+       │               │                      │               │
+┌──────┴──────┐ ┌──────┴───────┐       ┌──────┴──────┐ ┌──────┴──────┐
+│FileInput-   │ │FileOutput-   │       │ FileReader  │ │ FileWriter  │
+│Stream       │ │Stream        │       └──────┬──────┘ └──────┬──────┘
+└──────┬──────┘ └──────┬───────┘              │               │
+       │               │               ┌──────┴──────┐ ┌──────┴──────┐
+┌──────┴──────┐ ┌──────┴───────┐       │Buffered-    │ │Buffered-    │
+│Buffered-    │ │Buffered-     │       │Reader       │ │Writer       │
+│InputStream  │ │OutputStream  │       └─────────────┘ └─────────────┘
+└─────────────┘ └──────────────┘
+\end{asciibox}
+
+\paragraph{\texorpdfstring{1. Byte Streams (\texttt{InputStream} e
+\texttt{OutputStream}, Slide
+5-7)}{1. Byte Streams (InputStream e OutputStream, Slide 5-7)}}\label{byte-streams-inputstream-e-outputstream-slide-5-7}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Unità di dato}: Singolo byte grezzo (8 bit, intervallo
+  \([0, 255]\) restituito come \passthrough{\lstinline!int!}, dove il
+  valore \(-1\) segnala la fine dello stream --- \emph{End Of File,
+  EOF}).
+\item
+  \textbf{Destinazione d'uso}: Immagini, file multimediali, bytecode
+  compilato (\passthrough{\lstinline!.class!}), file compressi
+  (\passthrough{\lstinline!.zip!}), comunicazioni binarie di rete.
+\item
+  \textbf{Metodi cardine}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!int read()!}: legge il prossimo byte (o
+    \(-1\) a fine stream).
+  \item
+    \passthrough{\lstinline!int read(byte[] b)!}: riempie il buffer di
+    byte.
+  \item
+    \passthrough{\lstinline!void write(int b)!}: scrive un byte.
+  \item
+    \passthrough{\lstinline!void write(byte[] b)!}: scrive un intero
+    array di byte.
+  \item
+    \passthrough{\lstinline!void close()!}: rilascia il descrittore del
+    file del sistema operativo.
+  \end{itemize}
+\item
+  \textbf{Implementazioni notevoli}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!FileInputStream!} /
+    \passthrough{\lstinline!FileOutputStream!}: lettura/scrittura
+    diretta su disco.
+  \item
+    \passthrough{\lstinline!BufferedInputStream!} /
+    \passthrough{\lstinline!BufferedOutputStream!}: aggiunge un buffer
+    in memoria per minimizzare le costose chiamate di sistema del kernel
+    del SO.
+  \item
+    \passthrough{\lstinline!DataInputStream!} /
+    \passthrough{\lstinline!DataOutputStream!}: serializzazione di
+    primitivi Java (\passthrough{\lstinline!readInt()!},
+    \passthrough{\lstinline!writeDouble()!}).
+  \end{itemize}
+\end{itemize}
+
+\paragraph{\texorpdfstring{2. Character Streams (\texttt{Reader} e
+\texttt{Writer}, Slide
+8-10)}{2. Character Streams (Reader e Writer, Slide 8-10)}}\label{character-streams-reader-e-writer-slide-8-10}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Unità di dato}: Caratteri Unicode (16 bit UTF-16).
+\item
+  \textbf{Destinazione d'uso}: Esclusivamente file di testo, file
+  sorgente, documenti testuali.
+\item
+  \textbf{Le classi ponte (\emph{Bridge Adapters})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!InputStreamReader!}: converte un
+    \passthrough{\lstinline!InputStream!} di byte in un
+    \passthrough{\lstinline!Reader!} di caratteri applicando una
+    specifica codifica (es. UTF-8).
+  \item
+    \passthrough{\lstinline!OutputStreamWriter!}: converte caratteri in
+    byte da inviare a un \passthrough{\lstinline!OutputStream!}.
+  \end{itemize}
+\item
+  \textbf{Implementazioni notevoli}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!FileReader!} /
+    \passthrough{\lstinline!FileWriter!}: lettura/scrittura di file di
+    testo.
+  \item
+    \passthrough{\lstinline!BufferedReader!}: legge blocchi di testo
+    bufferizzati e fornisce il comodissimo metodo
+    \passthrough{\lstinline!String readLine()!} (restituisce un'intera
+    riga o \passthrough{\lstinline!null!} a fine file).
+  \item
+    \passthrough{\lstinline!BufferedWriter!}: scrittura testuale con
+    supporto al metodo \passthrough{\lstinline!newLine()!}.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.3 Gestione delle Risorse: Da
+\texttt{try-finally} a \texttt{try-with-resources} (Slide 7,
+10-11)}{1.3 Gestione delle Risorse: Da try-finally a try-with-resources (Slide 7, 10-11)}}\label{gestione-delle-risorse-da-try-finally-a-try-with-resources-slide-7-10-11}
+
+\paragraph{Il Vecchio Approccio (Pre-Java 7, Slide
+10):}\label{il-vecchio-approccio-pre-java-7-slide-10}
+
+\begin{lstlisting}[language=Java]
+BufferedReader br = null;
+try {
+    br = new BufferedReader(new FileReader("i.txt"));
+    // lettura...
+} catch (IOException e) {
+    // gestione errore...
+} finally {
+    if (br != null) {
+        try {
+            br.close(); // Ulteriore try-catch obbligatorio perché close() lancia IOException!
+        } catch (IOException e) { ... }
+    }
+}
+\end{lstlisting}
+
+Questo pattern era verbose, faticoso da manutenere e fonte continua di
+\emph{resource leaks} (descrittori di file aperti non chiusi se si
+verificavano eccezioni nel \passthrough{\lstinline!finally!}).
+
+\paragraph{\texorpdfstring{L'Approccio Moderno:
+\texttt{try-with-resources} (Java 7+, Slide
+11)}{L'Approccio Moderno: try-with-resources (Java 7+, Slide 11)}}\label{lapproccio-moderno-try-with-resources-java-7-slide-11}
+
+Tutte le classi che implementano l'interfaccia standard
+\passthrough{\lstinline!java.lang.AutoCloseable!} possono essere
+dichiarate all'interno delle parentesi tonde del blocco
+\passthrough{\lstinline!try!}:
+
+\begin{lstlisting}[language=Java]
+try (BufferedReader br = new BufferedReader(new FileReader("i.txt"));
+     BufferedWriter bw = new BufferedWriter(new FileWriter("o.txt"))) {
+    String line;
+    while ((line = br.readLine()) != null) {
+        bw.write(line);
+        bw.newLine();
+    }
+} catch (FileNotFoundException fnfe) {
+    System.out.println("File not found...");
+} catch (IOException ioe) {
+    System.out.println("I/O Error...");
+}
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Garanzie della JVM}:
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    Le risorse vengono chiuse \textbf{automaticamente} non appena il
+    blocco \passthrough{\lstinline!try!} termina, sia in caso di
+    completamento regolare sia in caso di eccezione o
+    \passthrough{\lstinline!return!} anticipato.
+  \item
+    Vengono chiuse in \textbf{ordine inverso} rispetto alla loro
+    dichiarazione (prima \passthrough{\lstinline!bw!}, poi
+    \passthrough{\lstinline!br!}).
+  \item
+    Se sia il corpo del \passthrough{\lstinline!try!} che la chiamata a
+    \passthrough{\lstinline!close()!} sollevano eccezioni, l'eccezione
+    del corpo è quella principale propagata, mentre l'eccezione di
+    chiusura viene salvata come \textbf{Suppressed Exception}
+    (recuperabile con \passthrough{\lstinline!e.getSuppressed()!}).
+  \end{enumerate}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.4 Gestione di File e Risorse di Rete (URL/URI) (Slide
+13-17)}\label{gestione-di-file-e-risorse-di-rete-urluri-slide-13-17}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{La classe \passthrough{\lstinline!java.io.File!} (Slide
+  13-14)}: Rappresenta il percorso astratto di un file o di una
+  directory. Non legge né scrive dati direttamente, ma permette di
+  interrogare e modificare il filesystem:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!exists()!},
+    \passthrough{\lstinline!isFile()!},
+    \passthrough{\lstinline!isDirectory()!},
+    \passthrough{\lstinline!length()!},
+    \passthrough{\lstinline!getAbsolutePath()!}.
+  \item
+    \passthrough{\lstinline!mkdir()!},
+    \passthrough{\lstinline!delete()!},
+    \passthrough{\lstinline!renameTo(File dest)!},
+    \passthrough{\lstinline!listFiles()!}.
+  \end{itemize}
+\item
+  \textbf{URL e URI (\passthrough{\lstinline!java.net!}, Slide 15-17)}:
+
+  \begin{itemize}
+  \item
+    \passthrough{\lstinline!URI!} modella l'identificatore formale
+    (\emph{RFC 2396}).
+  \item
+    \passthrough{\lstinline!URL!} modella la locazione fisica e il
+    protocollo per accedere alla risorsa web.
+  \item
+    \emph{Avvertenza contemporanea (Slide 16)}: Il costruttore
+    \passthrough{\lstinline!new URL("...")!} è \textbf{deprecato} da
+    Java 20. La prassi moderna impone di creare un'istanza di
+    \passthrough{\lstinline!URI!} e convertirla:
+
+\begin{lstlisting}[language=Java]
+URL url = new URI("https://info.cern.ch/index.html").toURL();
+InputStream in = url.openStream(); // Apre una connessione HTTP e scarica i dati
+\end{lstlisting}
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.5 Dati Strutturati: CSV e JSON (Slide
+18-26)}\label{dati-strutturati-csv-e-json-slide-18-26}
+
+Java non possiede parser nativi integrati nel runtime per file CSV e
+JSON. Per questi formati si ricorre a librerie esterne integrate tramite
+dipendenze Maven.
+
+\paragraph{1. File CSV con OpenCSV (Slide
+19-22)}\label{file-csv-con-opencsv-slide-19-22}
+
+\begin{itemize}
+\item
+  Un file CSV (\emph{Comma-Separated Values}) memorizza tabelle in
+  formato testuale, separando le colonne con virgole o punti e virgola.
+\item
+  \textbf{Dipendenza Maven}:
+  \passthrough{\lstinline!com.opencsv:opencsv:5.12.0!}.
+\item
+  \textbf{Scrittura}: \passthrough{\lstinline!CSVWriter!} scrive array
+  di stringhe \passthrough{\lstinline!String[]!} gestendo
+  automaticamente apici ed escape:
+
+\begin{lstlisting}[language=Java]
+CSVWriter csvw = new CSVWriter(new FileWriter("data.csv"));
+csvw.writeNext(new String[]{ "id", "name", "address" });
+\end{lstlisting}
+\item
+  \textbf{Lettura}: \passthrough{\lstinline!CSVReader!} con
+  \passthrough{\lstinline!readNext()!} riga per riga o
+  \passthrough{\lstinline!readAll()!}.
+\end{itemize}
+
+\paragraph{2. File JSON con Google Gson (Slide
+23-26)}\label{file-json-con-google-gson-slide-23-26}
+
+\begin{itemize}
+\item
+  JSON (\emph{JavaScript Object Notation}) è lo standard dominante per
+  lo scambio dati basato su mappe chiave-valore
+  \passthrough{\lstinline!\{\}!} e liste ordinate
+  \passthrough{\lstinline![]!}.
+\item
+  \textbf{Dipendenza Maven}:
+  \passthrough{\lstinline!com.google.code.gson:gson:2.13.2!}.
+\item
+  \textbf{Serializzazione e Deserializzazione Automatica (Data
+  Binding)}:
+
+\begin{lstlisting}[language=Java]
+Gson gson = new Gson();
+
+// 1. Oggetto Java -> Stringa JSON (Serializzazione)
+Date date = new Date(1, 1, 1970);
+String json = gson.toJson(date); // Restituisce '{"day":1,"month":1,"year":1970}'
+
+// 2. Stringa JSON -> Oggetto Java (Deserializzazione)
+Date d = gson.fromJson(json, Date.class); // Ricostruisce l'istanza valorizzando i campi!
+\end{lstlisting}
+
+  Gson accede ai campi (anche \passthrough{\lstinline!private!} e
+  \passthrough{\lstinline!final!}) tramite \textbf{Reflection}, senza
+  richiedere getter/setter pubblici o costruttori senza argomenti!
+\item
+  \textbf{Pretty Printing}:
+  \passthrough{\lstinline!new GsonBuilder().setPrettyPrinting().create()!}
+  formatta il JSON con ritorni a capo e indentazione a 2 spazi.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{\texorpdfstring{2. Analisi Dettagliata del Codice
+(\texttt{Lezione19/MavenDate})}{2. Analisi Dettagliata del Codice (Lezione19/MavenDate)}}\label{analisi-dettagliata-del-codice-lezione19mavendate}
+
+In \passthrough{\lstinline!Lezione19/MavenDate!} il prof. Pasqua integra
+tutti i concetti della Slide T20 all'interno della classe dimostrativa
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione19/MavenDate/src/main/java/it/oop/ui/MainIO.java}{MainIO.java}.
+
+\subsubsection{\texorpdfstring{2.1 Configurazione delle Dipendenze in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione19/MavenDate/pom.xml\#L68-L78}{pom.xml}}{2.1 Configurazione delle Dipendenze in pom.xml}}\label{configurazione-delle-dipendenze-in-pom.xml}
+
+\begin{lstlisting}[language=XML]
+        <!-- OpenCSV per parsing e generazione CSV (Slide 20) -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.12.0</version>
+        </dependency>
+        <!-- Google Gson per serializzazione/deserializzazione JSON (Slide 24) -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.13.2</version>
+        </dependency>
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2.2 Analisi Riga per Riga di
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione19/MavenDate/src/main/java/it/oop/ui/MainIO.java}{MainIO.java}}{2.2 Analisi Riga per Riga di MainIO.java}}\label{analisi-riga-per-riga-di-mainio.java}
+
+\paragraph{\texorpdfstring{1. Lettura Binaria di Bytecode con
+\texttt{FileInputStream} e \texttt{FileChannel} (Righe
+18-41)}{1. Lettura Binaria di Bytecode con FileInputStream e FileChannel (Righe 18-41)}}\label{lettura-binaria-di-bytecode-con-fileinputstream-e-filechannel-righe-18-41}
+
+\begin{lstlisting}[language=Java]
+        FileInputStream fis = null;
+        try {
+            // Apertura dello stream di byte su un file binario compilato (.class)
+            fis = new FileInputStream("src/main/resources/Date.class");
+            FileChannel fc = fis.getChannel();
+            int b;
+            // Lettura byte a byte
+            while ((b = fis.read()) != -1) {
+                System.out.println((char) b);
+            }
+            // Rewind dello stream riportando la posizione a 0 tramite FileChannel
+            fc.position(0);
+            StringBuilder sb = new StringBuilder();
+            // Lettura dell'intero contenuto in un colpo solo con readAllBytes() (Java 9+)
+            for (byte bb : fis.readAllBytes()) {
+                sb.append((char) bb);
+            }
+            System.out.println("-----");
+            System.out.println(sb.toString());
+        } catch (IOException ioe) {
+            System.out.println(ioe.getMessage());
+        } finally {
+            // Chiusura classica pre-Java 7 con try-catch protetto
+            try {
+                if (fis != null) fis.close();
+            } catch (IOException ioe) {
+                System.out.println(ioe.getMessage());
+            }
+        }
+\end{lstlisting}
+
+\paragraph{\texorpdfstring{2. Scrittura di Testo con \texttt{FileWriter}
+e \texttt{try-with-resources} (Righe
+42-50)}{2. Scrittura di Testo con FileWriter e try-with-resources (Righe 42-50)}}\label{scrittura-di-testo-con-filewriter-e-try-with-resources-righe-42-50}
+
+\begin{lstlisting}[language=Java]
+        // Blocco try-with-resources: fw viene chiuso automaticamente
+        try (FileWriter fw = new FileWriter("src/main/resources/file.txt")) {
+            StringBuilder sb = new StringBuilder();
+            // Genera stringhe di 'a' crescenti usando Stream di Java 8
+            Stream.iterate("a", s -> s + "a")
+                    .limit(15)
+                    .forEach(s -> sb.append(s).append("\n"));
+            fw.write(sb.toString());
+        } catch (IOException ioe) {
+            System.out.println(ioe.getMessage());
+        }
+\end{lstlisting}
+
+\paragraph{3. Generazione di Tabella CSV con OpenCSV (Righe
+52-65)}\label{generazione-di-tabella-csv-con-opencsv-righe-52-65}
+
+\begin{lstlisting}[language=Java]
+        try (CSVWriter csvw = new CSVWriter(new FileWriter("src/main/resources/data.csv"))) {
+            String[] row = { "id", "name", "address" };
+            csvw.writeNext(row); // Scrive l'intestazione delle colonne
+
+            row[0] = "3";
+            row[1] = "Paul";
+            row[2] = "Strada le Grazie, 15";
+            csvw.writeNext(row);
+
+            row[0] = "6";
+            row[1] = "Sam";
+            row[2] = "Strada le Grazie, 18";
+            csvw.writeNext(row);
+        } catch (IOException ioe) {
+            System.out.println(ioe.getMessage());
+        }
+\end{lstlisting}
+
+\paragraph{4. Serializzazione e Deserializzazione con Gson (Righe
+66-80)}\label{serializzazione-e-deserializzazione-con-gson-righe-66-80}
+
+\begin{lstlisting}[language=Java]
+        Gson gson = new Gson();
+        Date date = new Date(1, 1, 1970);
+
+        // Serializzazione dell'oggetto Date in formato JSON
+        String json = gson.toJson(date);
+        System.out.println(json); // Stampa: {"day":1,"month":1,"year":1970}
+
+        // Deserializzazione da stringa JSON a nuova istanza Date
+        Date date1 = gson.fromJson("{\"day\":1,\"month\":1,\"year\":1971}", Date.class);
+        System.out.println(date1.toString()); // Stampa: y1971m1d1
+
+        // Scrittura su file con Pretty Printing abilitato
+        try (FileWriter fw = new FileWriter("src/main/resources/file.json")) {
+            new GsonBuilder().setPrettyPrinting().create().toJson(date, fw);
+        } catch (IOException ioe) {
+            System.out.println(ioe.getMessage());
+        }
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{3. Risultato di Compilazione ed Esecuzione
+Reale}\label{risultato-di-compilazione-ed-esecuzione-reale}
+
+Comando eseguito nel progetto
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione19/MavenDate}{Lezione19/MavenDate}:
+
+\begin{lstlisting}[language=bash]
+mvn compile exec:java -Dexec.mainClass="it.oop.ui.MainIO"
+\end{lstlisting}
+
+Output ottenuto a video:
+
+\begin{lstlisting}
+[Dumping del bytecode del file Date.class con header CAFEBABE e constant pool]
+-----
+{"day":1,"month":1,"year":1970}
+y1971m1d1
+[INFO] BUILD SUCCESS
+\end{lstlisting}
+
+\subsubsection{Ispezione dei file generati su
+disco:}\label{ispezione-dei-file-generati-su-disco}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \passthrough{\lstinline!src/main/resources/file.txt!}:
+
+\begin{lstlisting}
+a
+aa
+aaa
+...
+aaaaaaaaaaaaaaa
+\end{lstlisting}
+\item
+  \passthrough{\lstinline!src/main/resources/data.csv!}:
+
+\begin{lstlisting}
+"id","name","address"
+"3","Paul","Strada le Grazie, 15"
+"6","Sam","Strada le Grazie, 18"
+\end{lstlisting}
+\item
+  \passthrough{\lstinline!src/main/resources/file.json!}:
+
+\begin{lstlisting}
+{
+  "day": 1,
+  "month": 1,
+  "year": 1970
+}
+\end{lstlisting}
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Traguardo Raggiunto: Revisione Integrale del Corso
+Completata!}\label{traguardo-raggiunto-revisione-integrale-del-corso-completata}
+
+Abbiamo completato con successo e senza tralasciare alcun dettaglio: *
+Tutte le \textbf{20 slide teoriche} (da \passthrough{\lstinline!T01!} a
+\passthrough{\lstinline!T20!}). * Tutti i \textbf{progetti e le lezioni
+pratiche} (da \passthrough{\lstinline!Lezione04!} a
+\passthrough{\lstinline!Lezione19!}). * Tutti i diagrammi, meme, pattern
+architetturali, finezze di linguaggio, bug del docente, test Maven e
+logiche di compilazione ed esecuzione.
+
+Fammi sapere se desideri approfondire specifici temi per l'esame,
+affrontare vecchi temi d'esame scritti/pratici, o dedicarti agli
+esercizi del tuo workspace
+(\passthrough{\lstinline!esercizi-wally-25-26!})!
+
+
+\end{document}

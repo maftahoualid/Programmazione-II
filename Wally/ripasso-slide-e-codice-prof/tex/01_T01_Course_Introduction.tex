@@ -1,0 +1,353 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T01 --- Course Introduction}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T01 --- Course Introduction \& Metodologia del Corso \\[0.3em] \large\sffamily Obiettivi Formativi, Modalità d'Esame al Calcolatore, Toolchain e Syllabus}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+Benvenuto in questa revisione completa e metodica di
+\textbf{Programmazione II} (Prof.~Michele Pasqua, UniVR 2025/2026).
+Seguiremo fedelmente le regole stabilite: \textbf{nessuna omissione},
+analisi minuziosa di ogni concetto teorico, confronto riga per riga del
+codice, evidenziazione delle finezze d'esame e stop interattivo a ogni
+blocco.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1. Teoria: Concetti Teorici dalle Slide
+(\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Slides-20260902/T01\%20-\%20Course\%20Introduction.pdf}{T01
+- Course
+Introduction.pdf})}{1. Teoria: Concetti Teorici dalle Slide (T01 - Course Introduction.pdf)}}\label{teoria-concetti-teorici-dalle-slide-t01---course-introduction.pdf}
+
+La slide introduttiva definisce il perimetro accademico, gli obiettivi
+formativi e le modalità d'esame:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Docente e Background Scientifico}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Prof.~Michele Pasqua} (Dipartimento di Informatica, Cà
+    Vignal 2, 2° piano, Stanza 24 ---
+    \passthrough{\lstinline!michele.pasqua@univr.it!}).
+  \item
+    Aree di ricerca: \emph{Program verification and validation},
+    \emph{Programming language design and implementation}, \emph{Code
+    protection and software security}.
+  \item
+    Laboratori e progetti: co-fondatore del laboratorio
+    \textbf{UNIVERSE} (\emph{University of Verona Software Engineering
+    Lab}, diretto dal Prof.~Mariano Ceccato) e co-fondatore dello
+    spin-off universitario \textbf{KonTrust Srl} (tracciamento IoT su
+    blockchain e infrastrutture anti-manomissione); referente per Verona
+    del programma nazionale di formazione e gare su cybersecurity
+    (\emph{CyberChallenge.IT}).
+  \end{itemize}
+\item
+  \textbf{Organizzazione della Didattica}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Modulo di Teoria (40+ ore)}: Lunedì (16:30) e Martedì
+    (13:30) in Aula A (2 ore ciascuna).
+  \item
+    \textbf{Modulo di Laboratorio (12+ ore)}: Martedì (10:30) in Aula
+    Delta (2 ore).
+  \item
+    \textbf{Materiale didattico di riferimento}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Paul J. Deitel \& Harvey M. Deitel, \emph{Java -- How to Program},
+      Pearson (11/e -- 2018).
+    \item
+      Claudio De Sio Cesari, \emph{Il nuovo Java -- Guida alla
+      programmazione moderna}, Hoepli (1/e -- 2020).
+    \item
+      Moodle UniVR: slide, esercizi di laboratorio e soluzioni,
+      simulazioni.
+    \end{itemize}
+  \end{itemize}
+\item
+  \textbf{Modalità d'Esame e Valutazione}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Formato}: Prova pratica al calcolatore in \textbf{Aula
+    Delta} (ambiente Linux/IDE).
+  \item
+    \textbf{Contenuto}: Risoluzione di una serie di esercizi di
+    programmazione in linguaggio Java (sviluppo classi, gerarchie a
+    oggetti, implementazione interfacce, algoritmi su collezioni,
+    gestione eccezioni, test con asserzioni/JUnit).
+  \item
+    \textbf{Voto finale}: Somma algebrica dei punti ottenuti nei singoli
+    esercizi.
+  \item
+    È prevista una \textbf{simulazione d'esame} ufficiale a fine corso.
+  \end{itemize}
+\item
+  \textbf{Syllabus del Corso (Mappa degli argomenti da T01 a T20)}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{Object-Orientation Principles} (T02)
+  \item
+    \emph{Building, Running, and Deployment} (T03)
+  \item
+    \emph{Types, Classes, and Objects} (T04)
+  \item
+    \emph{Java Syntax and Semantics} (T05)
+  \item
+    \emph{Java Classes and Objects} (T06)
+  \item
+    \emph{Libraries and String Class} (T07)
+  \item
+    \emph{Class Constructors and Encapsulation} (T08)
+  \item
+    \emph{Arrays and Enumerative Types} (T09)
+  \item
+    \emph{Java Variables and Call Stack} (T10)
+  \item
+    \emph{Class and Package Visibility} (T11)
+  \item
+    \emph{Inheritance and Polymorphism} (T12)
+  \item
+    \emph{Abstract Classes and Interfaces} (T13)
+  \item
+    \emph{Nested and Anonymous Classes} (T14)
+  \item
+    \emph{Generic Types} (T15)
+  \item
+    \emph{Collections} (T16)
+  \item
+    \emph{Error Handling with Exceptions} (T17)
+  \item
+    \emph{Functional Interfaces and Streams} (T18)
+  \item
+    \emph{Documentation and Unit Testing} (T19)
+  \item
+    \emph{Java IO} (T20)
+  \end{itemize}
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{2. Codice: Analisi del Codice della Lezione
+1}\label{codice-analisi-del-codice-della-lezione-1}
+
+\begin{itemize}
+\tightlist
+\item
+  Nella cartella ufficiale delle lezioni
+  \href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902}{\passthrough{\lstinline!Codice-20260902!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Non sono presenti file di codice per le Lezioni 01, 02 e
+    03}.
+  \item
+    Il primo codice sorgente ufficiale del docente compare a partire
+    dalla \textbf{Lezione 04} con
+    \href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione04/Example.java}{\passthrough{\lstinline!Example.java!}}
+    (dedicato a tipi primitivi, reference, casting e operatori), mentre
+    il progetto a oggetti incrementale vero e proprio parte dal blocco
+    \textbf{Lezioni 05-06} con il progetto
+    \passthrough{\lstinline!SimpleDate!}
+    (\passthrough{\lstinline!Date.java!} e
+    \passthrough{\lstinline!MainDate.java!}).
+  \end{itemize}
+\item
+  Nel tuo workspace
+  \href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26}{\passthrough{\lstinline!esercizi-wally-25-26!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    La cartella
+    \href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es01}{\passthrough{\lstinline!es01!}}
+    è già predisposta come modulo Maven con la prima incarnazione di
+    \passthrough{\lstinline!Date!} e \passthrough{\lstinline!MainDate!},
+    sincronizzata con la struttura multi-modulo orchestrata dal
+    \href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/pom.xml}{\passthrough{\lstinline!pom.xml!}}
+    di root e dallo script
+    \href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/esercizi.sh}{\passthrough{\lstinline!esercizi.sh!}}.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{3. Setup: ️ Configurazione Operativa
+dell'Ambiente}\label{setup-configurazione-operativa-dellambiente}
+
+Per garantire che tutti i passaggi da qui in avanti siano riproducibili
+su IntelliJ IDEA e da CLI: 1. Verifica che la JDK attiva sia Java 17 o
+superiore: \passthrough{\lstinline!bash    java -version    mvn -v!} 2.
+Il file di root
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/pom.xml}{\passthrough{\lstinline!pom.xml!}}
+gestisce l'aggregazione di tutti i sottomoduli. Per ogni blocco
+successivo, quando andremo ad analizzare le classi introdotte a lezione,
+verificheremo che compilino ed eseguano pulitamente sia tramite:
+\passthrough{\lstinline!bash    ./esercizi.sh run <numero\_modulo>!} sia
+all'interno di IntelliJ IDEA.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{studynote}[Nota di Studio] La \textbf{Lezione 1 / T01} esaurisce qui la parte
+introduttiva/organizzativa. Il prossimo blocco è la \textbf{Lezione 2 /
+Slide T02: \emph{Object-Orientation and UML}}, dove entreremo nel vivo
+con: - Storia e tassonomia dei paradigmi: \emph{Imperativo/Procedurale},
+\emph{Dichiarativo/Funzionale}, \emph{Object-Oriented}. - I 4 pilastri
+dell'OOP: \emph{Astrazione, Incapsulamento, Ereditarietà, Polimorfismo}.
+- Concetto di \emph{Classe} vs \emph{Oggetto} (stato, comportamento,
+identità). - Notazione UML per classi e associazioni (\emph{Visibility
+markers}, cardinalità, tipi di relazione).
+\end{studynote}
+
+\textbf{Dammi conferma quando sei pronto per passare a T02 (procederemo
+analizzando il blocco concettuale un po' alla volta)!}
+
+
+\end{document}

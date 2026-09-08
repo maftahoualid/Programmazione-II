@@ -1,0 +1,577 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T09 --- Array, Matrici e Tipi Enumerativi (enum)}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T09 --- Array, Matrici e Tipi Enumerativi (enum) \\[0.3em] \large\sffamily Array Mono e Multidimensionali, Enum Tipizzati, Immutabilità e Singleton in SimpleDate v4}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+In questo blocco approfondiamo la gestione a basso livello degli array
+nello Heap, i tipi enumerati (\passthrough{\lstinline!enum!})
+(\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Slides-20260902/T09\%20-\%20Arrays\%20and\%20Enumerative\%20Types.pdf}{T09
+- Arrays and Enumerative Types.pdf}) e analizziamo il codice di
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione09/SimpleDate/src}{\passthrough{\lstinline!Lezione09!}},
+dove \passthrough{\lstinline!Date!} diventa una \textbf{classe
+immutabile} (campi \passthrough{\lstinline!final!} e rimozione dei
+setter) e compare per la prima volta un design pattern fondamentale: il
+\textbf{Singleton Pattern} implementato in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione09/SimpleDate/src/BirthDay.java}{\passthrough{\lstinline!BirthDay.java!}}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1. Teoria: Concetti Teorici dalle Slide (Slide
+T09)}\label{teoria-concetti-teorici-dalle-slide-slide-t09}
+
+\paragraph{A. Gli Array in Java (Slide
+1--13)}\label{a.-gli-array-in-java-slide-113}
+
+\begin{itemize}
+\item
+  \textbf{Natura degli Array}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Un array è una sequenza contigua e ordinata di variabili omogenee
+    (dello stesso tipo), accessibili tramite indice numerico intero che
+    parte da \passthrough{\lstinline!0!}.
+  \item
+    In Java gli array \textbf{non sono tipi primitivi}: sono
+    \textbf{oggetti speciali allocati nello Heap}.
+  \item
+    Possono memorizzare valori primitivi oppure
+    \textbf{riferimenti/puntatori a oggetti}, mai oggetti per valore
+    diretto.
+  \item
+    La dimensione di un array può essere stabilita dinamicamente a
+    runtime all'atto dell'allocazione
+    (\passthrough{\lstinline!new int[size]!}), ma \textbf{è immutabile
+    una volta creata}.
+  \end{itemize}
+\item
+  \textbf{Dichiarazione vs Creazione}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Sintassi raccomandata: \passthrough{\lstinline!int[] arr;!} (la
+    notazione \passthrough{\lstinline!int arr[];!} è ammessa per
+    retrocompatibilità col C, ma sconsigliata).
+  \item
+    La dichiarazione \passthrough{\lstinline!int[] arr;!} alloca solo
+    una variabile reference nello Stack (inizializzata a
+    \passthrough{\lstinline!null!}), \textbf{senza riservare spazio per
+    gli elementi nello Heap}.
+  \item
+    Allocazione:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Tramite \passthrough{\lstinline!new!}:
+      \passthrough{\lstinline!float[] arr = new float[10];!} (gli
+      elementi assumono il valore di default del tipo, es.
+      \passthrough{\lstinline!0.0f!}).
+    \item
+      Tramite inizializzazione statica:
+      \passthrough{\lstinline!int[] primes = \{2, 3, 5, 7\};!} (la
+      dimensione viene inferita automaticamente dal compilatore).
+    \end{itemize}
+  \end{itemize}
+\item
+  \textbf{Il Pseudo-Campo \passthrough{\lstinline!.length!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Ogni array possiede la proprietà
+    \passthrough{\lstinline!public final int length!}.
+  \item
+    Attenzione: \textbf{Distinzione d'esame}: per gli array si scrive
+    \passthrough{\lstinline!arr.length!} (\textbf{senza parentesi}, è
+    una variabile \passthrough{\lstinline!final!}), mentre per le
+    stringhe si invoca il metodo \passthrough{\lstinline!str.length()!}
+    (\textbf{con le parentesi}).
+  \item
+    Se si tenta di leggere \passthrough{\lstinline!arr.length!} su un
+    array nullo (\passthrough{\lstinline!arr = null;!}), la JVM lancia
+    una \passthrough{\lstinline!NullPointerException!}.
+  \end{itemize}
+\item
+  \textbf{Confronto e Stampa degli Array (I Trabocchetti Classici)}:
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    \passthrough{\lstinline!arr1 == arr2!}: confronta solo gli indirizzi
+    nello Heap. Se due array contengono gli stessi identici elementi ma
+    risiedono in aree diverse, restituisce
+    \passthrough{\lstinline!false!}.
+  \item
+    \passthrough{\lstinline!arr1.equals(arr2)!}: \textbf{NON funziona}.
+    Gli array non sovrascrivono il metodo
+    \passthrough{\lstinline!.equals()!} di
+    \passthrough{\lstinline!Object!}, quindi
+    \passthrough{\lstinline!equals!} si comporta esattamente come
+    \passthrough{\lstinline!==!}.
+  \item
+    \textbf{Soluzione standard}: per confrontare il contenuto si usa il
+    metodo statico
+    \textbf{\passthrough{\lstinline!java.util.Arrays.equals(arr1, arr2)!}}.
+  \item
+    \passthrough{\lstinline!arr.toString()!}: stampa la firma bytecode
+    della reference (es. \passthrough{\lstinline![I@6ce253f1!}, dove
+    \passthrough{\lstinline![!} indica un array e
+    \passthrough{\lstinline!I!} indica il tipo
+    \passthrough{\lstinline!int!}).
+  \item
+    Per visualizzare gli elementi a video in formato leggibile:
+    \textbf{\passthrough{\lstinline!java.util.Arrays.toString(arr)!}}.
+  \end{enumerate}
+\item
+  \textbf{Enhanced For Loop (For-Each, Java 5+)}:
+
+\begin{lstlisting}[language=Java]
+for (String arg : args) {
+    System.out.println(arg);
+}
+\end{lstlisting}
+
+  Sostituisce il for contatore eliminando il rischio di errori di
+  \emph{off-by-one} e \emph{ArrayIndexOutOfBoundsException}.
+\item
+  \textbf{Array Multidimensionali e Matrici Frastagliate (\emph{Jagged
+  Arrays})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    In Java non esistono matrici bidimensionali a blocco contiguo in
+    stile Fortran/C: \textbf{un array multidimensionale è un array di
+    riferimenti ad altri array}.
+  \item
+    \emph{Conseguenze pratiche}:
+
+    \begin{enumerate}
+    \def\labelenumi{\arabic{enumi}.}
+    \item
+      \textbf{Scambio di righe in tempo \(O(1)\)}: per invertire la
+      prima e l'ultima riga di una matrice non serve copiare gli
+      elementi uno per uno, basta scambiare i loro puntatori:
+
+\begin{lstlisting}[language=Java]
+int[] temp = matrix[0];
+matrix[0] = matrix[matrix.length - 1];
+matrix[matrix.length - 1] = temp;
+\end{lstlisting}
+    \item
+      \textbf{Righe a lunghezza eterogenea (\emph{Jagged/Pyramid
+      Arrays})}:
+
+\begin{lstlisting}[language=Java]
+int[][] pyramid = new int[3][];
+pyramid[0] = new int[1]; // Riga 0 ha 1 elemento
+pyramid[1] = new int[2]; // Riga 1 ha 2 elementi
+pyramid[2] = new int[3]; // Riga 2 ha 3 elementi
+\end{lstlisting}
+    \item
+      Per stampare matrici annidate,
+      \passthrough{\lstinline!Arrays.toString(matrix)!} stampa gli
+      indirizzi delle singole righe. Si deve iterare sulle righe o usare
+      \textbf{\passthrough{\lstinline!java.util.Arrays.deepToString(matrix)!}}.
+    \end{enumerate}
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{B. Tipi Enumerati (\texttt{enum}) (Slide
+14--19)}{B. Tipi Enumerati (enum) (Slide 14--19)}}\label{b.-tipi-enumerati-enum-slide-1419}
+
+\begin{itemize}
+\tightlist
+\item
+  Introdotti in Java 5 con la keyword \passthrough{\lstinline!enum!} per
+  gestire insiemi chiusi e prefissati di valori costanti (es. giorni
+  della settimana, punti cardinali, lingue).
+\item
+  \textbf{Regole e Caratteristiche}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Possono essere dichiarati in un file \passthrough{\lstinline!.java!}
+    dedicato (come classe autonoma) o all'interno di una classe come
+    membro statico, ma \textbf{mai all'interno di un metodo}.
+  \item
+    Non sono semplici interi o stringhe: sono classi speciali che
+    estendono implicitamente \passthrough{\lstinline!java.lang.Enum!}.
+    Il loro costruttore è privato e non può essere invocato con
+    \passthrough{\lstinline!new!}.
+  \item
+    \textbf{Metodi Predefiniti Fondamentali}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \passthrough{\lstinline!e.name()!}: restituisce il nome letterale
+      della costante come \passthrough{\lstinline!String!} (es.
+      \passthrough{\lstinline!"WEST"!}).
+    \item
+      \passthrough{\lstinline!e.ordinal()!}: restituisce la posizione
+      ordinale intera partendo da 0 (es. \passthrough{\lstinline!3!}).
+    \item
+      \passthrough{\lstinline!EnumClass.values()!}: restituisce un array
+      contenente tutte le costanti dichiarate nell'enum, comodo per
+      cicli for-each.
+    \end{itemize}
+  \end{itemize}
+\item
+  \textbf{Confronto tra Enum: Perché usare \passthrough{\lstinline!==!}
+  invece di \passthrough{\lstinline!.equals()!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    La JVM garantisce che in memoria esista \textbf{una e una sola
+    istanza} per ciascuna costante di un enum (\emph{garanzia di unicità
+    singleton}).
+  \item
+    Pertanto, il confronto con \textbf{\passthrough{\lstinline!==!}} è
+    perfettamente sicuro ed è \textbf{più robusto di
+    \passthrough{\lstinline!.equals()!}}: se una variabile vale
+    \passthrough{\lstinline!null!}, l'espressione
+    \passthrough{\lstinline!move == Direction.WEST!} restituisce
+    \passthrough{\lstinline!false!} senza errori, mentre
+    \passthrough{\lstinline!move.equals(...)!} causerebbe un crash con
+    \passthrough{\lstinline!NullPointerException!}!
+  \end{itemize}
+\item
+  \textbf{Uso di Enum negli \passthrough{\lstinline!switch!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    All'interno dei blocchi \passthrough{\lstinline!case!}, \textbf{non
+    si qualifica} il tipo: si scrive \passthrough{\lstinline!case IT:!}
+    e non \passthrough{\lstinline!case Language.IT:!}.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2. Codice: Evoluzione del Codice:
+\texttt{SimpleDate} (Lezione
+09)}{2. Codice: Evoluzione del Codice: SimpleDate (Lezione 09)}}\label{codice-evoluzione-del-codice-simpledate-lezione-09}
+
+In
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione09/SimpleDate/src}{\passthrough{\lstinline!Lezione09!}},
+il docente introduce due cambiamenti strutturali fondamentali:
+
+\paragraph{\texorpdfstring{1. Immutabilità di
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione09/SimpleDate/src/Date.java}{\texttt{Date.java}}}{1. Immutabilità di Date.java}}\label{immutabilituxe0-di-date.java}
+
+\begin{lstlisting}
+ public class Date {
+-    private int day;
+-    private int month;
+-    private int year;
++    private final int day;
++    private final int month;
++    private final int year;
+
+     // Costruttori...
+
+-    public void setDay(int day) { ... }
+-    public void setMonth(int month) { ... }
+-    public void setYear(int year) { ... }
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Campi \passthrough{\lstinline!final!}}: Una volta
+  inizializzati nel costruttore, \passthrough{\lstinline!day!},
+  \passthrough{\lstinline!month!} e \passthrough{\lstinline!year!} non
+  possono più essere riassegnati.
+\item
+  \textbf{Rimozione dei Setter}: I metodi mutatori
+  \passthrough{\lstinline!setDay!}, \passthrough{\lstinline!setMonth!} e
+  \passthrough{\lstinline!setYear!} vengono eliminati.
+\item
+  \textbf{Pattern Immutabile}: Un oggetto \passthrough{\lstinline!Date!}
+  è ora a prova di manomissione. Se un programma vuole calcolare ``il
+  giorno successivo'', non può mutare l'oggetto esistente, ma
+  \textbf{deve instanziare un nuovo oggetto
+  \passthrough{\lstinline!Date!}} con le coordinate aggiornate
+  (esattamente come avviene per le \passthrough{\lstinline!String!}).
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{2. Il Design Pattern Singleton:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione09/SimpleDate/src/BirthDay.java}{\texttt{BirthDay.java}}}{2. Il Design Pattern Singleton: BirthDay.java}}\label{il-design-pattern-singleton-birthday.java}
+
+\begin{lstlisting}[language=Java]
+public class BirthDay {
+    private static Date date = new Date(1, 1, 1970);
+    private static BirthDay instance; // Riferimento all'unica istanza
+
+    // 1. Costruttore privato: impedisce istanziazioni esterne con 'new BirthDay()'
+    private BirthDay() { }
+
+    // 2. Metodo statico di fabbrica con Lazy Initialization
+    public static BirthDay getInstance() {
+        if (instance == null) 
+            instance = new BirthDay();
+        return instance;
+    }
+
+    public Date getDate() { 
+        return date; 
+    }
+}
+\end{lstlisting}
+
+\paragraph{Analisi: Analisi Architetturale del
+Singleton:}\label{analisi-analisi-architetturale-del-singleton}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Scopo del Pattern}: Garantire che per tutta la durata
+  dell'applicazione esista \textbf{una e una sola istanza} di una classe
+  nello Heap e fornire un punto di accesso globale ad essa.
+\item
+  \textbf{I Tre Pilastri del Singleton in Java}:
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    \textbf{Costruttore \passthrough{\lstinline!private!}}: blocca
+    l'accesso a \passthrough{\lstinline!new BirthDay()!} da qualsiasi
+    altra classe (tentare di chiamarlo genera un errore a compile-time).
+  \item
+    \textbf{Campo statico privato (\passthrough{\lstinline!instance!})}:
+    contiene l'unico riferimento all'oggetto.
+  \item
+    \textbf{Metodo factory pubblico statico
+    (\passthrough{\lstinline!getInstance()!})}: implementa la \emph{Lazy
+    Initialization} (crea l'oggetto solo alla prima richiesta,
+    riusandolo per tutte le successive).
+  \end{enumerate}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{3. Verifica in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione09/SimpleDate/src/MainDate.java}{\texttt{MainDate.java}}
+e il Bug dei
+Getter}{3. Verifica in MainDate.java e il Bug dei Getter}}\label{verifica-in-maindate.java-e-il-bug-dei-getter}
+
+\begin{lstlisting}[language=Java]
+BirthDay bDay = BirthDay.getInstance();
+// BirthDay day1 = new BirthDay(); // COMPILE-TIME ERROR!
+BirthDay day1 = BirthDay.getInstance();
+System.out.println("bDay ?= day1: " + (bDay == day1)); // STAMPA TRUE!
+
+Date today = new Date(27, 10, 2025);
+// today.setDay(today.getDay() + 1); // COMPILE-TIME ERROR: l'oggetto è immutabile!
+Date tomorrow = new Date(today.getDay() + 1, today.getMonth(), today.getYear());
+\end{lstlisting}
+
+\begin{studywarning}[Attenzione / Trappola d'Esame] \textbf{Il Bug Persistente dei Getter e l'Effetto a
+Runtime}: Anche in \passthrough{\lstinline!Lezione09!},
+\passthrough{\lstinline!Date.java!} ha ancora il refuso di copia-incolla
+alle righe 43--44:
+
+\begin{lstlisting}[language=Java]
+public int getMonth() { return day; } // Restituisce il campo day!
+public int getYear() { return day; }  // Restituisce il campo day!
+\end{lstlisting}
+
+Quando \passthrough{\lstinline!MainDate!} crea
+\passthrough{\lstinline!tomorrow!} invocando
+\passthrough{\lstinline!today.getMonth()!} su una data con
+\passthrough{\lstinline!day = 27!}, ottiene \passthrough{\lstinline!27!}
+come mese! Di conseguenza, il costruttore riceve
+\passthrough{\lstinline!(28, 27, 27)!} e
+\passthrough{\lstinline!verify()!} stampa:
+\passthrough{\lstinline"Illegal date!"}
+\passthrough{\lstinline!tomorrow: 28/27/27!} Nel tuo codice è opportuno
+correggere questi getter (\passthrough{\lstinline!return month;!} e
+\passthrough{\lstinline!return year;!}).
+\end{studywarning}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{3. Ciclo: Corrispondenza con i Tuoi Moduli
+Workspace}\label{ciclo-corrispondenza-con-i-tuoi-moduli-workspace}
+
+Nel tuo repository
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26}{\passthrough{\lstinline!esercizi-wally-25-26!}}:
+- Nel modulo \textbf{\passthrough{\lstinline!es09!}}: hai formalizzato
+questo esatto pattern creando
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es09/src/main/java/es09/SingletonPattern.java}{\passthrough{\lstinline!SingletonPattern.java!}}
+con costruttore privato e metodo factory
+\passthrough{\lstinline!getInstance()!}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{studynote}[Nota di Studio] Con la \textbf{Lezione 09} abbiamo consolidato la
+manipolazione avanzata degli array, le proprietà degli enum,
+l'immutabilità e il pattern Singleton.
+
+Il prossimo blocco è la \textbf{Lezione 10 / Slide T10: \emph{Java
+Variables and Call Stack}}: - Modello formale della memoria JVM:
+\textbf{Call Stack (Stack Frames)} vs \textbf{Heap (Objects \& Class
+Data)}. - Variabili d'istanza, variabili di classe
+(\passthrough{\lstinline!static!}), variabili locali e parametri di
+metodo. - Il passaggio dei parametri per valore (\emph{pass-by-value})
+per tipi primitivi vs reference types. - Il blocco di inizializzazione
+statica (\passthrough{\lstinline!static \{ ... \}!}). - \textbf{Il
+grande spartiacque del corso}: il debutto del progetto
+\textbf{\passthrough{\lstinline!MavenDate!}}, con l'adozione ufficiale
+di Apache Maven, \passthrough{\lstinline!pom.xml!}, layout directory
+standard e primo packaging!
+\end{studynote}
+
+\textbf{Dammi conferma per aprire la Lezione 10 / T10 e analizzare Call
+Stack e MavenDate!}
+
+
+\end{document}

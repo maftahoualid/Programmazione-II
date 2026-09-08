@@ -1,0 +1,628 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T17 --- Gestione degli Errori ed Architettura delle Eccezioni}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T17 --- Gestione degli Errori ed Architettura delle Eccezioni \\[0.3em] \large\sffamily Gerarchia Throwable, Checked vs Unchecked, try-catch-finally, Try-with-resources e AutoCloseable}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{1. Analisi Teorica Approfondita (Slide
+T17)}\label{analisi-teorica-approfondita-slide-t17}
+
+La lezione 17 affronta la gestione degli errori e delle anomalie a
+runtime attraverso il meccanismo delle \textbf{Eccezioni} in Java.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.1 Limiti della Gestione Tradizionale degli Errori
+(Slide
+3-6)}\label{limiti-della-gestione-tradizionale-degli-errori-slide-3-6}
+
+Nei linguaggi procedurali privi di eccezioni (come C) o nell'uso ingenuo
+dei metodi, gli errori vengono segnalati tramite \textbf{valori
+sentinella} (es. restituire \passthrough{\lstinline!-1!},
+\passthrough{\lstinline!null!},
+\passthrough{\lstinline!Float.MAX\_VALUE!}):
+
+\begin{lstlisting}[language=Java]
+float division(int num, int den) {
+    if (den != 0)
+        return (float) num / den;
+    else
+        return Float.MAX_VALUE; // Valore speciale di errore
+}
+\end{lstlisting}
+
+\paragraph{Perché questo approccio è
+inadeguato?}\label{perchuxe9-questo-approccio-uxe8-inadeguato}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Inquinamento della logica applicativa}: Il chiamante deve
+  ricordarsi di controllare continuamente i valori di ritorno con una
+  ragnatela di \passthrough{\lstinline!if-else!}.
+\item
+  \textbf{Ambiguità semantica}: A volte il valore sentinella può essere
+  un risultato matematico o di dominio assolutamente lecito.
+\item
+  \textbf{Inapplicabilità ai Costruttori}: Un costruttore non ha tipo di
+  ritorno (\passthrough{\lstinline!void!} implicito); se i parametri
+  sono non validi, non può restituire \passthrough{\lstinline!-1!} per
+  segnalare il fallimento!
+\item
+  \textbf{Difficoltà di propagazione}: Se l'errore avviene a 10 livelli
+  di profondità nello stack di chiamate, ogni singola funzione
+  intermedia dovrebbe propagare manualmente il codice d'errore fino al
+  punto in cui può essere gestito.
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.2 La Filosofia delle Eccezioni in Java:
+\texttt{try-catch-throw} (Slide
+7-10)}{1.2 La Filosofia delle Eccezioni in Java: try-catch-throw (Slide 7-10)}}\label{la-filosofia-delle-eccezioni-in-java-try-catch-throw-slide-7-10}
+
+Java disaccoppia la \textbf{logica di business} (\emph{cosa deve fare il
+programma quando tutto va bene}) dalla \textbf{logica di gestione degli
+errori} (\emph{cosa fare quando accade un'anomalia}): *
+\textbf{\passthrough{\lstinline!try!}}: racchiude il blocco di codice a
+rischio di eccezione. * \textbf{\passthrough{\lstinline!throw!}}:
+solleva attivamente un'istanza di eccezione nel punto in cui l'anomalia
+viene riscontrata. * \textbf{\passthrough{\lstinline!catch!}}: cattura
+l'eccezione ed esegue il codice di ripristino/notifica. *
+\textbf{Interruzione immediata}: quando viene eseguito
+\passthrough{\lstinline!throw!}, il metodo \textbf{interrompe
+immediatamente la propria esecuzione}, svuota lo stack frame corrente e
+risale lungo la catena di chiamate (\emph{call stack}) fino al primo
+blocco \passthrough{\lstinline!catch!} compatibile.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.3 La Gerarchia delle Eccezioni in Java (Slide
+20-21)}\label{la-gerarchia-delle-eccezioni-in-java-slide-20-21}
+
+Tutto l'albero discende da
+\passthrough{\lstinline!java.lang.Throwable!}:
+
+\needspace{7cm}
+\begin{asciibox}
+                 ┌─────────────────────┐
+                 │ java.lang.Throwable │
+                 └──────────▲──────────┘
+                            │
+        ┌───────────────────┴───────────────────┐
+        │                                       │
+┌───────┴─────────┐                   ┌─────────┴─────────┐
+│      Error      │                   │     Exception     │
+└───────▲─────────┘                   └─────────▲─────────┘
+        │                                       │
+┌───────┴───────────────┐               ┌───────┴───────────────┐
+│  OutOfMemoryError     │               │  Checked Exceptions   │
+│  StackOverflowError   │               │ (IOException, ecc.)   │
+│  ThreadDeath          │               └───────────▲───────────┘
+└───────────────────────┘                           │
+                                        ┌───────────┴───────────┐
+                                        │   RuntimeException    │
+                                        │ (Unchecked Exceptions)│
+                                        └───────────▲───────────┘
+                                                    │
+                                        ┌───────────┴───────────┐
+                                        │ NullPointerException  │
+                                        │ ClassCastException    │
+                                        │ IndexOutOfBoundsExc.  │
+                                        └───────────────────────┘
+\end{asciibox}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{\passthrough{\lstinline!Error!} (Unchecked)}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Condizioni anomale e catastrofiche interne alla JVM o al sistema
+    operativo (\passthrough{\lstinline!OutOfMemoryError!},
+    \passthrough{\lstinline!StackOverflowError!}).
+  \item
+    Il codice utente non deve tentare di catturarle, poiché lo stato
+    della memoria della JVM è compromesso.
+  \end{itemize}
+\item
+  \textbf{\passthrough{\lstinline!Exception!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Anomalie derivanti da condizioni esterne o logiche. Si ramificano in
+    due grandi famiglie:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \textbf{Checked Exceptions} (sottoclassi dirette di
+      \passthrough{\lstinline!Exception!}, escluse le
+      \passthrough{\lstinline!RuntimeException!}).
+    \item
+      \textbf{Unchecked Exceptions} (sottoclassi di
+      \passthrough{\lstinline!RuntimeException!}).
+    \end{itemize}
+  \end{itemize}
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.4 Checked vs Unchecked Exceptions (Slide
+22-24)}\label{checked-vs-unchecked-exceptions-slide-22-24}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Caratteristica
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Checked Exceptions (\passthrough{\lstinline!extends Exception!})
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Unchecked Exceptions
+(\passthrough{\lstinline!extends RuntimeException!})
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Natura dell'errore} & Situazioni anomale \textbf{prevedibili} ma
+esterne (es. \passthrough{\lstinline!FileNotFoundException!}, rete
+disconnessa). & \textbf{Errori del programmatore} (bug logici,
+precondizioni violate, puntatori nulli). \\
+\textbf{Controllo del compilatore} & \textbf{Obbligatorio} (\emph{Catch
+or Declare rule}). Il codice non compila se non gestite con
+\passthrough{\lstinline!try-catch!} o dichiarate con
+\passthrough{\lstinline!throws!}. & \textbf{Opzionale}. Il compilatore
+non richiede alcuna dichiarazione o cattura. \\
+\textbf{Firma del metodo} & Modificata:
+\passthrough{\lstinline!public void foo() throws MyCheckedException!} &
+Invariata: nessun \passthrough{\lstinline!throws!} richiesto. \\
+\textbf{Diffusione (\emph{Propagazione})} & \emph{``Si propagano come un
+virus''} (Slide 24): costringono tutti i chiamanti intermedi a
+dichiarare \passthrough{\lstinline!throws!} o gestire. & Risalgono
+naturalmente lo stack fino al \passthrough{\lstinline!main!} o al
+gestore globale. \\
+\textbf{Raccomandazione moderna (Slide 24)} & Definirle solo se l'utente
+del metodo \textbf{può ragionevolmente intraprendere un'azione di
+recupero}. & \textbf{Preferite} per errori di validazione dello stato o
+degli argomenti. \\
+\end{longtable}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.5 ``Exception Dirty Tricks'': Trasformare Checked in
+Unchecked (Slide
+25-26)}\label{exception-dirty-tricks-trasformare-checked-in-unchecked-slide-25-26}
+
+Un pattern comune quando una checked exception sporcherebbe decine di
+firme senza che il chiamante intermedio possa gestirla:
+
+\begin{lstlisting}[language=Java]
+public void bar() { // Nessuna dichiarazione throws richiesta!
+    try {
+        foo(); // foo() dichiara throws MyCheckedException
+    } catch (MyCheckedException e) {
+        throw new RuntimeException(e); // Incapsulata e rilanciata come Unchecked!
+    }
+}
+\end{lstlisting}
+
+L'eccezione originale non viene persa: è memorizzata come causa
+(\emph{chained exception} visibile nel messaggio
+\passthrough{\lstinline!Caused by:!} dello stacktrace).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.6 Eccezioni nei Cicli (\emph{Exceptions
+and Loops}, Slide
+27-28)}{1.6 Eccezioni nei Cicli (Exceptions and Loops, Slide 27-28)}}\label{eccezioni-nei-cicli-exceptions-and-loops-slide-27-28}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Errore sulla singola iterazione (Slide 27)}: il blocco
+  \passthrough{\lstinline!try-catch!} è \textbf{all'interno} del ciclo.
+  Se l'iterazione fallisce, viene intercettata e il ciclo prosegue con
+  la successiva (es. lettura da input utente fino a valore corretto).
+\item
+  \textbf{Errore fatale per l'intero ciclo (Slide 28)}: il blocco
+  \passthrough{\lstinline!try-catch!} \textbf{avvolge} il ciclo. Se si
+  verifica un'anomalia, il ciclo viene interrotto definitivamente e
+  l'esecuzione salta direttamente al \passthrough{\lstinline!catch!}
+  esterno.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{\texorpdfstring{2. Analisi Dettagliata del Codice
+(\texttt{Lezione16/MavenDate})}{2. Analisi Dettagliata del Codice (Lezione16/MavenDate)}}\label{analisi-dettagliata-del-codice-lezione16mavendate}
+
+In \passthrough{\lstinline!Lezione16/MavenDate!} il prof. Pasqua applica
+i principi della Slide T17 rimuovendo i vecchi
+\passthrough{\lstinline'System.out.println("Illegal date!")'} e
+introducendo la gestione strutturata degli errori tramite il package
+\passthrough{\lstinline!it.oop.exception!}.
+
+\subsubsection{\texorpdfstring{2.1 Le Nuove Eccezioni:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione16/MavenDate/src/main/java/it/oop/exception/IllegalDateException.java}{IllegalDateException.java}
+e
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione16/MavenDate/src/main/java/it/oop/exception/OrderdPairException.java}{OrderdPairException.java}}{2.1 Le Nuove Eccezioni: IllegalDateException.java e OrderdPairException.java}}\label{le-nuove-eccezioni-illegaldateexception.java-e-orderdpairexception.java}
+
+\paragraph{\texorpdfstring{1.
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione16/MavenDate/src/main/java/it/oop/exception/IllegalDateException.java}{IllegalDateException.java}
+(Unchecked)}{1. IllegalDateException.java (Unchecked)}}\label{illegaldateexception.java-unchecked}
+
+\begin{lstlisting}[language=Java]
+package it.oop.exception;
+
+public class IllegalDateException extends RuntimeException {
+    public IllegalDateException(String message) {
+        super(message);
+    }
+}
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  Estende \passthrough{\lstinline!RuntimeException!}: è una
+  \textbf{Unchecked Exception}.
+\item
+  Modella una violazione delle precondizioni sui valori numerici
+  (giorno, mese, anno).
+\item
+  Non costringe tutti i client a dichiarare
+  \passthrough{\lstinline!throws IllegalDateException!}.
+\end{itemize}
+
+\paragraph{\texorpdfstring{2.
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione16/MavenDate/src/main/java/it/oop/exception/OrderdPairException.java}{OrderdPairException.java}
+(Checked)}{2. OrderdPairException.java (Checked)}}\label{orderdpairexception.java-checked}
+
+\begin{lstlisting}[language=Java]
+package it.oop.exception;
+
+public class OrderdPairException extends Exception { // Notare il typo del docente "Orderd"
+    public OrderdPairException(String message) {
+        super(message);
+    }
+}
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  Estende direttamente \passthrough{\lstinline!Exception!}: è una
+  \textbf{Checked Exception}.
+\item
+  \textbf{Impatto immediato sulla firma}:
+
+  \begin{itemize}
+  \item
+    In
+    \href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione16/MavenDate/src/main/java/it/oop/core/OrderedPair.java\#L9}{OrderedPair.java}:
+
+\begin{lstlisting}[language=Java]
+public OrderedPair(T first, T second) throws OrderdPairException {
+    this.first = first;
+    this.second = second;
+    if (first.compareTo(second) > 0)
+        throw new OrderdPairException("Not orderd pair");
+}
+\end{lstlisting}
+  \item
+    In
+    \href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione16/MavenDate/src/main/java/it/oop/core/DateInterval.java\#L6}{DateInterval.java}:
+
+\begin{lstlisting}[language=Java]
+public DateInterval(Date left, Date right) throws OrderdPairException {
+    super(left, right); // Invoca super() che lancia la checked exception, quindi DateInterval DEVE dichiarare throws!
+}
+\end{lstlisting}
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2.2 Refactoring del Metodo
+\texttt{verify()} in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione16/MavenDate/src/main/java/it/oop/core/Date.java\#L28-L35}{Date.java}}{2.2 Refactoring del Metodo verify() in Date.java}}\label{refactoring-del-metodo-verify-in-date.java}
+
+\begin{lstlisting}[language=Java]
+    void verify() {
+        if (year < 0)
+            throw new IllegalDateException("Illegal date: wrong year");
+        if (month < 1 || month > 12)
+            throw new IllegalDateException("Illegal date: wrong month");
+        if (day < 1 || day > daysPerMonth(month))
+            throw new IllegalDateException("Illegal date: wrong day");
+    }
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Miglioramento architetturale}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Prima: un giorno errato (es. 35) stampava un messaggio sulla console
+    ma creava comunque un oggetto \passthrough{\lstinline!Date!}
+    incoerente nell'Heap.
+  \item
+    Ora: il costruttore viene interrotto da
+    \passthrough{\lstinline!throw!} prima che l'assegnazione sia
+    completata. \textbf{È impossibile creare un'istanza con stato non
+    valido!}
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2.3
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione16/MavenDate/src/main/java/it/oop/ui/MainDate.java}{MainDate.java}
+e l'Applicazione di Tutti i Pattern della Slide
+T17}{2.3 MainDate.java e l'Applicazione di Tutti i Pattern della Slide T17}}\label{maindate.java-e-lapplicazione-di-tutti-i-pattern-della-slide-t17}
+
+\begin{lstlisting}[language=Java]
+package it.oop.ui;
+
+import it.oop.core.*;
+import it.oop.core.Date;
+import it.oop.exception.IllegalDateException;
+import it.oop.exception.OrderdPairException;
+
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+public class MainDate {
+
+    public static void main(String[] args) {
+        System.out.println("Insert day, month, year as numbers");
+        int d = -1, m = -1, y = -1;
+        boolean correct = false;
+
+        // 1. Pattern Slide 27: try-catch dentro il ciclo per recuperare l'errore di input dell'utente
+        while (correct == false) {
+            try {
+                Scanner sc = new Scanner(System.in);
+                d = sc.nextInt();
+                m = sc.nextInt();
+                y = sc.nextInt();
+                correct = true; // Se uno dei nextInt() fallisce, questa riga non viene raggiunta
+            } catch (InputMismatchException ime) {
+                System.out.println("Input not valid, retry");
+            }
+        }
+
+        // 2. Cattura della Unchecked Exception IllegalDateException per notifica pulita
+        try {
+            FormattedDate date = new ItalianDate(d, m, y);
+            System.out.println(date.toString());
+        } catch (IllegalDateException ide) {
+            System.out.println("Date not valid: " + ide.getMessage());
+        }
+
+        // 3. Pattern Slide 26 ("Dirty Trick"): incapsulamento di Checked Exception in RuntimeException
+        try {
+            DateInterval di = new DateInterval(new Date(31, 1, 2025), new Date(1, 1, 2025));
+        } catch (OrderdPairException ope) {
+            ope.printStackTrace();
+            throw new RuntimeException(ope); // Rilanciata come unchecked!
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{3. Risultato di Esecuzione Reale da
+Terminale}\label{risultato-di-esecuzione-reale-da-terminale}
+
+\subsubsection{\texorpdfstring{Test 1: Input con data errata
+(\texttt{35\ 1\ 2025})}{Test 1: Input con data errata (35 1 2025)}}\label{test-1-input-con-data-errata-35-1-2025}
+
+Esecuzione:
+
+\begin{lstlisting}[language=bash]
+mvn exec:java -Dexec.mainClass="it.oop.ui.MainDate" <<< "35 1 2025"
+\end{lstlisting}
+
+Output:
+
+\begin{lstlisting}
+Insert day, month, year as numbers
+Date not valid: Illegal date: wrong day
+it.oop.exception.OrderdPairException: Not orderd pair
+    at it.oop.core.OrderedPair.<init>(OrderedPair.java:13)
+    at it.oop.core.DateInterval.<init>(DateInterval.java:7)
+    at it.oop.ui.MainDate.main(MainDate.java:35)
+...
+Caused by: it.oop.exception.OrderdPairException: Not orderd pair
+\end{lstlisting}
+
+\subsubsection{Analisi dell'output:}\label{analisi-delloutput}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \passthrough{\lstinline!Date not valid: Illegal date: wrong day!}: il
+  costruttore di \passthrough{\lstinline!ItalianDate!} delega a
+  \passthrough{\lstinline!Date.verify()!}, che lancia
+  \passthrough{\lstinline!IllegalDateException("Illegal date: wrong day")!},
+  catturata dal blocco
+  \passthrough{\lstinline!catch (IllegalDateException ide)!} che stampa
+  il messaggio di errore controllato.
+\item
+  \passthrough{\lstinline!DateInterval di = new DateInterval(31/1/2025, 1/1/2025)!}:
+  poiché la data iniziale \passthrough{\lstinline!31/1/2025!} è
+  cronologicamente successiva alla data finale
+  \passthrough{\lstinline!1/1/2025!} (violazione dell'invariante
+  \passthrough{\lstinline!start <= end!}),
+  \passthrough{\lstinline!OrderedPair!} solleva la checked
+  \passthrough{\lstinline!OrderdPairException!}. Il blocco catch stampa
+  lo stack trace con \passthrough{\lstinline!ope.printStackTrace()!} e
+  poi rilancia l'errore incapsulato con
+  \passthrough{\lstinline!throw new RuntimeException(ope);!}, terminando
+  l'esecuzione con codice di uscita d'errore (build failure) come
+  previsto.
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+Dimmi \textbf{``vai''} per procedere con il \textbf{Blocco 17} (Lezione
+18 / Slide T18 --- \emph{Streams and Functional Programming}, Stream
+API, operazioni intermedie vs terminali, \passthrough{\lstinline!map!},
+\passthrough{\lstinline!filter!}, \passthrough{\lstinline!reduce!},
+\passthrough{\lstinline!collect!} e il nuovo file
+\passthrough{\lstinline!MainStream.java!} in
+\passthrough{\lstinline!Lezione17/MavenDate!}).
+
+
+\end{document}

@@ -1,0 +1,575 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T18 --- Interfacce Funzionali, Espressioni Lambda e Streams API}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T18 --- Interfacce Funzionali, Espressioni Lambda e Streams API \\[0.3em] \large\sffamily Predicate, Function, Consumer, Supplier, Method Reference (::) e Pipeline Stream}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{1. Analisi Teorica Approfondita (Slide
+T18)}\label{analisi-teorica-approfondita-slide-t18}
+
+La lezione 18 introduce il paradigma di \textbf{programmazione
+funzionale e dichiarativa} in Java (introdotto in Java 8), imperniato su
+due pilastri: 1. \textbf{Interfacce Funzionali} e \textbf{Method
+Reference} (\passthrough{\lstinline!::!}). 2. \textbf{Stream API}
+(\passthrough{\lstinline!java.util.stream!}), per l'elaborazione fluente
+e parallela di flussi di dati.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.1 Cos'è una Functional Interface? (Slide
+3)}\label{cosuxe8-una-functional-interface-slide-3}
+
+Un'interfaccia si dice \textbf{funzionale} se dichiara
+\textbf{esattamente un unico metodo astratto} (pattern noto come
+\textbf{SAM} --- \emph{Single Abstract Method}). * \textbf{Semantica}:
+Puramente funzionale; l'esito della chiamata dipende esclusivamente
+dagli argomenti ricevuti (nessun effetto collaterale occulto). *
+\textbf{L'annotazione \passthrough{\lstinline!@FunctionalInterface!}}: *
+Non è obbligatoria per far funzionare una lambda, ma è una best practice
+fondamentale: istruisce il compilatore Java a verificare che
+l'interfaccia contenga un solo metodo astratto. Se qualcuno tenta di
+aggiungere un secondo metodo astratto, il compilatore rigetta il codice
+con errore. * \textbf{Metodi esclusi dal conteggio SAM}: * Metodi con
+implementazione predefinita (\passthrough{\lstinline!default!}). *
+Metodi statici (\passthrough{\lstinline!static!}). * Metodi pubblici
+astratti che fanno override di metodi di
+\passthrough{\lstinline!java.lang.Object!} (es.
+\passthrough{\lstinline!boolean equals(Object obj)!}).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.2 Le 4 Interfacce Funzionali
+Fondamentali (\texttt{java.util.function}) (Slide
+4-12)}{1.2 Le 4 Interfacce Funzionali Fondamentali (java.util.function) (Slide 4-12)}}\label{le-4-interfacce-funzionali-fondamentali-java.util.function-slide-4-12}
+
+Il package \passthrough{\lstinline!java.util.function!} standardizza i
+contratti funzionali più frequenti:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Interfaccia
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Firma Metodo SAM
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Semantica Funzionale
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Esempio d'Uso Tipico
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\passthrough{\lstinline!Predicate<T>!} &
+\passthrough{\lstinline!boolean test(T t)!} & Filtro / Condizione
+booleana & \passthrough{\lstinline!n -> n \% 2 == 0!} \\
+\passthrough{\lstinline!Function<T, R>!} &
+\passthrough{\lstinline!R apply(T t)!} & Trasformazione \(T \to R\) &
+\passthrough{\lstinline!str -> str.length()!} \\
+\passthrough{\lstinline!Consumer<T>!} &
+\passthrough{\lstinline!void accept(T t)!} & Azione con effetto
+collaterale &
+\passthrough{\lstinline!str -> System.out.println(str)!} \\
+\passthrough{\lstinline!Supplier<T>!} &
+\passthrough{\lstinline!T get()!} & Generatore / Factory &
+\passthrough{\lstinline!() -> Math.random()!} \\
+\end{longtable}
+
+\paragraph{Varianti e Specializzazioni (Slide
+6-12)}\label{varianti-e-specializzazioni-slide-6-12}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Versioni Primitive}: Per evitare l'overhead di
+  boxing/unboxing, Java fornisce interfacce specializzate per
+  \passthrough{\lstinline!int!}, \passthrough{\lstinline!long!},
+  \passthrough{\lstinline!double!}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!IntPredicate!}
+    (\passthrough{\lstinline!boolean test(int v)!}),
+    \passthrough{\lstinline!LongPredicate!},
+    \passthrough{\lstinline!DoublePredicate!}.
+  \item
+    \passthrough{\lstinline!IntFunction<R>!},
+    \passthrough{\lstinline!ToIntFunction<T>!},
+    \passthrough{\lstinline!IntConsumer!},
+    \passthrough{\lstinline!IntSupplier!}.
+  \end{itemize}
+\item
+  \textbf{Varianti a Due Argomenti}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!BiPredicate<T, U>!}:
+    \passthrough{\lstinline!boolean test(T t, U u)!} (es.
+    \passthrough{\lstinline!(a, b) -> a > b!}).
+  \item
+    \passthrough{\lstinline!BiFunction<T, U, R>!}:
+    \passthrough{\lstinline!R apply(T t, U u)!} (es.
+    \passthrough{\lstinline!(a, b) -> a + b!}).
+  \item
+    \passthrough{\lstinline!BiConsumer<T, U>!}:
+    \passthrough{\lstinline!void accept(T t, U u)!}.
+  \end{itemize}
+\item
+  \textbf{Operatori (Input e Output dello stesso tipo)}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!UnaryOperator<T> extends Function<T, T>!}:
+    riceve un \(T\) e restituisce un \(T\).
+  \item
+    \passthrough{\lstinline!BinaryOperator<T> extends BiFunction<T, T, T>!}:
+    riceve due \(T\) e restituisce un \(T\).
+  \end{itemize}
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.3 I Quattro Tipi di Method Reference
+(\texttt{::}) (Slide
+13-15)}{1.3 I Quattro Tipi di Method Reference (::) (Slide 13-15)}}\label{i-quattro-tipi-di-method-reference-slide-13-15}
+
+Il \emph{Method Reference} è uno zucchero sintattico introdotto in Java
+8 per rendere le espressioni lambda ancora più concise quando queste si
+limitano a inoltrare direttamente i propri parametri a un metodo
+esistente:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Categoria
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Sintassi Method Reference
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Equivalente Lambda Esplicita
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{1. Metodo Statico} &
+\passthrough{\lstinline!Math::random!}\passthrough{\lstinline!Integer::parseInt!}
+&
+\passthrough{\lstinline!() -> Math.random()!}\passthrough{\lstinline!str -> Integer.parseInt(str)!} \\
+\textbf{2. Metodo d'Istanza su Oggetto Esistente} (\emph{Bound}) &
+\passthrough{\lstinline!System.out::println!}\passthrough{\lstinline!hexDigits::charAt!}
+&
+\passthrough{\lstinline!x -> System.out.println(x)!}\passthrough{\lstinline!i -> hexDigits.charAt(i)!} \\
+\textbf{3. Metodo d'Istanza su Tipo Arbitrario} (\emph{Unbound}) &
+\passthrough{\lstinline!String::toUpperCase!}\passthrough{\lstinline!String::length!}
+&
+\passthrough{\lstinline!str -> str.toUpperCase()!}\passthrough{\lstinline!str -> str.length()!} \\
+\textbf{4. Costruttore} &
+\passthrough{\lstinline!Person::new!}\passthrough{\lstinline!Integer[]::new!}
+&
+\passthrough{\lstinline!str -> new Person(str)!}\passthrough{\lstinline!size -> new Integer[size]!} \\
+\end{longtable}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.4 La Stream API
+(\texttt{java.util.stream}) (Slide
+16-18)}{1.4 La Stream API (java.util.stream) (Slide 16-18)}}\label{la-stream-api-java.util.stream-slide-16-18}
+
+Uno \passthrough{\lstinline!Stream<T>!} è una \textbf{sequenza di
+elementi generata da una sorgente} che supporta operazioni aggregate di
+calcolo.
+
+\paragraph{Le Tre Proprietà Chiave di uno
+Stream:}\label{le-tre-proprietuxe0-chiave-di-uno-stream}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Pipelining}: Le operazioni intermedie restituiscono un nuovo
+  stream, permettendo la concatenazione fluente (\emph{method
+  chaining}).
+\item
+  \textbf{Internal Iteration}: A differenza delle collezioni dove lo
+  sviluppatore controlla l'iterazione tramite
+  \passthrough{\lstinline!for!}/\passthrough{\lstinline!while!}
+  (\emph{iterazione esterna}), lo stream gestisce il ciclo internamente.
+  Ciò consente alla JVM di ottimizzare l'esecuzione e abilitare il
+  parallelismo trasparente (\passthrough{\lstinline!parallelStream()!}).
+\item
+  \textbf{Lazy Evaluation (Valutazione Pigra)}: Le operazioni intermedie
+  non vengono eseguite quando vengono dichiarate; restano ``in attesa''.
+  L'intera pipeline viene elaborata in un unico passaggio solo quando
+  viene invocata un'operazione terminale!
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.5 Ciclo di Vita di una Pipeline Stream (Slide
+18-24)}\label{ciclo-di-vita-di-una-pipeline-stream-slide-18-24}
+
+Una pipeline si compone tassativamente di 3 fasi:
+
+\[\text{Sorgente (Source)} \longrightarrow \text{Zero o più Operazioni Intermedie} \longrightarrow \text{Una Operazione Terminale}\]
+
+\needspace{7cm}
+\begin{asciibox}
+┌───────────────┐     ┌─────────────┐     ┌───────────┐     ┌───────────────┐
+│ Stream.of(...) ├──► │ .filter(...) ├──► │ .map(...) ├──►  │ .forEach(...) │
+└───────────────┘     └─────────────┘     └───────────┘     └───────────────┘
+   [Sorgente]          [Intermedia]        [Intermedia]        [Terminale]
+\end{asciibox}
+
+\paragraph{1. Creazione della Sorgente (Slide 19,
+21-22)}\label{creazione-della-sorgente-slide-19-21-22}
+
+\begin{itemize}
+\tightlist
+\item
+  Da array: \passthrough{\lstinline!Arrays.stream(arr)!} o
+  \passthrough{\lstinline!Stream.of(v1, v2, v3)!}.
+\item
+  Da collezione: \passthrough{\lstinline!list.stream()!} o
+  \passthrough{\lstinline!set.stream()!}.
+\item
+  \textbf{Generazione infinita}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!Stream.iterate(seed, UnaryOperator)!}:
+    applica iterativamente l'operatore a partire dal seme. Es:
+    \passthrough{\lstinline!Stream.iterate(0, i -> i + 1)!} genera
+    \(0, 1, 2, 3, \dots\)
+  \item
+    \passthrough{\lstinline!Stream.generate(Supplier)!}: invoca
+    continuamente il fornitore. Es:
+    \passthrough{\lstinline!Stream.generate(Math::random)!}.
+  \item
+    Per evitare loop infiniti, si arresta la generazione con
+    l'operazione intermedia \passthrough{\lstinline!.limit(n)!}.
+  \end{itemize}
+\end{itemize}
+
+\paragraph{2. Operazioni Intermedie (Slide 23, 25-29,
+34-36)}\label{operazioni-intermedie-slide-23-25-29-34-36}
+
+Restituiscono un nuovo \passthrough{\lstinline!Stream<R>!} e sono pigre
+(\emph{lazy}): * \passthrough{\lstinline!filter(Predicate<T>)!}:
+trattiene solo gli elementi per cui il predicato è
+\passthrough{\lstinline!true!}. *
+\passthrough{\lstinline!map(Function<T, R>)!}: trasforma ciascun
+elemento \(T \to R\) (mappatura \(1 \to 1\)). *
+\passthrough{\lstinline!flatMap(Function<T, Stream<R>>)!}: appiattisce
+strutture annidate (es. matrici \passthrough{\lstinline!Integer[][]!} o
+liste di liste) in un unico stream monodimensionale. *
+\passthrough{\lstinline!distinct()!}: elimina i duplicati (in base a
+\passthrough{\lstinline!equals!} e \passthrough{\lstinline!hashCode!}).
+* \passthrough{\lstinline!sorted()!} /
+\passthrough{\lstinline!sorted(Comparator)!}: ordina gli elementi. *
+\passthrough{\lstinline!limit(n)!}: tronca lo stream ai primi \(n\)
+elementi. * \passthrough{\lstinline!skip(n)!}: scarta i primi \(n\)
+elementi.
+
+\paragraph{3. Operazioni Terminali (Slide 20, 23,
+30-33)}\label{operazioni-terminali-slide-20-23-30-33}
+
+Consumano lo stream e producono un risultato o un effetto collaterale: *
+\textbf{Chiusura su Collezioni / Array (Slide 20)}: *
+\passthrough{\lstinline!stream.toList()!}: raccoglie gli elementi in una
+\passthrough{\lstinline!List!} immutabile (Java 16+). *
+\passthrough{\lstinline!stream.collect(Collectors.toSet())!}: raccoglie
+in un \passthrough{\lstinline!Set!}. *
+\passthrough{\lstinline!stream.toArray(Integer[]::new)!}: esporta in
+array tipizzato. * \textbf{Iterazione / Consumo}:
+\passthrough{\lstinline!stream.forEach(Consumer<T>)!}. *
+\textbf{Conteggio / Riduzione}:
+\passthrough{\lstinline!stream.count()!},
+\passthrough{\lstinline!stream.reduce(...)!}. * \textbf{Matching}:
+\passthrough{\lstinline!anyMatch(Predicate)!},
+\passthrough{\lstinline!allMatch(Predicate)!},
+\passthrough{\lstinline!noneMatch(Predicate)!}. * \textbf{Ricerca \&
+\passthrough{\lstinline!Optional<T>!} (Slide 31-32)}: *
+\passthrough{\lstinline!findFirst()!},
+\passthrough{\lstinline!findAny()!}: restituiscono un
+\passthrough{\lstinline!Optional<T>!}, contenitore sicuro introdotto per
+debellare le \passthrough{\lstinline!NullPointerException!}. * Metodi di
+\passthrough{\lstinline!Optional!}:
+\passthrough{\lstinline!isPresent()!}, \passthrough{\lstinline!get()!},
+\passthrough{\lstinline!orElse(valoreDefault)!}.
+
+\begin{studywarning}[Attenzione / Trappola d'Esame] \textbf{Regola Aurea degli Stream (Slide 24 --- Domanda
+d'Esame):} \textbf{Uno Stream può essere consumato UNA SOLA VOLTA!} Se
+si tenta di invocare una seconda operazione terminale sullo stesso
+oggetto \passthrough{\lstinline!Stream!}, la JVM solleva a runtime:
+\passthrough{\lstinline!java.lang.IllegalStateException: stream has already been operated upon or closed!}.
+\end{studywarning}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{\texorpdfstring{2. Analisi Dettagliata del Codice
+(\texttt{Lezione17/MavenDate})}{2. Analisi Dettagliata del Codice (Lezione17/MavenDate)}}\label{analisi-dettagliata-del-codice-lezione17mavendate}
+
+In \passthrough{\lstinline!Lezione17/MavenDate!}, il prof. Pasqua
+mantiene l'intera architettura pregressa e aggiunge il file
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione17/MavenDate/src/main/java/it/oop/ui/MainStream.java}{MainStream.java},
+che esemplifica in modo magistrale tutte le funzionalità degli Stream
+appena studiate.
+
+\subsubsection{\texorpdfstring{2.1 Analisi Riga per Riga di
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione17/MavenDate/src/main/java/it/oop/ui/MainStream.java}{MainStream.java}}{2.1 Analisi Riga per Riga di MainStream.java}}\label{analisi-riga-per-riga-di-mainstream.java}
+
+\begin{lstlisting}[language=Java]
+package it.oop.ui;
+
+import it.oop.core.AmericanDate;
+import it.oop.core.FormattedDate;
+import it.oop.core.ItalianDate;
+
+import java.util.List;
+import java.util.stream.Stream;
+import it.oop.core.Date;
+import static java.util.stream.Stream.generate;
+
+public class MainStream {
+    public static void main(String[] args) {
+        // ESEMPIO 1: Generazione con iterate, filtro e limit
+        // Sequenza generata: "a", "aa", "aaa", "aaaa", ...
+        Stream<String> stream = Stream.iterate("a", s -> s + "a")
+                .filter(s -> s.length() % 2 == 1) // Tiene solo stringhe di lunghezza DISPARI
+                .limit(10);                       // Si arresta dopo le prime 10 stringhe dispari
+        List<String> list = stream.toList();      // Operazione terminale: unwrap a List
+        System.out.println(list.toString());
+
+        // ESEMPIO 2: Generazione con generate, Supplier e test di primalità
+        List<Integer> list2 = Stream.generate(() -> (int) (Math.random() * 20)) // Generatore infinito [0..19]
+                .filter(i -> isPrime(i))                                        // Filtra numeri primi
+                .limit(10)                                                      // Ne estrae esattamente 10
+                .toList();                                                      // Operazione terminale
+        System.out.println(list2.toString());
+
+        // ESEMPIO 3: Pipeline su oggetti di dominio del progetto (Date)
+        Stream.of(new ItalianDate(15,1,2025), new Date(16,1,2025), new ItalianDate(2,2,2025))
+                .filter(d -> d instanceof ItalianDate) // Filtra escludendo le Date generiche
+                .map(d -> new AmericanDate(d.getDay(), d.getMonth(), d.getYear())) // Converte in AmericanDate
+                .forEach(System.out::println); // Method reference per stampa su stdout
+    }
+
+    // Algoritmo di primalità implementato interamente con Stream!
+    private static boolean isPrime(int n) {
+        return n == 0 ? false : Stream.iterate(1, i -> i + 1)
+                .limit(n)              // Genera i numeri da 1 a n
+                .map(i -> n % i)       // Calcola il resto della divisione (0 indica divisore esatto)
+                .filter(i -> i == 0)   // Mantiene solo i resti nulli (i divisori)
+                .count() <= 2;         // Se i divisori sono <= 2 (cioè 1 e se stesso), è primo!
+    }
+}
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{3. Risultato di Compilazione ed Esecuzione
+Reale}\label{risultato-di-compilazione-ed-esecuzione-reale}
+
+Comando eseguito nel progetto
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione17/MavenDate}{Lezione17/MavenDate}:
+
+\begin{lstlisting}[language=bash]
+mvn compile exec:java -Dexec.mainClass="it.oop.ui.MainStream"
+\end{lstlisting}
+
+Output ottenuto:
+
+\begin{lstlisting}
+[a, aaa, aaaaa, aaaaaaa, aaaaaaaaa, aaaaaaaaaaa, aaaaaaaaaaaaa, aaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaa]
+[7, 11, 13, 19, 3, 13, 17, 5, 19, 1]
+1/15/2025
+2/2/2025
+\end{lstlisting}
+
+\subsubsection{Decodifica dell'Output:}\label{decodifica-delloutput}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \passthrough{\lstinline![a, aaa, aaaaa, ..., aaaaaaaaaaaaaaaaaaa]!}
+  \(\rightarrow\) Lista delle prime 10 stringhe a lunghezza dispari (1,
+  3, 5, 7, 9, 11, 13, 15, 17, 19 caratteri).
+\item
+  \passthrough{\lstinline![7, 11, 13, 19, 3, 13, 17, 5, 19, 1]!}
+  \(\rightarrow\) Dieci numeri primi casuali estratti nell'intervallo
+  \([0, 20)\) e validati dalla pipeline stream di
+  \passthrough{\lstinline!isPrime(int n)!}.
+\item
+  \passthrough{\lstinline!1/15/2025!} e
+  \passthrough{\lstinline!2/2/2025!} \(\rightarrow\) Le due istanze di
+  \passthrough{\lstinline!ItalianDate!} (15/1/2025 e 2/2/2025) superano
+  il \passthrough{\lstinline!filter(instanceof ItalianDate)!}, vengono
+  convertite tramite \passthrough{\lstinline!map!} in
+  \passthrough{\lstinline!AmericanDate!} (formato
+  \passthrough{\lstinline!M/D/Y!}) e stampate a video tramite
+  \passthrough{\lstinline!System.out::println!}. L'istanza generica
+  \passthrough{\lstinline!new Date(16,1,2025)!} viene invece scartata
+  dal filtro.
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+Dimmi \textbf{``vai''} per procedere con il \textbf{Blocco 18} (Lezione
+18 / Slide T19 --- \emph{Documentation and Unit Testing}, Javadoc, JUnit
+3 vs JUnit 4 vs JUnit 5, asserzioni, ciclo di vita dei test
+\passthrough{\lstinline!@BeforeEach!}/\passthrough{\lstinline!@AfterEach!},
+e l'analisi di \passthrough{\lstinline!TestDate.java!} e
+\passthrough{\lstinline!TestItalianDate.java!} in
+\passthrough{\lstinline!Lezione18/MavenDate!}).
+
+
+\end{document}

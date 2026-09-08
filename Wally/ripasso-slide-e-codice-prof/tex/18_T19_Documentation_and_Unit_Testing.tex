@@ -1,0 +1,538 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T19 --- Documentazione con Javadoc e Unit Testing con JUnit 5}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T19 --- Documentazione con Javadoc e Unit Testing con JUnit 5 \\[0.3em] \large\sffamily Convenzioni Javadoc, Architettura JUnit 5, Annotazioni di Ciclo di Vita ed Asserzioni}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{1. Analisi Teorica Approfondita (Slide
+T19)}\label{analisi-teorica-approfondita-slide-t19}
+
+La lezione 19 approfondisce due pratiche ingegneristiche irrinunciabili
+nello sviluppo professionale in Java: 1. \textbf{Documentazione
+automatizzata del codice} tramite lo standard \textbf{Javadoc}. 2.
+\textbf{Collaudo e Unit Testing automatizzato} tramite il framework
+\textbf{JUnit 5 (Jupiter)} e il plugin Maven \textbf{Surefire}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.1 Documentazione con Javadoc (Slide
+3-11)}\label{documentazione-con-javadoc-slide-3-11}
+
+La documentazione del codice sorgente è essenziale per manutenibilità,
+collaborazione e pubblicazione di API riusabili. In Java la
+documentazione vive a stretto contatto con il codice nei cosiddetti
+\textbf{Doc Comments}: * \textbf{Sintassi}: Delimitati da
+\passthrough{\lstinline!/**!} all'inizio e \passthrough{\lstinline!*/!}
+alla fine. Ogni riga intermedia inizia convenzionalmente con
+\passthrough{\lstinline!*!}:
+\passthrough{\lstinline!java   /**    * Descrizione sintetica del componente.    * <p>Supporta l'uso di tag HTML come paragrafi, link e formattazione.</p>    */!}
+* \textbf{I Tag Javadoc Standard (Slide 5-6)}: Iniziano con
+\passthrough{\lstinline!@!}, sono \emph{case-sensitive} e devono
+comparire a inizio riga: * \passthrough{\lstinline!@param <nome>!}:
+descrive un parametro formale di un metodo o costruttore. *
+\passthrough{\lstinline!@return!}: descrive il significato del valore
+restituito da un metodo (omesso nei metodi
+\passthrough{\lstinline!void!} e nei costruttori). *
+\passthrough{\lstinline!@throws <Eccezione>!} (o
+\passthrough{\lstinline!@exception!}): descrive le condizioni anomale
+che causano il sollevamento di una determinata eccezione. *
+\passthrough{\lstinline!\{@link <package.Classe\#metodo>\}!}: genera un
+ipertesto cliccabile verso un'altra classe o metodo. *
+\passthrough{\lstinline!@author!}: autore del modulo. *
+\passthrough{\lstinline!@since <versione>!}: versione a partire dalla
+quale la feature è disponibile. * \passthrough{\lstinline!@version!}:
+versione corrente del sorgente. * \passthrough{\lstinline!@deprecated!}:
+avvisa che l'elemento è obsoleto, illustrandone il motivo e
+l'alternativa moderna da utilizzare.
+
+\paragraph{Regole di Visibilità e Generazione (Slide
+9-11)}\label{regole-di-visibilituxe0-e-generazione-slide-9-11}
+
+\begin{itemize}
+\item
+  \textbf{Default di Javadoc}: Per impostazione predefinita, Javadoc
+  genera la documentazione per le sole entità
+  \textbf{\passthrough{\lstinline!public!} e
+  \passthrough{\lstinline!protected!}} (l'interfaccia pubblica esposta
+  ai client). I campi e metodi \passthrough{\lstinline!private!} o
+  \emph{package-private} vengono omessi.
+\item
+  \textbf{Inclusione del privato}: Si deve passare esplicitamente il
+  flag \passthrough{\lstinline!-private!} da riga di comando:
+
+\begin{lstlisting}[language=bash]
+javadoc -private -d doc *
+\end{lstlisting}
+\item
+  \textbf{Integrazione Maven
+  (\passthrough{\lstinline!maven-javadoc-plugin!}, Slide 11)}:
+  Aggiungendo il plugin nel \passthrough{\lstinline!pom.xml!}, la
+  documentazione viene generata con un singolo comando standard:
+
+\begin{lstlisting}[language=bash]
+mvn javadoc:javadoc
+\end{lstlisting}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.2 Unit Testing con JUnit (Slide
+13-16)}\label{unit-testing-con-junit-slide-13-16}
+
+Il testing programmatico garantisce la correttezza delle singole unità
+software in isolamento (metodi o singole classi): * \textbf{Vantaggi
+sistemici}: * \textbf{Test-Driven Development (TDD)}: scrivere i test
+prima ancora di implementare il codice applicativo. * \textbf{Regression
+Testing}: certezza che refactoring o nuove feature non rompano
+comportamenti pregressi funzionanti. * Riduzione drastica del tempo
+speso nel debugging manuale. * \textbf{Anatomia di un Test Case}: 1.
+Preparazione dell'input (\emph{Arrange / Setup}). 2. Esecuzione del
+metodo sotto test (\emph{Act}). 3. Confronto dell'output effettivo
+(\emph{Actual}) con l'output atteso (\emph{Expected}) tramite
+\textbf{asserzioni} (\emph{Assert}). * \textbf{Meccanismo di
+Fallimento}: * Un metodo di test restituisce sempre
+\passthrough{\lstinline!void!}. * Se tutte le asserzioni sono
+soddisfatte, il metodo termina normalmente e JUnit lo contrassegna come
+\textbf{PASSED} (verde). * Se un'asserzione fallisce, solleva un errore
+di tipo \passthrough{\lstinline!AssertionError!} (o
+\passthrough{\lstinline!AssertionFailedError!}). Il framework JUnit
+cattura l'errore, contrassegna il test come \textbf{FAILED} (rosso) con
+il report della discrepanza, e \textbf{prosegue regolarmente con i test
+successivi} senza arrestare l'intera suite.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.3 Asserzioni in JUnit 5
+(\texttt{org.junit.jupiter.api.Assertions}, Slide
+17-21)}{1.3 Asserzioni in JUnit 5 (org.junit.jupiter.api.Assertions, Slide 17-21)}}\label{asserzioni-in-junit-5-org.junit.jupiter.api.assertions-slide-17-21}
+
+Il pacchetto Jupiter standardizza una vasta famiglia di metodi statici:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Metodo Asserzione
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Comportamento
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\passthrough{\lstinline!assertEquals(expected, actual, [msg])!} &
+Verifica che \passthrough{\lstinline!expected.equals(actual)!}. Valido
+per primitivi e oggetti. \\
+\passthrough{\lstinline!assertTrue(condition, [msg])!} & Verifica che la
+condizione booleana sia \passthrough{\lstinline!true!}. \\
+\passthrough{\lstinline!assertFalse(condition, [msg])!} & Verifica che
+la condizione booleana sia \passthrough{\lstinline!false!}. \\
+\passthrough{\lstinline!assertArrayEquals(expected, actual)!} &
+Confronta il contenuto e l'ordinamento di due array elemento per
+elemento. \\
+\passthrough{\lstinline!assertNull(obj)!} /
+\passthrough{\lstinline!assertNotNull(obj)!} & Verifica se il puntatore
+è \passthrough{\lstinline!null!} o non nullo. \\
+\passthrough{\lstinline!assertThrows(Exception.class, executable)!} &
+Verifica che l'esecuzione di una lambda/blocco sollevi tassativamente
+l'eccezione attesa! \\
+\end{longtable}
+
+\paragraph{Best Practice: Static Imports (Slide
+21)}\label{best-practice-static-imports-slide-21}
+
+Per evitare di anteporre continuamente
+\passthrough{\lstinline!Assertions.!} davanti a ogni chiamata, si usa
+l'import statico:
+
+\begin{lstlisting}[language=Java]
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.4 Il Ciclo di Vita del Test e le Annotazioni JUnit 5
+(Slide
+22)}\label{il-ciclo-di-vita-del-test-e-le-annotazioni-junit-5-slide-22}
+
+\needspace{7cm}
+\begin{asciibox}
+┌────────────────────────┐
+│      @BeforeAll        │ (eseguito 1 sola volta prima di tutti, STATIC)
+└───────────┬────────────┘
+            │
+┌───────────┴─────────────────┐
+│   Per ogni metodo @Test:    │
+│  ┌────────────────────────┐ │
+│  │      @BeforeEach       │ │ (setup specifico per il test)
+│  └───────────┬────────────┘ │
+│              ▼              │
+│  ┌────────────────────────┐ │
+│  │         @Test          │ │ (esecuzione del caso di test)
+│  └───────────┬────────────┘ │
+│              ▼              │
+│  ┌────────────────────────┐ │
+│  │       @AfterEach       │ │ (teardown / pulizia risorse)
+│  └────────────────────────┘ │
+└───────────┬─────────────────┘
+            │
+┌───────────┴────────────┐
+│       @AfterAll        │ (eseguito 1 sola volta alla fine, STATIC)
+└────────────────────────┘
+\end{asciibox}
+
+\begin{itemize}
+\tightlist
+\item
+  \passthrough{\lstinline!@BeforeAll!}: Inizializzazione ``pesante'' o
+  condivisa tra tutti i test (es. apertura connessione, setup di un
+  database o di costanti immutabili). \textbf{Deve essere
+  \passthrough{\lstinline!static!}}.
+\item
+  \passthrough{\lstinline!@AfterAll!}: Chiusura finale delle risorse
+  globali. \textbf{Deve essere \passthrough{\lstinline!static!}}.
+\item
+  \passthrough{\lstinline!@BeforeEach!}: Inizializzazione fresca prima
+  di \emph{ciascun} test per garantire l'isolamento e l'indipendenza dei
+  test (evitando che un test modifichi lo stato di un altro).
+\item
+  \passthrough{\lstinline!@AfterEach!}: Pulizia post-test (es.
+  cancellazione di file temporanei creati durante il test).
+\item
+  \passthrough{\lstinline!@DisplayName("Descrizione chiara")!}:
+  Personalizza il nome del test visualizzato nei report o nell'IDE.
+\item
+  \passthrough{\lstinline!@Disabled!}: Disabilita temporaneamente il
+  test senza doverlo commentare o cancellare.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.5 Organizzazione del Progetto e Convenzioni Maven
+(Slide
+23-24)}\label{organizzazione-del-progetto-e-convenzioni-maven-slide-23-24}
+
+Maven e i moderni build tool impongono una struttura standard di
+cartelle: * \textbf{\passthrough{\lstinline!src/main/java!}}: Contiene
+il codice sorgente dell'applicazione (es.
+\passthrough{\lstinline!it.oop.core.Date!}). *
+\textbf{\passthrough{\lstinline!src/test/java!}}: Contiene
+esclusivamente le classi di collaudo. * \textbf{Allineamento dei Package
+(Regola Fondamentale)}: Una classe di test che verifica
+\passthrough{\lstinline!it.oop.core.Date!} \textbf{deve risiedere nello
+stesso identico package \passthrough{\lstinline!it.oop.core!}}
+(all'interno di \passthrough{\lstinline!src/test/java!}). In questo modo
+la classe di test ha accesso non solo ai membri
+\passthrough{\lstinline!public!}, ma anche a tutti i metodi e campi con
+visibilità di \textbf{package
+(\passthrough{\lstinline!package-private!})}, facilitando il testing
+interno senza forzare l'apertura a \passthrough{\lstinline!public!} di
+dettagli architetturali riservati!
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{\texorpdfstring{2. Analisi Dettagliata del Codice
+(\texttt{Lezione18/MavenDate})}{2. Analisi Dettagliata del Codice (Lezione18/MavenDate)}}\label{analisi-dettagliata-del-codice-lezione18mavendate}
+
+In \passthrough{\lstinline!Lezione18/MavenDate!} troviamo la
+configurazione completa del plugin Maven Surefire e due classi di test
+che collaudano la gerarchia di \passthrough{\lstinline!Date!}.
+
+\subsubsection{\texorpdfstring{2.1 Configurazione in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione18/MavenDate/pom.xml\#L44-L68}{pom.xml}}{2.1 Configurazione in pom.xml}}\label{configurazione-in-pom.xml}
+
+\begin{lstlisting}[language=XML]
+    <build>
+        <plugins>
+            <!-- Plugin Javadoc (Slide 11) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <show>private</show> <!-- Include metodi e campi privati -->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!-- Motore di esecuzione JUnit 5 (Slide 24) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope> <!-- Visibile solo durante la fase di test -->
+        </dependency>
+        <!-- Maven Surefire Plugin per l'esecuzione di 'mvn test' -->
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.5.4</version>
+        </dependency>
+    </dependencies>
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2.2
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione18/MavenDate/src/test/java/it/oop/core/TestDate.java}{TestDate.java}}{2.2 TestDate.java}}\label{testdate.java}
+
+Questa classe collauda sia il flusso nominale (costruzione valida) che
+il flusso eccezionale (lancio di eccezioni):
+
+\begin{lstlisting}[language=Java]
+package it.oop.core;
+
+import it.oop.exception.IllegalDateException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+public class TestDate {
+
+    private Date date;
+
+    // 1. Collaudo del caso nominale con assertEquals
+    @Test
+    public void testDateConstructor() {
+        date = new Date(1, 12, 2025);
+        Assertions.assertEquals(1, date.getDay());
+        Assertions.assertEquals(12, date.getMonth());
+        Assertions.assertEquals(2025, date.getYear());
+    }
+
+    // 2. Collaudo del caso eccezionale con assertThrows e Lambda
+    @Test
+    public void testDateConstructorException() {
+        // Verifica che passando un anno negativo (-2), il costruttore sollevi tassativamente IllegalDateException
+        assertThrows(IllegalDateException.class, () -> date = new Date(1, 12, -2));
+    }
+}
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2.3
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione18/MavenDate/src/test/java/it/oop/core/TestItalianDate.java}{TestItalianDate.java}}{2.3 TestItalianDate.java}}\label{testitaliandate.java}
+
+Esemplifica l'uso della fixture \passthrough{\lstinline!@BeforeAll!} e
+mette in luce il superamento della vecchia parola chiave
+\passthrough{\lstinline!assert!}:
+
+\begin{lstlisting}[language=Java]
+package it.oop.core;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+public class TestItalianDate {
+    private static ItalianDate date;
+
+    // Fixture statica eseguita una volta sola prima di tutti i test
+    @BeforeAll
+    public static void setup() {
+        date = new ItalianDate(1, 1, 1970);
+    }
+
+    @Test
+    public void printFormatTest() {
+        // Verifica del formato con JUnit 5:
+        Assertions.assertEquals("dd/mm/yyyy", date.printFormat());
+        
+        // Confronto con la vecchia sintassi 'assert' del linguaggio (commentata dal docente):
+        // assert date.printFormat().equals("dd/mm/yyyy") : "wrong format";
+    }
+}
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{3. Risultato di Esecuzione Reale da
+Terminale}\label{risultato-di-esecuzione-reale-da-terminale}
+
+Comando eseguito nel progetto
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione18/MavenDate}{Lezione18/MavenDate}:
+
+\begin{lstlisting}[language=bash]
+mvn test
+\end{lstlisting}
+
+Output ottenuto:
+
+\begin{lstlisting}
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running it.oop.core.TestDate
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.106 s -- in it.oop.core.TestDate
+[INFO] Running it.oop.core.TestItalianDate
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in it.oop.core.TestItalianDate
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+\end{lstlisting}
+
+I 3 test sono stati eseguiti con successo, validando in modo formale la
+suite del progetto e generando i relativi file di report XML e TXT nella
+cartella \passthrough{\lstinline!target/surefire-reports/!}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+Dimmi \textbf{``vai''} per procedere con il \textbf{Blocco 19} (Lezione
+19 / Slide T20 --- \emph{Java I/O}, stream di byte vs caratteri,
+\passthrough{\lstinline!InputStream!},
+\passthrough{\lstinline!OutputStream!},
+\passthrough{\lstinline!Reader!}, \passthrough{\lstinline!Writer!},
+\passthrough{\lstinline!BufferedReader!}, serializzazione, gestione
+delle risorse con \passthrough{\lstinline!try-with-resources!} e analisi
+di \passthrough{\lstinline!MainIO.java!} in
+\passthrough{\lstinline!Lezione19/MavenDate!}).
+
+
+\end{document}

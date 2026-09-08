@@ -1,0 +1,540 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T13 --- Classi Astratte ed Interfacce}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T13 --- Classi Astratte ed Interfacce \\[0.3em] \large\sffamily Contratti Comportamentali, Metodi Astratti, Default e Static Methods, Builder Pattern e Lambda}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+In questo blocco analizziamo a fondo i meccanismi di astrazione pura di
+Java: le \textbf{Classi Astratte}, le \textbf{Interfacce}, il design
+pattern \textbf{Template Method} e le interfacce cardine della libreria
+standard (\passthrough{\lstinline!Comparable!},
+\passthrough{\lstinline!Iterable!}, \passthrough{\lstinline!Iterator!})
+(\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Slides-20260902/T13\%20-\%20Abstract\%20Classes\%20and\%20Interfaces.pdf}{T13
+- Abstract Classes and Interfaces.pdf}). Nel codice di
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione13/MavenDate}{\passthrough{\lstinline!Lezione13/MavenDate!}},
+il docente compie un'evoluzione straordinaria introducendo: 1. La classe
+statica annidata
+\textbf{\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione13/MavenDate/src/main/java/it/oop/core/Date.java}{\passthrough{\lstinline!Date.Builder!}}}
+per la costruzione controllata degli oggetti. 2. L'interfaccia
+funzionale
+\textbf{\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione13/MavenDate/src/main/java/it/oop/core/FormattedDateConverter.java}{\passthrough{\lstinline!FormattedDateConverter!}}}.
+3. L'uso congiunto in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione13/MavenDate/src/main/java/it/oop/ui/MainDate.java}{\passthrough{\lstinline!MainDate.java!}}
+di \textbf{Classi Anonime}
+(\passthrough{\lstinline!new Time() \{ ... \}!}) e \textbf{Espressioni
+Lambda} (\passthrough{\lstinline!d -> new AmericanDate(...)!}).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1. Teoria: Concetti Teorici dalle Slide (Slide
+T13)}\label{teoria-concetti-teorici-dalle-slide-slide-t13}
+
+\paragraph{A. Classi Astratte e Template Method Pattern (Slide
+1--10)}\label{a.-classi-astratte-e-template-method-pattern-slide-110}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Metodo Astratto}:
+
+  \begin{itemize}
+  \item
+    Un metodo dichiarato con la parola chiave
+    \passthrough{\lstinline!abstract!} e \textbf{privo di corpo}
+    (termina con il punto e virgola \passthrough{\lstinline!;!} anziché
+    con le parentesi graffe \passthrough{\lstinline!\{ ... \}!}):
+
+\begin{lstlisting}[language=Java]
+public abstract String prettyPrint();
+\end{lstlisting}
+  \item
+    Definisce una ``firma obbligatoria'': impone alle sottoclassi
+    concrete il compito di implementarne la logica.
+  \end{itemize}
+\item
+  \textbf{Classe Astratta (\passthrough{\lstinline!abstract class!})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Se una classe contiene anche un solo metodo astratto, \textbf{deve
+    obbligatoriamente essere dichiarata
+    \passthrough{\lstinline!abstract!}}.
+  \item
+    Attenzione: \textbf{Regola aurea d'esame}: Una classe astratta
+    \textbf{non può MAI essere istanziata direttamente}
+    (\passthrough{\lstinline!new FormattedDate(...)!} genera un
+    \textbf{Compile-Time Error}!).
+  \item
+    Può contenere costruttori (invocabili dalle sottoclassi tramite
+    \passthrough{\lstinline!super(...)!}), campi di istanza
+    (\passthrough{\lstinline!protected!}/\passthrough{\lstinline!private!}),
+    metodi concreti e metodi astratti.
+  \item
+    Una sottoclasse che estende una classe astratta deve:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      O implementare \textbf{tutti} i metodi astratti ereditati.
+    \item
+      Oppure essere dichiarata essa stessa
+      \passthrough{\lstinline!abstract!}.
+    \end{itemize}
+  \end{itemize}
+\item
+  \textbf{Il Template Method Pattern}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Pattern comportamentale in cui la superclasse definisce lo scheletro
+    immutabile di un algoritmo all'interno di un metodo concreto marcato
+    \textbf{\passthrough{\lstinline!final!}} (il template), mentre
+    delega i singoli passi variabili o dipendenti dal contesto a metodi
+    \passthrough{\lstinline!abstract!} implementati dalle sottoclassi.
+  \item
+    Nel nostro progetto: \passthrough{\lstinline!printFormat()!} e
+    \passthrough{\lstinline!getMonthAsString()!} sono
+    \passthrough{\lstinline!final!} in
+    \passthrough{\lstinline!FormattedDate!}, mentre
+    \passthrough{\lstinline!prettyPrint()!} è
+    \passthrough{\lstinline!abstract!}.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{B. Le Interfacce in Java (\texttt{interface})
+(Slide
+11--17)}{B. Le Interfacce in Java (interface) (Slide 11--17)}}\label{b.-le-interfacce-in-java-interface-slide-1117}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Definizione e Filosofia}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Un'interfaccia è un \textbf{contratto puro di comportamento}.
+    Rappresenta ciò che una classe \emph{sa fare} (\emph{can-do}), non
+    la sua identità ontologica.
+  \item
+    \textbf{Membri di un'interfaccia standard}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \textbf{Campi}: sono implicitamente ed esclusivamente
+      \textbf{\passthrough{\lstinline!public static final!}} (costanti
+      di classe). Non possono esistere variabili d'istanza o stato
+      mutabile.
+    \item
+      \textbf{Metodi}: sono implicitamente
+      \textbf{\passthrough{\lstinline!public abstract!}} (non serve
+      specificarlo).
+    \end{itemize}
+  \end{itemize}
+\item
+  \textbf{Ereditarietà Multipla di Tipo
+  (\passthrough{\lstinline!implements!})}:
+
+  \begin{itemize}
+  \item
+    Una classe può estendere al massimo una sola superclasse, ma può
+    implementare \textbf{un numero arbitrario di interfacce separate da
+    virgola}:
+
+\begin{lstlisting}[language=Java]
+public class TimeStamp extends Date implements Time, Serializable, Cloneable
+\end{lstlisting}
+  \item
+    Questo realizza in Java l'ereditarietà multipla dei tipi senza
+    incorrere nei problemi di ambiguità di memoria del C++.
+  \end{itemize}
+\item
+  \textbf{Ereditarietà tra Interfacce}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Un'interfaccia può estendere altre interfacce tramite
+    \passthrough{\lstinline!extends!} (anche multiple
+    contemporaneamente:
+    \passthrough{\lstinline!interface C extends A, B!}).
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{C. Confronto Sistematico: Classe Astratta vs
+Interfaccia}\label{c.-confronto-sistematico-classe-astratta-vs-interfaccia}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Proprietà
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Classe Astratta (\passthrough{\lstinline!abstract class!})
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Interfaccia (\passthrough{\lstinline!interface!})
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Istanziabilità} & {[}NO{]} No (\passthrough{\lstinline!new!}
+vietato) & {[}NO{]} No (\passthrough{\lstinline!new!} vietato) \\
+\textbf{Stato d'istanza (campi)} & {[}OK{]} Sì (qualsiasi visibilità) &
+{[}NO{]} No (solo costanti
+\passthrough{\lstinline!public static final!}) \\
+\textbf{Costruttori} & {[}OK{]} Sì (invocabili con
+\passthrough{\lstinline!super(...)!}) & {[}NO{]} No \\
+\textbf{Ereditarietà} & Singola (\passthrough{\lstinline!extends!} una
+sola classe) & Multipla (\passthrough{\lstinline!implements!} \(N\)
+interfacce) \\
+\textbf{Relazione concettuale} & Identità ontologica forte (\emph{IS-A})
+& Capacità / Contratto comportamentale (\emph{CAN-DO}) \\
+\end{longtable}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{D. Interfacce Standard Fondamentali della JDK (Slide
+18--22)}\label{d.-interfacce-standard-fondamentali-della-jdk-slide-1822}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{\passthrough{\lstinline!java.lang.Comparable<T>!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Definisce il metodo
+    \passthrough{\lstinline!int compareTo(T other)!}.
+  \item
+    Permette agli algoritmi di ordinamento
+    (\passthrough{\lstinline!Arrays.sort()!},
+    \passthrough{\lstinline!Collections.sort()!}) e agli insiemi
+    ordinati (\passthrough{\lstinline!TreeSet!},
+    \passthrough{\lstinline!TreeMap!}) di ordinare gli oggetti secondo
+    il loro ``ordine naturale''.
+  \end{itemize}
+\item
+  \textbf{\passthrough{\lstinline!java.lang.Iterable<T>!} e
+  \passthrough{\lstinline!java.util.Iterator<T>!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{\passthrough{\lstinline!Iterable<T>!}}: espone il metodo
+    \passthrough{\lstinline!Iterator<T> iterator()!}.
+  \item
+    \textbf{Regola cruciale}: Qualsiasi classe che implementi
+    \passthrough{\lstinline!Iterable!} può essere utilizzata come
+    sorgente nel \textbf{ciclo For-Each
+    (\passthrough{\lstinline!for (T elem : collection)!})}!
+  \item
+    \textbf{\passthrough{\lstinline!Iterator<T>!}}: l'oggetto cursore
+    che scorre la sequenza:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \passthrough{\lstinline!boolean hasNext()!}: verifica se vi sono
+      ulteriori elementi.
+    \item
+      \passthrough{\lstinline!T next()!}: restituisce il prossimo
+      elemento avanzando il cursore.
+    \item
+      \passthrough{\lstinline!default void remove()!}: rimuove l'ultimo
+      elemento restituito.
+    \end{itemize}
+  \end{itemize}
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2. Codice: Evoluzione del Codice:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione13/MavenDate}{\texttt{Lezione13/MavenDate}}}{2. Codice: Evoluzione del Codice: Lezione13/MavenDate}}\label{codice-evoluzione-del-codice-lezione13mavendate}
+
+\paragraph{\texorpdfstring{1. Il Design Pattern Builder con Classe
+Statica Annidata
+(\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione13/MavenDate/src/main/java/it/oop/core/Date.java}{\texttt{Date.java}})}{1. Il Design Pattern Builder con Classe Statica Annidata (Date.java)}}\label{il-design-pattern-builder-con-classe-statica-annidata-date.java}
+
+All'interno di \passthrough{\lstinline!Date.java!}, il docente definisce
+una \textbf{Static Nested Class} per costruire date in modo protetto:
+
+\begin{lstlisting}[language=Java]
+public class Date implements Comparable {
+    ...
+    public static class Builder {
+        private final int year;
+
+        public Builder(int year) {
+            if (year > 0)
+                this.year = year;
+            else
+                this.year = 1970; // Anno di default sicuro
+        }
+
+        public Date build(int day, int month) {
+            // Se i parametri sono illegali, ricade sulla data sicura 1/1/year!
+            if (month < 1 || month > 12 || day < 1 || day > daysPerMonth(month))
+                return new Date(1, 1, year);
+            return new Date(day, month, year);
+        }
+    }
+}
+\end{lstlisting}
+
+\emph{Vantaggio del Builder}: Incapsula e pre-configura l'anno; se
+l'utente fornisce parametri non validi
+(\passthrough{\lstinline!month = -1!}), il costruttore non fallisce a
+video ma restituisce una data valida di fallback
+(\passthrough{\lstinline!01/01/year!}).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{2. L'Interfaccia Funzionale:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione13/MavenDate/src/main/java/it/oop/core/FormattedDateConverter.java}{\texttt{FormattedDateConverter.java}}}{2. L'Interfaccia Funzionale: FormattedDateConverter.java}}\label{linterfaccia-funzionale-formatteddateconverter.java}
+
+\begin{lstlisting}[language=Java]
+package it.oop.core;
+
+public interface FormattedDateConverter {
+    FormattedDate convert(FormattedDate date);
+}
+\end{lstlisting}
+
+Questa interfaccia dichiara \textbf{un solo metodo astratto} (SAM:
+\emph{Single Abstract Method}). In Java è a tutti gli effetti
+un'\textbf{Interfaccia Funzionale}, target ideale per le espressioni
+Lambda!
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{3. Sintesi Pratica in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione13/MavenDate/src/main/java/it/oop/ui/MainDate.java}{\texttt{MainDate.java}}}{3. Sintesi Pratica in MainDate.java}}\label{sintesi-pratica-in-maindate.java}
+
+Questo file è una miniera di concetti d'esame avanzati:
+
+\begin{lstlisting}[language=Java]
+package it.oop.ui;
+
+import it.oop.core.*;
+import it.oop.core.Date;
+
+public class MainDate {
+    public static void main(String[] args) {
+        // 1. Uso della Static Nested Class Builder:
+        Date.Builder dateBuilder = new Date.Builder(2025);
+        Date d1 = dateBuilder.build(10, 9);  // Giorno 10, Mese 9 -> Valida!
+        Date d2 = dateBuilder.build(10, -1); // Mese -1 illegale -> Fallback su 1/1/2025!
+        System.out.println(d1.toString());   // y2025m9d10
+        System.out.println(d2.toString());   // y2025m1d1
+
+        // 2. Classe Anonima (Anonymous Inner Class):
+        // Implementa al volo l'interfaccia Time senza creare un file .java separato!
+        Time init = new Time() {
+            @Override
+            public int getHours() { return 0; }
+            @Override
+            public int getMinutes() { return 0; }
+            @Override
+            public int getSeconds() { return 0; }
+            @Override
+            public String toString() {
+                return String.format("%02d:%02d:%02d", getHours(), getMinutes(), getSeconds());
+            }
+        };
+        System.out.println(init.toString()); // Stampa 00:00:00
+
+        // 3. Espressione Lambda (Sintassi compatta per Interfaccia Funzionale):
+        FormattedDateConverter toAmerican =
+                d -> new AmericanDate(d.getDay(), d.getMonth(), d.getYear());
+
+        // Test di conversione polimorfica:
+        System.out.println(toAmerican.convert(new ItalianDate(11, 11, 2025)) instanceof AmericanDate);
+        // Stampa TRUE!
+    }
+}
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{3. Test: Output di Esecuzione Verificato con
+Maven}\label{test-output-di-esecuzione-verificato-con-maven}
+
+Eseguendo
+\passthrough{\lstinline!mvn exec:java -Dexec.mainClass="it.oop.ui.MainDate"!}:
+
+\begin{lstlisting}
+y2025m9d10
+y2025m1d1
+00:00:00
+true
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{studynote}[Nota di Studio] Con la \textbf{Lezione 13} abbiamo chiuso il cerchio su
+Classi Astratte, Interfacce, Template Method e abbiamo anticipato le
+classi annidate e le lambda.
+
+Il prossimo blocco è la \textbf{Lezione 14 / Slide T14: \emph{Nested and
+Anonymous Classes}}: - Tassonomia completa delle classi interne:
+\textbf{Static Nested Classes}, \textbf{Inner Member Classes} (non
+statiche), \textbf{Local Classes} e \textbf{Anonymous Classes}. -
+Accesso allo stato della classe contenitore (\emph{Enclosing instance})
+e la sintassi speciale \passthrough{\lstinline!EnclosingClass.this!}. -
+Cattura delle variabili locali nelle classi locali/anonime e il vincolo
+di essere \textbf{\passthrough{\lstinline!effectively final!}}. -
+Evoluzione del codice in \passthrough{\lstinline!Lezione14!}:
+consolidamento delle classi interne e preparativi per i Generics.
+\end{studynote}
+
+\textbf{Dammi conferma per aprire la Lezione 14 / T14 e continuare la
+revisione!}
+
+
+\end{document}

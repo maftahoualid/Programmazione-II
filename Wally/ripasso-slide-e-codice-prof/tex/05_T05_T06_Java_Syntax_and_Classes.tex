@@ -1,0 +1,821 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T05-T06 --- Sintassi Java, Strutture di Controllo e Classi Base}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T05–T06 --- Sintassi Java, Strutture di Controllo e Classi Base \\[0.3em] \large\sffamily Costrutti Condizionali e Iterativi, Definizione di Classe e Nascita del Progetto SimpleDate}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+In questo blocco analizziamo in dettaglio la sintassi fondamentale di
+Java
+(\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Slides-20260902/T05\%20-\%20Java\%20Basic\%20Syntax.pdf}{T05
+- Java Basic Syntax.pdf}), la struttura delle classi e degli oggetti
+(\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Slides-20260902/T06\%20-\%20Java\%20Classes\%20and\%20Objects.pdf}{T06
+- Java Classes and Objects.pdf}) e il codice sorgente di debutto del
+corso: il progetto
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezioni05-06/SimpleDate}{\passthrough{\lstinline!SimpleDate!}}
+e il file di laboratorio
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezioni05-06/StringPlayground.java}{\passthrough{\lstinline!StringPlayground.java!}}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1. Teoria: Concetti Teorici dalle
+Slide}\label{teoria-concetti-teorici-dalle-slide}
+
+\paragraph{A. Sintassi di Base e Costrutti Semplici (Slide T05,
+1--19)}\label{a.-sintassi-di-base-e-costrutti-semplici-slide-t05-119}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Variabili e Inizializzazione Automatica}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Una variabile associa un nome e un tipo a una locazione di memoria.
+  \item
+    \textbf{Regola cruciale}: Solo i campi di classe/istanza
+    (\emph{fields}) vengono inizializzati automaticamente al default
+    (\passthrough{\lstinline!0!}, \passthrough{\lstinline!0.0!},
+    \passthrough{\lstinline!false!},
+    \passthrough{\lstinline!'\\u0000'!},
+    \passthrough{\lstinline!null!}). Le variabili locali nello Stack
+    richiedono l'assegnamento esplicito prima dell'uso.
+  \end{itemize}
+\item
+  \textbf{Costanti (\passthrough{\lstinline!static final!})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!final static int I = 5;!}: la variabile è a
+    sola lettura; deve essere inizializzata contestualmente o nel
+    costruttore e non può più essere riassegnata.
+  \end{itemize}
+\item
+  \textbf{Identificatori e Convenzioni di Naming}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Regola sintattica: sequenza arbitraria di caratteri
+    \passthrough{\lstinline![a-z]!}, \passthrough{\lstinline![A-Z]!},
+    \passthrough{\lstinline![0-9]!}, \passthrough{\lstinline!\_!} e
+    \passthrough{\lstinline!$!}, che non inizi con una cifra e non
+    coincida con una delle \textbf{50 parole chiave riservate}
+    (\passthrough{\lstinline!class!}, \passthrough{\lstinline!static!},
+    \passthrough{\lstinline!new!}, \passthrough{\lstinline!this!},
+    \passthrough{\lstinline!super!}, \passthrough{\lstinline!switch!},
+    \passthrough{\lstinline!goto!}, \passthrough{\lstinline!const!},
+    ecc.).
+  \item
+    Convenzioni ufficiali Java:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \textbf{Classi}: \passthrough{\lstinline!UpperCamelCase!} (es.
+      \passthrough{\lstinline!SimpleDate!},
+      \passthrough{\lstinline!MainDate!}).
+    \item
+      \textbf{Metodi, variabili locali, campi e parametri}:
+      \passthrough{\lstinline!lowerCamelCase!} (es.
+      \passthrough{\lstinline!daysPerMonth!},
+      \passthrough{\lstinline!myCar!}).
+    \item
+      \textbf{Costanti}: \passthrough{\lstinline!UPPER\_SNAKE\_CASE!}
+      (es. \passthrough{\lstinline!FORMAT!},
+      \passthrough{\lstinline!PI\_CONST!}).
+    \end{itemize}
+  \end{itemize}
+\item
+  \textbf{Caratteri di Escape Speciali}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!\\n!} (LF linefeed,
+    \passthrough{\lstinline!\\u000a!}), \passthrough{\lstinline!\\r!}
+    (CR carriage return, \passthrough{\lstinline!\\u000d!}),
+    \passthrough{\lstinline!\\t!} (tab orizzontale,
+    \passthrough{\lstinline!\\u0009!}), \passthrough{\lstinline!\\b!}
+    (backspace, \passthrough{\lstinline!\\u0008!}),
+    \passthrough{\lstinline!\\f!} (form feed,
+    \passthrough{\lstinline!\\u000c!}), \passthrough{\lstinline!\\"!}
+    (doppio apice), \passthrough{\lstinline!\\'!} (singolo apice),
+    \passthrough{\lstinline!\\\\!} (backslash).
+  \end{itemize}
+\item
+  \textbf{Commenti e Documentazione}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!// ...!} (singola riga).
+  \item
+    \passthrough{\lstinline!/* ... */!} (multi-riga).
+  \item
+    \passthrough{\lstinline!/** ... */!} (\textbf{Javadoc}): elaborato
+    dal tool \passthrough{\lstinline!javadoc!} per generare
+    automaticamente la documentazione HTML delle API.
+  \end{itemize}
+\item
+  \textbf{Espressioni, Valutazione Sinistra-Destra e Side Effects}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    In Java le sotto-espressioni sono valutate \textbf{rigorosamente da
+    sinistra a destra}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \passthrough{\lstinline!int i = 1; int j = (i = 2) * i;!}
+      \(\implies\) \passthrough{\lstinline!i!} diventa
+      \passthrough{\lstinline!2!}, poi moltiplicato per
+      \passthrough{\lstinline!i!} (\passthrough{\lstinline!2!})
+      \(\implies\) \passthrough{\lstinline!j = 4!}.
+    \item
+      \passthrough{\lstinline!int t = 3; eval(t + (t = 2))!}
+      \(\implies\) prima si valuta \passthrough{\lstinline!t!}
+      (\passthrough{\lstinline!3!}), poi
+      \passthrough{\lstinline!(t = 2)!} (\passthrough{\lstinline!2!})
+      \(\implies 3 + 2 = 5\).
+    \end{itemize}
+  \end{itemize}
+\item
+  \textbf{Operatori Aritmetici Unari: Pre-incremento vs
+  Post-incremento}:
+
+  \begin{itemize}
+  \item
+    \passthrough{\lstinline!x++!} (post-incremento): restituisce il
+    valore attuale di \passthrough{\lstinline!x!} e
+    \emph{successivamente} incrementa \passthrough{\lstinline!x!} di 1.
+  \item
+    \passthrough{\lstinline!++x!} (pre-incremento): incrementa
+    \emph{subito} \passthrough{\lstinline!x!} di 1 e restituisce il
+    nuovo valore.
+  \item
+    \textbf{L'esercizio tranello delle slide}:
+
+\begin{lstlisting}[language=Java]
+int t = 3;
+t = -t++ - ++t; // Quanto vale t?
+\end{lstlisting}
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Valutazione da sinistra a destra:
+
+      \begin{enumerate}
+      \def\labelenumi{\arabic{enumi}.}
+      \tightlist
+      \item
+        \passthrough{\lstinline!-t++!}: valuta \(-3\), e incrementa
+        \(t\) a \(4\).
+      \item
+        \passthrough{\lstinline!++t!}: incrementa subito \(t\) da \(4\)
+        a \(5\), e valuta \(5\).
+      \item
+        Operazione: \((-3) - 5 = -8\). Assegnato a \(t\), il valore
+        finale è \textbf{\passthrough{\lstinline!-8!}}.
+      \end{enumerate}
+    \end{itemize}
+  \end{itemize}
+\item
+  \textbf{Operatore Ternario}:
+  \passthrough{\lstinline!condizione ? expr1 : expr2!}.
+\item
+  \textbf{Operatori Logici e Corto-Circuito}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!\&!}, \passthrough{\lstinline!|!}: valutano
+    sempre entrambi i rami.
+  \item
+    \passthrough{\lstinline!\&\&!}, \passthrough{\lstinline!||!}:
+    valutazione a corto circuito (\emph{short-circuit}). Se il primo
+    operando determina già il risultato, il secondo non viene nemmeno
+    eseguito (essenziale per prevenire crash su puntatori nulli).
+  \end{itemize}
+\item
+  \textbf{Assegnamenti Composti}: \passthrough{\lstinline!x += expr!}
+  equivale a \passthrough{\lstinline!x = x + (expr)!}. Se \(x=4\),
+  l'espressione \(x += x - 7\) assegna \(x = 4 + (4 - 7) = 1\).
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{B. Costrutti di Controllo di Flusso (Slide T05,
+20--29)}\label{b.-costrutti-di-controllo-di-flusso-slide-t05-2029}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Blocchi \passthrough{\lstinline!\{ ... \}!}}: delimitano lo
+  scope di vita delle variabili locali.
+\item
+  \textbf{Condizionali}:
+  \passthrough{\lstinline!if (Bexpr) ... else ...!}.
+\item
+  \textbf{Costrutto \passthrough{\lstinline!switch-case!} e il
+  Fall-Through}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Seleziona il ramo da eseguire in base al valore di un'espressione
+    (\passthrough{\lstinline!byte!}, \passthrough{\lstinline!short!},
+    \passthrough{\lstinline!char!}, \passthrough{\lstinline!int!},
+    \passthrough{\lstinline!String!}, \passthrough{\lstinline!enum!}).
+  \item
+    Se non si inserisce l'istruzione \passthrough{\lstinline!break!},
+    l'esecuzione \textbf{continua nei rami successivi}
+    (\emph{fall-through}). Questo meccanismo, se usato volontariamente,
+    permette di raggruppare casi che condividono la stessa logica (come
+    vedremo in \passthrough{\lstinline!daysPerMonth!}).
+  \end{itemize}
+\item
+  \textbf{Cicli}:
+
+  \begin{itemize}
+  \item
+    \passthrough{\lstinline!while (cond) \{ ... \}!}: test preliminare
+    (può eseguire 0 volte).
+  \item
+    \passthrough{\lstinline!do \{ ... \} while (cond);!}: test
+    posticipato (esegue almeno 1 volta).
+  \item
+    \passthrough{\lstinline!for (init; cond; step) \{ ... \}!}: ciclo
+    controllato. Supporta inizializzazioni e passi multipli separati da
+    virgola:
+
+\begin{lstlisting}[language=Java]
+for (int i = 0, j = 9; i <= 9 && j >= 0; i++, j--) { ... }
+\end{lstlisting}
+  \end{itemize}
+\item
+  \textbf{Salto di Controllo}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!break!}: interrompe il ciclo o lo switch ed
+    esce dal blocco.
+  \item
+    \passthrough{\lstinline!continue!}: salta immediatamente alla
+    successiva iterazione del ciclo.
+  \item
+    \passthrough{\lstinline!return!}: esce dal metodo corrente
+    restituendo eventualmente un valore.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{C. Classi, Oggetti, \texttt{this} e
+\texttt{toString} (Slide T06,
+1--28)}{C. Classi, Oggetti, this e toString (Slide T06, 1--28)}}\label{c.-classi-oggetti-this-e-tostring-slide-t06-128}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Perché modellare una data? (La vignetta a lezione, Slide 7)}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Lo slide show mostra il fumetto geek: \emph{«Imagine an object much
+    like a thing in the real world, like\ldots{} A DATE?»}. È da qui che
+    nasce la classe \passthrough{\lstinline!Date!} come filo conduttore
+    del corso.
+  \end{itemize}
+\item
+  \textbf{Anatomia di una Classe}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Campi d'istanza (\emph{Fields})}: variabili che memorizzano
+    lo stato di ciascun oggetto.
+  \item
+    \textbf{Metodi d'istanza (\emph{Methods})}: funzioni che definiscono
+    il comportamento e i messaggi accettati dall'oggetto.
+  \item
+    \textbf{Firma del metodo}:
+    \passthrough{\lstinline!tipoRitorno nomeMetodo(tipoParametro nomeParametro, ...)!}.
+    Se non restituisce nulla si usa \passthrough{\lstinline!void!}.
+  \item
+    \textbf{Overloading}: possibilità di definire più metodi con lo
+    stesso nome purché differiscano per numero, tipo o ordine dei
+    parametri.
+  \end{itemize}
+\item
+  \textbf{Entrypoint \passthrough{\lstinline!main!} e Metodi Statici
+  (\passthrough{\lstinline!static!})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!public static void main(String[] args)!}: il
+    launcher della JVM non passa il nome del programma in
+    \passthrough{\lstinline!args[0]!} (a differenza del C).
+    \passthrough{\lstinline!args[0]!} è già il primo parametro utente.
+  \item
+    \textbf{Metodi Statici}: appartengono alla classe e non alle singole
+    istanze. Si invocano con
+    \passthrough{\lstinline!NomeClasse.metodo()!}. Non possono accedere
+    allo stato d'istanza né usare \passthrough{\lstinline!this!}.
+  \end{itemize}
+\item
+  \textbf{Creazione dell'Oggetto (\passthrough{\lstinline!new!}) e
+  Costruttore}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    L'istruzione \passthrough{\lstinline!new Date(...)!}:
+
+    \begin{enumerate}
+    \def\labelenumi{\arabic{enumi}.}
+    \tightlist
+    \item
+      Alloca memoria nello Heap per l'oggetto.
+    \item
+      Inizializza i campi ai valori di default.
+    \item
+      Invoca il \textbf{costruttore} (metodo speciale con lo stesso nome
+      della classe e senza tipo di ritorno) per valorizzare lo stato.
+    \item
+      Restituisce il riferimento all'oggetto appena creato.
+    \end{enumerate}
+  \end{itemize}
+\item
+  \textbf{Aliasing e Garbage Collection}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Se scriviamo \passthrough{\lstinline!Date d2 = d1;!}, le due
+    variabili puntano allo stesso identico oggetto nello Heap
+    (\emph{aliasing}).
+  \item
+    Quando una reference viene azzerata
+    (\passthrough{\lstinline!d1 = null; d2 = null;!}), l'oggetto diventa
+    orfano e il Garbage Collector può bonificarlo.
+  \end{itemize}
+\item
+  \textbf{La Parola Chiave \passthrough{\lstinline!this!}}:
+
+  \begin{itemize}
+  \item
+    È il riferimento implicito all'oggetto corrente su cui è stato
+    invocato il metodo.
+  \item
+    È \textbf{obbligatoria} quando i parametri del costruttore/metodo
+    hanno lo stesso identico nome dei campi d'istanza (\emph{shadowing
+    dei parametri}):
+
+\begin{lstlisting}[language=Java]
+public Date(int day, int month, int year) {
+    this.day = day;     // this.day è il campo dell'oggetto nello Heap
+    this.month = month; // day è il parametro locale nello Stack
+    this.year = year;
+}
+\end{lstlisting}
+  \end{itemize}
+\item
+  \textbf{Rappresentazione a Stringa e
+  \passthrough{\lstinline!toString()!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Tutte le classi Java ereditano dalla superclasse universale
+    \passthrough{\lstinline!java.lang.Object!} il metodo
+    \passthrough{\lstinline!public String toString()!}.
+  \item
+    Il default di \passthrough{\lstinline!Object.toString()!} stampa
+    \passthrough{\lstinline!NomeClasse@IndirizzoHashcode!} (es.
+    \passthrough{\lstinline!Date@5acf9800!}).
+  \item
+    La JVM invoca \textbf{implicitamente}
+    \passthrough{\lstinline!toString()!} ogni volta che un oggetto viene
+    concatenato a una stringa
+    (\passthrough{\lstinline!"Oggi: " + today!}).
+  \item
+    Sovrascrivendo (\emph{overriding})
+    \passthrough{\lstinline!public String toString()!} nella classe,
+    possiamo personalizzare la stampa dell'oggetto.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{2. Codice: Analisi del Codice Ufficiale del
+Docente}\label{codice-analisi-del-codice-ufficiale-del-docente}
+
+\paragraph{\texorpdfstring{1.
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezioni05-06/SimpleDate/src/Date.java}{\texttt{SimpleDate/src/Date.java}}}{1. SimpleDate/src/Date.java}}\label{simpledatesrcdate.java}
+
+\begin{lstlisting}[language=Java]
+public class Date {
+    // 1. Stato dell'oggetto: campi di istanza (visibilità default di package per ora)
+    int day;
+    int month;
+    int year;
+
+    // 2. Costante di classe condivisa da tutte le istanze
+    static final String FORMAT = "dd/mm/yyyy";
+
+    // 3. Costruttore: usa 'this' per distinguere campi da parametri
+    public Date(int day, int month, int year) {
+        this.day = day;
+        this.month = month;
+        this.year = year;
+        verify(); // Chiamata al metodo di validazione interna
+    }
+
+    // 4. Metodo di validazione dello stato
+    void verify() {
+        if (year < 0 || month < 1 || month > 12)
+            System.out.println("Illegal date!");
+        else
+            if (day < 1 || day > daysPerMonth(month))
+                System.out.println("Illegal date!");
+    }
+
+    String print() {
+        return day + "/" + month + "/" + year + " [" + FORMAT + "]";
+    }
+
+    // 5. Override di toString(): delega al metodo print()
+    public String toString() {
+        return print();
+    }
+    
+    // 6. Metodo statico: calcolo puro senza bisogno di istanziare Date
+    static int daysPerMonth(int month) {
+        int days;
+        switch(month) {
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+                days = 30; // Fall-through controllato per i mesi da 30 giorni
+                break;
+            case 2:
+                days = 28; // Febbraio fisso a 28 (il bisestile arriverà a Lezione 07!)
+                break;
+            default:
+                days = 31;
+                break;
+        }
+        return days;
+    }
+}
+\end{lstlisting}
+
+\paragraph{Analisi: Dettagli Tecnici e Scelte del
+Docente:}\label{analisi-dettagli-tecnici-e-scelte-del-docente}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Perché \passthrough{\lstinline!daysPerMonth(month)!} è
+  \passthrough{\lstinline!static!}?} Non ha bisogno di leggere
+  \passthrough{\lstinline!this.day!} o
+  \passthrough{\lstinline!this.year!}: riceve un mese intero e
+  restituisce i giorni. Essendo una funzione pura di utilità, appartiene
+  alla classe e può essere chiamata anche prima di creare oggetti (come
+  fa il \passthrough{\lstinline!main!}).
+\item
+  \textbf{Lo \passthrough{\lstinline!switch!} con fall-through}: I
+  \passthrough{\lstinline!case 4: case 6: case 9: case 11:!} sono privi
+  di istruzione \passthrough{\lstinline!break!} intermedia; l'esecuzione
+  scorre intenzionalmente fino a
+  \passthrough{\lstinline!days = 30; break;!}.
+\item
+  \textbf{Validazione con \passthrough{\lstinline!verify()!}}: In questa
+  prima versione didattica, se la data è errata viene stampato a video
+  \passthrough{\lstinline'"Illegal date!"'}. Notare che l'oggetto non
+  valido viene comunque creato in memoria! Solo più avanti (in Lezione
+  17 con le eccezioni) il docente mostrerà come impedire l'istanziazione
+  lanciando un'eccezione.
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{2.
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezioni05-06/SimpleDate/src/MainDate.java}{\texttt{SimpleDate/src/MainDate.java}}}{2. SimpleDate/src/MainDate.java}}\label{simpledatesrcmaindate.java}
+
+\begin{lstlisting}[language=Java]
+import java.util.Scanner;
+
+public class MainDate {
+    public static void main(String[] args) {
+        // Chiamata a metodo statico direttamente da classe
+        System.out.println(Date.daysPerMonth(4));
+
+        // Allocazione istanze nello Heap
+        Date today = new Date(14, 10, 2025);
+        Date tomorrow = new Date(15, 10, 2025);
+
+        System.out.println(today.print());
+        System.out.println(tomorrow.print());
+        System.out.println(today.toString());
+
+        String str = new String("ciao");
+        System.out.println(str.toString());
+
+        // Acquisizione input utente con java.util.Scanner
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the day: ");
+        int day = sc.nextInt();
+        System.out.println("Enter the month: ");
+        int month = sc.nextInt();
+        System.out.println("Enter the year: ");
+        int year = sc.nextInt();
+        sc.close(); // Chiusura dello stream di input
+
+        Date date = new Date(day, month, year);
+        System.out.println(date.toString());
+    }
+}
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{3.
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezioni05-06/StringPlayground.java}{\texttt{StringPlayground.java}}}{3. StringPlayground.java}}\label{stringplayground.java}
+
+Questo file illustra 3 concetti cardine sulle stringhe e
+l'ottimizzazione della memoria:
+
+\begin{lstlisting}[language=Java]
+public class StringPlayground {
+    public static void main(String[] args) {
+        String empty = new String();
+        String str = "str";
+        System.out.println("len(empty): " + empty.length());
+        System.out.println("len(\"str\"): " + str.length());
+        System.out.println(str.charAt(1)); // Restituisce 't'
+
+        // str.charAt(1) = 'c'; // COMPILE-TIME ERROR: Le String in Java sono IMMUTABILI!
+
+        String same = new String("str");
+        System.out.println("str: " + str + " same: " + same);
+
+        // Confronto di puntatori (identità di memoria) vs contenuto semantico
+        System.out.println("str ?= same: " + (str == same));           // false! Oggetti diversi nello Heap
+        String verySame = str;
+        System.out.println("str ?= verySame: " + (str == verySame));   // true! Puntano alla stessa cella
+        System.out.println("str ?= same: " + str.equals(same));        // true! Stessi caratteri
+
+        // StringBuilder e Fluent Interface (Chaining)
+        int n = 5;
+        int sum = n * (n + 1) / 2;
+        StringBuilder sb = new StringBuilder();
+        sb.append("sum(").append(sum).append(")["); // Notazione a catena (fluent)
+        for (int i = 0; i < n; i++)
+            sb.append(" ").append(i);
+        sb.append(" ]");
+        System.out.println(sb.toString()); // sum(15)[ 0 1 2 3 4 ]
+    }
+}
+\end{lstlisting}
+
+\paragraph{\texorpdfstring{Analisi: Le Finezze di
+\texttt{StringPlayground}:}{Analisi: Le Finezze di StringPlayground:}}\label{analisi-le-finezze-di-stringplayground}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Immutabilità}: in Java l'oggetto
+  \passthrough{\lstinline!String!} non può essere modificato dopo la
+  creazione. Non esiste un metodo \passthrough{\lstinline!setCharAt()!}.
+\item
+  \textbf{\passthrough{\lstinline!==!} vs
+  \passthrough{\lstinline!.equals()!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!str == same!} confronta se le due variabili
+    contengono lo \textbf{stesso indirizzo di memoria}. Restituisce
+    \passthrough{\lstinline!false!} perché
+    \passthrough{\lstinline!same!} è stato creato con
+    \passthrough{\lstinline!new String(...)!} forzando una nuova
+    allocazione nello Heap.
+  \item
+    \passthrough{\lstinline!str.equals(same)!} confronta i caratteri uno
+    a uno e restituisce \passthrough{\lstinline!true!}.
+  \item
+    \textbf{Regola d'esame assoluta}: per confrontare gli oggetti e le
+    stringhe si usa \textbf{sempre \passthrough{\lstinline!.equals()!}},
+    mai \passthrough{\lstinline!==!}!
+  \end{itemize}
+\item
+  \textbf{\passthrough{\lstinline!StringBuilder!} e Fluent Notation}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Ogni concatenazione con \passthrough{\lstinline!+!} su stringhe
+    ordinarie crea un nuovo oggetto \passthrough{\lstinline!String!}
+    temporaneo. Nei cicli questo genera un enorme sovraccarico di
+    memoria per il Garbage Collector.
+  \item
+    \passthrough{\lstinline!StringBuilder!} alloca un buffer mutabile
+    ridimensionabile internamente.
+  \item
+    Il metodo \passthrough{\lstinline!.append()!} restituisce un
+    riferimento a \passthrough{\lstinline!this!} (l'istanza corrente del
+    builder stesso), permettendo di concatenare le chiamate in cascata:
+    \passthrough{\lstinline!sb.append(...).append(...)!} (\textbf{Fluent
+    API / Method Chaining}).
+  \end{itemize}
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{3. Ciclo: Confronto con il tuo modulo
+\texttt{es01}}{3. Ciclo: Confronto con il tuo modulo es01}}\label{ciclo-confronto-con-il-tuo-modulo-es01}
+
+Nel tuo file
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es01/src/main/java/es01/Date.java}{\passthrough{\lstinline!es01/src/main/java/es01/Date.java!}}:
+1. \textbf{Switch Moderno vs Tradizionale}: Avevi già applicato la
+sintassi Java 14+ con la \emph{Switch Expression}:
+\passthrough{\lstinline!java    static int daysPerMonth(int month) \{        return switch (month) \{            case 4, 6, 9, 11 -> 30;            case 2 -> 28;            default -> 31;        \};    \}!}
+Questa forma è sintatticamente pulitissima e idiomatica in Java moderno.
+2. \textbf{Allineamento con la Lezione 05-06}: Per essere al 100\%
+fedeli alla versione del docente: - Aggiungere la chiamata a
+\passthrough{\lstinline!verify()!} nel costruttore per il controllo di
+validità. - Correggere il refuso nella costante di formato:
+\passthrough{\lstinline!"dd/mm/yyyy"!} invece di
+\passthrough{\lstinline!"dd/hh/yyyy"!}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{studynote}[Nota di Studio] Con le \textbf{Lezioni 05-06} abbiamo stabilito
+l'architettura iniziale di \passthrough{\lstinline!Date!}, lo scope, i
+metodi statici, le stringhe e \passthrough{\lstinline!StringBuilder!}.
+
+Il prossimo blocco è la \textbf{Lezione 07 / Slide T07: \emph{Libraries
+and String Class}}: - Evoluzione di
+\passthrough{\lstinline!SimpleDate!}: introduzione dell'algoritmo
+completo del \textbf{calendario Gregoriano per gli anni bisestili}
+(\emph{leap year}). - Analisi della classe statica ausiliaria di calcolo
+matematico \passthrough{\lstinline!java.lang.Math!}. - Metodi avanzati
+della classe \passthrough{\lstinline!String!}
+(\passthrough{\lstinline!substring!}, \passthrough{\lstinline!indexOf!},
+\passthrough{\lstinline!split!}, \passthrough{\lstinline!trim!},
+\passthrough{\lstinline!replace!}). - Wrapper classes per i primitivi
+(\passthrough{\lstinline!Integer!}, \passthrough{\lstinline!Double!},
+\passthrough{\lstinline!Character!}), \emph{Autoboxing} e
+\emph{Unboxing}.
+\end{studynote}
+
+\textbf{Dammi conferma per procedere alla Lezione 07 / T07!}
+
+
+\end{document}

@@ -1,0 +1,551 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T02 --- Paradigma ad Oggetti e Modellazione UML}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T02 --- Paradigma ad Oggetti e Modellazione UML \\[0.3em] \large\sffamily Astrazione, Incapsulamento, Modularità, Gerarchia e Sintassi dei Class Diagram}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+In questo blocco analizziamo la transizione teorico-metodologica dal
+paradigma procedurale a quello ad oggetti, i concetti cardine dell'OOP e
+la modellazione grafica tramite \textbf{UML}
+(\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Slides-20260902/T02\%20-\%20Object-Orientations\%20and\%20UML.pdf}{T02
+- Object-Orientations and UML.pdf}).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1. Teoria: Concetti Teorici dalle
+Slide}\label{teoria-concetti-teorici-dalle-slide}
+
+\paragraph{A. La Tassonomia dei Linguaggi e il Bisogno di Astrazione
+(Slide
+1--13)}\label{a.-la-tassonomia-dei-linguaggi-e-il-bisogno-di-astrazione-slide-113}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Nessun linguaggio universale}: citando Edsger W. Dijkstra
+  (\emph{«Computer Science is no more about computers than Astronomy is
+  about telescopes»}), il docente introduce il principio del
+  \textbf{Golden Hammer} (\emph{«If all you have is a hammer, everything
+  looks like a nail»}): non esiste un linguaggio perfetto per tutto.
+\item
+  \textbf{Evoluzione storica degli obiettivi}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{Anni '50/'60}: focus sull'\textbf{efficienza del codice
+    macchina}. L'hardware costava milioni e i programmatori poco:
+    l'obiettivo era ``tenere occupata la macchina'' con linguaggi vicini
+    al silicio.
+  \item
+    \emph{Oggi}: focus sull'\textbf{efficienza dello sviluppo del
+    software}. L'hardware costa poco e i programmatori costano molto:
+    l'obiettivo è ``tenere produttivo il programmatore'', abbattendo
+    complessità, bug e costi di manutenzione tramite
+    l'\textbf{astrazione}.
+  \end{itemize}
+\item
+  \textbf{I Tre Paradigmi Fondamentali}:
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    \textbf{Imperativo / Procedurale} (C, Pascal, Fortran, COBOL):
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Basato sul concetto di \textbf{stato} (celle di memoria che
+      memorizzano valori) e \textbf{comandi sequenziali} che mutano tale
+      stato (assegnamenti).
+    \item
+      Riuso del codice tramite procedure/funzioni che operano su dati
+      esterni.
+    \end{itemize}
+  \item
+    \textbf{Dichiarativo}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \emph{Funzionale} (Haskell, Lisp): il programma è la valutazione
+      di un'espressione matematica pura, basata su applicazione di
+      funzioni e ricorsione (es.
+      \passthrough{\lstinline!add x y = x + y!}). Assenza o
+      minimizzazione degli effetti collaterali (\emph{side effects}).
+    \item
+      \emph{Logico} (Prolog): il programma definisce relazioni, fatti e
+      regole di deduzione logica; l'esecuzione è una
+      risoluzione/unificazione guidata da query (es.
+      \passthrough{\lstinline!playsAirGuitar(sam) :- listens2Music(sam).!}).
+    \end{itemize}
+  \item
+    \textbf{Object-Oriented (OOP)} (Smalltalk, Java, C++):
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Unisce il nucleo imperativo (gli oggetti contengono uno stato
+      interno) a tratti dichiarativi (gli oggetti espongono
+      comportamenti invocabili senza conoscerne l'algoritmo interno).
+    \item
+      Basato su \textbf{istanze} che comunicano tramite
+      \textbf{passaggio di messaggi}.
+    \end{itemize}
+  \end{enumerate}
+\item
+  \textbf{Lo Spettro dell'Astrazione e il Trade-off di Overhead}:
+  \[\text{Machine Code} \longrightarrow \text{Assembly} \longrightarrow \text{Procedurale} \longrightarrow \text{Object-Oriented} \longrightarrow \text{Funzionale}\]
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Più si sale nell'astrazione:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \textbf{Programmer Overhead \(\searrow\) (minimo)}: meno tempo
+      perso a gestire registri, puntatori e memoria manuale.
+    \item
+      \textbf{Compiler/Runtime Overhead \(\nearrow\) (massimo)}: il
+      compilatore/JVM deve effettuare controlli di tipo a runtime,
+      garbage collection e risoluzione dinamica delle chiamate
+      (\emph{dynamic dispatch}).
+    \end{itemize}
+  \end{itemize}
+\item
+  \textbf{Linea temporale}: dal 1949 (Assembly), Fortran (1957), C
+  (1972), C++ (1983) fino all'avvento di \textbf{Java (1995)}, C\#
+  (2000) e linguaggi moderni multiparadigma (Swift 2014).
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{B. La Crisi del Procedurale e la Nascita degli Oggetti (Slide
+14--23)}\label{b.-la-crisi-del-procedurale-e-la-nascita-degli-oggetti-slide-1423}
+
+Il prof. Pasqua presenta il caso di studio di un programma in C che
+manipola un vettore globale:
+
+\begin{lstlisting}[language=C]
+int vect[20];
+void sort() { /* ordina vect */ }
+int search(int n) { /* cerca in vect */ }
+void init() { /* inizializza vect */ }
+int i;
+
+void main() {
+    init();
+    sort();
+    search(13);
+}
+\end{lstlisting}
+
+\textbf{I 4 Difetti Letali dell'Approccio Procedurale evidenziati a
+lezione}: 1. \textbf{Relazione Implicita Dati-Funzioni}:
+\passthrough{\lstinline!vect!} e le funzioni
+\passthrough{\lstinline!sort()!}, \passthrough{\lstinline!search()!}
+sono entità slegate a livello di linguaggio. Non esiste un tipo autonomo
+``Vettore'' che protegga se stesso. 2. \textbf{Nessun Controllo dei
+Confini (Out-of-Bounds)}: un ciclo come
+\passthrough{\lstinline!for (i=0; i<=21; i++) vect[i]=0;!} scrive in
+memoria oltre i 20 elementi, corrompendo altre variabili o lo stack
+senza alcun errore del compilatore (\emph{buffer overflow}). 3.
+\textbf{Nessuna Garanzia sull'Inizializzazione}: se il programmatore
+dimentica di invocare \passthrough{\lstinline!init()!}, le funzioni
+\passthrough{\lstinline!sort()!} e \passthrough{\lstinline!search()!}
+lavorano su memoria sporca non inizializzata. 4. \textbf{Perdita di
+Confidenzialità e Integrità}: \passthrough{\lstinline!vect!} è
+accessibile in lettura/scrittura da \emph{qualsiasi} funzione del
+programma. Su sistemi reali questo genera il cosiddetto
+\textbf{Spaghetti Code}. - \textbf{La Regola delle Linee di Codice
+(LoC)}: - Per script \textless{} 30 LoC: lo stile procedurale è rapido e
+facile da mantenere. - Per progetti \textgreater{} 1000 LoC con team
+concorrenti: lo stile procedurale collassa; solo l'OOP permette di
+modularizzare garantendo la manutenibilità. - \textbf{La Soluzione a
+Oggetti}: - Unire nello stesso modulo sia i dati
+(\textbf{attributi/campi}) sia le operazioni su di essi
+(\textbf{metodi}). - L'oggetto diventa l'unico responsabile della
+consistenza del proprio stato.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{C. Modellazione UML e Concetti Fondamentali di OOP (Slide
+24--36)}\label{c.-modellazione-uml-e-concetti-fondamentali-di-oop-slide-2436}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{UML (\emph{Unified Modeling Language})}: linguaggio grafico
+  standard per specificare e documentare sistemi ad oggetti.
+\item
+  \textbf{Differenza Ontologica tra Classe e Oggetto}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Classe}: è il \emph{tipo} (blueprint / modello astratto).
+    Definisce gli attributi e i metodi. Non occupa memoria nello heap
+    per i dati dell'istanza finché non viene istanziata.
+  \item
+    \textbf{Oggetto}: è l'\textbf{istanza concreta} nello \textbf{Heap}.
+    Possiede:
+
+    \begin{enumerate}
+    \def\labelenumi{\arabic{enumi}.}
+    \tightlist
+    \item
+      \textbf{Stato}: i valori correnti associati ai suoi attributi.
+    \item
+      \textbf{Comportamento}: i metodi che può eseguire.
+    \item
+      \textbf{Identità}: indirizzo di memoria univoco che lo distingue
+      da tutti gli altri oggetti, anche se aventi lo stesso identico
+      stato!
+    \end{enumerate}
+  \end{itemize}
+\item
+  \textbf{Rappresentazione grafica UML}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Classe (Rettangolo a 3 sezioni)}:
+
+    \begin{enumerate}
+    \def\labelenumi{\arabic{enumi}.}
+    \tightlist
+    \item
+      Nome della classe (es. \passthrough{\lstinline!Car!}).
+    \item
+      Attributi con tipo (es.
+      \passthrough{\lstinline!manufacturer : string!},
+      \passthrough{\lstinline!model : string!}).
+    \item
+      Metodi con segnatura (es.
+      \passthrough{\lstinline!canFly() : boolean!},
+      \passthrough{\lstinline!setFrameNumber(num : uint)!}).
+    \end{enumerate}
+  \item
+    \textbf{Oggetto / Istanza (Rettangolo con nome sottolineato)}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Es. \passthrough{\lstinline!Car1: Car!} con
+      \passthrough{\lstinline!manufacturer = DeLorean!},
+      \passthrough{\lstinline!model = DMC-12!}.
+    \end{itemize}
+  \end{itemize}
+\item
+  \textbf{Interazione a Passaggio di Messaggi (\emph{Message Passing})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Gli oggetti non leggono né modificano la memoria altrui
+    direttamente: inviano richieste di servizio (\emph{messaggi}).
+  \item
+    L'\textbf{interfaccia} dell'oggetto è l'insieme di messaggi che esso
+    accetta. Se invio un messaggio non previsto, si genera un errore di
+    compilazione.
+  \end{itemize}
+\item
+  \textbf{Visibilità}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!+!} (\passthrough{\lstinline!public!}):
+    accessibile da qualsiasi classe.
+  \item
+    \passthrough{\lstinline!-!} (\passthrough{\lstinline!private!}):
+    accessibile esclusivamente dall'interno della classe stessa.
+  \end{itemize}
+\item
+  \textbf{Incapsulamento vs Information Hiding}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Incapsulamento}: impacchettare dati e codice in una singola
+    unità logica (la classe).
+  \item
+    \textbf{Information Hiding}: nascondere i dettagli implementativi
+    (rendendo i campi \passthrough{\lstinline!private!}) ed esporre solo
+    un'interfaccia controllata (metodi
+    \passthrough{\lstinline!public!}).
+  \item
+    \emph{Vantaggio chiave}: se cambiamo la struttura dati interna (es.
+    da array a tabella hash), il codice esterno che usa i metodi
+    pubblici non subisce alcun impatto (\emph{zero refactoring
+    esterno}).
+  \end{itemize}
+\item
+  \textbf{Associazioni UML}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Associazione standard}: linea continua con cardinalità (es.
+    \passthrough{\lstinline!1!} a \passthrough{\lstinline!0..n!} tra
+    \passthrough{\lstinline!Insurance!} e
+    \passthrough{\lstinline!Vehicle!}).
+  \item
+    \textbf{Ereditarietà (Generalizzazione)}: freccia con punta
+    triangolare vuota orientata verso la superclasse
+    (\passthrough{\lstinline!Car!} estende
+    \passthrough{\lstinline!Vehicle!}, \passthrough{\lstinline!Truck!}
+    estende \passthrough{\lstinline!Vehicle!}).
+  \end{itemize}
+\item
+  \textbf{I 4 Pilastri dell'OOP}:
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    \textbf{Incapsulamento} (\emph{Encapsulation}): bundling e
+    protezione dello stato interno.
+  \item
+    \textbf{Astrazione} (\emph{Abstraction}): separazione netta tra cosa
+    un componente fa (interfaccia pubblica) e come lo fa
+    (implementazione privata).
+  \item
+    \textbf{Ereditarietà} (\emph{Inheritance}): meccanismo di riuso e
+    specializzazione gerarchica di proprietà e comportamenti.
+  \item
+    \textbf{Polimorfismo} (\emph{Polymorphism}): capacità di trattare
+    istanze di classi diverse in modo uniforme attraverso un tipo o
+    interfaccia comune.
+  \end{enumerate}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{2. Codice: Esempio Comparativo: Dal Vettore C all'Oggetto
+Java}\label{codice-esempio-comparativo-dal-vettore-c-alloggetto-java}
+
+Per apprezzare concretamente i concetti di T02, confrontiamo il
+frammento C difettoso mostrato dal docente con la sua trasposizione
+nativa ad oggetti in Java.
+
+\paragraph{Il Problema in C (Codice procedurale
+insicuro)}\label{il-problema-in-c-codice-procedurale-insicuro}
+
+\begin{lstlisting}[language=C]
+// C procedurale: il dato è nudo e vulnerabile
+int vect[20];
+void init() { /* ... */ }
+
+int main() {
+    vect[25] = 999; // Corruzione di memoria silenziosa! Nessun errore a runtime.
+    return 0;
+}
+\end{lstlisting}
+
+\paragraph{La Soluzione ad Oggetti in Java (Incapsulamento, Information
+Hiding,
+Costruttore)}\label{la-soluzione-ad-oggetti-in-java-incapsulamento-information-hiding-costruttore}
+
+In Java, l'oggetto controlla se stesso. Non esiste memoria non
+inizializzata e l'accesso fuori limite lancia un'eccezione esplicita a
+runtime:
+
+\begin{lstlisting}[language=Java]
+public class SafeVector {
+    // 1. Information Hiding: il dato interno è inaccessibile all'esterno
+    private final int[] elements;
+
+    // 2. Garanzia di Inizializzazione: il costruttore viene eseguito all'atto del 'new'
+    public SafeVector(int size) {
+        if (size <= 0) {
+            throw new IllegalArgumentException("La dimensione deve essere positiva");
+        }
+        this.elements = new int[size]; // Nello Heap, azzerato di default a 0
+    }
+
+    // 3. Controllo dei confini e integrità: interfaccia controllata
+    public void set(int index, int value) {
+        // La JVM effettua l'ArrayBoundsCheck automatico, impedendo corruzioni di memoria
+        this.elements[index] = value;
+    }
+
+    public int get(int index) {
+        return this.elements[index];
+    }
+
+    public int size() {
+        return this.elements.length;
+    }
+}
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{studynote}[Punto Importante per l'Esame] \textbf{Takeaway per l'esame}: - Una classe non alloca
+memoria per lo stato fino alla chiamata a \passthrough{\lstinline!new!}
+(che alloca l'oggetto nello \textbf{Heap}). - L'Information Hiding si
+realizza marcando i campi di istanza come
+\passthrough{\lstinline!private!}. - I 4 pilastri dell'OOP
+(\emph{Encapsulation}, \emph{Abstraction}, \emph{Inheritance},
+\emph{Polymorphism}) sono il filo conduttore dell'intero corso.
+\end{studynote}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{studynote}[Nota di Studio] Il prossimo blocco è la \textbf{Lezione 3 / Slide T03:
+\emph{Building, Running and Deployment in Java}}, in cui studieremo: -
+Il modello di esecuzione Java: \textbf{Sorgente (.java) \(\rightarrow\)
+Bytecode (.class) \(\rightarrow\) JVM / JIT}. - I comandi CLI
+fondamentali: \passthrough{\lstinline!javac!},
+\passthrough{\lstinline!java!}, \passthrough{\lstinline!jar!},
+\passthrough{\lstinline!javadoc!}. - I concetti di \textbf{Classpath}
+(\passthrough{\lstinline!-cp!}) e gestione delle dipendenze. -
+\textbf{Apache Maven}: cicli di vita (\emph{compile, test, package,
+install}), struttura directory standard
+(\passthrough{\lstinline!src/main/java!},
+\passthrough{\lstinline!src/test/java!}) e il
+\passthrough{\lstinline!pom.xml!}.
+\end{studynote}
+
+\textbf{Dimmi quando sei pronto per passare a T03!}
+
+
+\end{document}

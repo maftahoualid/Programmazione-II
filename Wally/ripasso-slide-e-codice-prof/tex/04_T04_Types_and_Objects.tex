@@ -1,0 +1,696 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T04 --- Sistema di Tipi, Primitive e Reference}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T04 --- Sistema di Tipi, Primitive e Reference \\[0.3em] \large\sffamily Tipi Primitivi vs Reference, Casting, Wrapper, Operatori e Analisi di Example.java}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+Con questo blocco entriamo nel vivo della semantica del linguaggio:
+analizziamo come la JVM gestisce i tipi, la memoria (Stack vs Heap), i
+puntatori/reference, gli operatori logici e lo scope, confrontando la
+teoria di
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Slides-20260902/T04\%20-\%20Types\%20and\%20Objects.pdf}{T04
+- Types and Objects.pdf} con il primo file di codice ufficiale del
+docente:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione04/Example.java}{\passthrough{\lstinline!Example.java!}}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1. Teoria: Concetti Teorici dalle
+Slide}\label{teoria-concetti-teorici-dalle-slide}
+
+\paragraph{A. Tipizzazione dei Linguaggi e il ``Contratto'' di Tipo
+(Slide
+1--7)}\label{a.-tipizzazione-dei-linguaggi-e-il-contratto-di-tipo-slide-17}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Definizione formale informale di Tipo}: Un tipo è una coppia
+  formata da un \textbf{insieme di valori ammissibili} e da un
+  \textbf{insieme di operazioni consentite} su di essi.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Es. \passthrough{\lstinline!int!}: valori da \(-2^{31}\) a
+    \(2^{31}-1\), operazioni \passthrough{\lstinline!+!},
+    \passthrough{\lstinline!-!}, \passthrough{\lstinline!*!},
+    \passthrough{\lstinline!/!}, \passthrough{\lstinline!\%!}.
+  \item
+    Il tipo definisce un \textbf{contratto}: vincola cosa una variabile
+    può contenere e in quali espressioni può comparire.
+  \end{itemize}
+\item
+  \textbf{Weakly Typed (es. Python, JavaScript) vs Strongly Typed
+  (Java)}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Nei linguaggi \emph{weakly typed}, le variabili sono contenitori
+    generici slegati dal tipo: una variabile \passthrough{\lstinline!x!}
+    può contenere un intero, poi una stringa, poi una tupla.
+  \item
+    Nei linguaggi \emph{strongly typed} come Java, ogni variabile
+    richiede una dichiarazione esplicita e immutabile di tipo a tempo di
+    compilazione (\passthrough{\lstinline!int x;!}). Assegnare un tipo
+    incompatibile genera un \textbf{Compile-Time Error}.
+  \item
+    \emph{Meme di JavaScript a lezione}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \passthrough{\lstinline!"11" + 1!} \(\implies\)
+      \passthrough{\lstinline!"111"!} (coercizione implicita a stringa e
+      concatenazione).
+    \item
+      \passthrough{\lstinline!"11" - 1!} \(\implies\)
+      \passthrough{\lstinline!10!} (coercizione implicita a numero e
+      sottrazione numerica).
+    \item
+      In Java queste ambiguità ed errori silenziosi sono impossibili: il
+      compilatore blocca ogni operazione non conforme prima
+      dell'esecuzione.
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{B. I Tipi Primitivi in Java e le Conversioni (Slide
+8--13)}\label{b.-i-tipi-primitivi-in-java-e-le-conversioni-slide-813}
+
+Java dispone di \textbf{8 tipi primitivi} (allocati direttamente per
+valore nello Stack o inline negli oggetti, non sono oggetti):
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Tipo Primitivo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Dimensione
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Range di Valori
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Default (campi)
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\passthrough{\lstinline!byte!} & 8 bit (1 byte) & da \(-128\) a \(+127\)
+(\(-2^7 \dots 2^7-1\)) & \passthrough{\lstinline!0!} \\
+\passthrough{\lstinline!short!} & 16 bit (2 byte) & da \(-32.768\) a
+\(+32.767\) (\(-2^{15} \dots 2^{15}-1\)) &
+\passthrough{\lstinline!0!} \\
+\textbf{\passthrough{\lstinline!int!}} & 32 bit (4 byte) & da
+\(-2.147.483.648\) a \(+2.147.483.647\) (\(-2^{31} \dots 2^{31}-1\)) &
+\passthrough{\lstinline!0!} \\
+\passthrough{\lstinline!long!} & 64 bit (8 byte) & da \(-2^{63}\) a
+\(+2^{63}-1\) (suffisso \passthrough{\lstinline!L!} o
+\passthrough{\lstinline!l!}) & \passthrough{\lstinline!0L!} \\
+\passthrough{\lstinline!float!} & 32 bit IEEE 754 & Precisione singola
+(suffisso obbligatorio \passthrough{\lstinline!f!} o
+\passthrough{\lstinline!F!}) & \passthrough{\lstinline!0.0f!} \\
+\textbf{\passthrough{\lstinline!double!}} & 64 bit IEEE 754 & Precisione
+doppia (default per numeri con la virgola) &
+\passthrough{\lstinline!0.0d!} \\
+\textbf{\passthrough{\lstinline!char!}} & 16 bit (2 byte) & da
+\passthrough{\lstinline!0!} a \passthrough{\lstinline!65.535!} (Unicode
+UTF-16, \textbf{unsigned}) & \passthrough{\lstinline!'\\u0000'!}
+(NUL) \\
+\textbf{\passthrough{\lstinline!boolean!}} & 1 bit logico &
+\passthrough{\lstinline!true!} oppure \passthrough{\lstinline!false!} &
+\passthrough{\lstinline!false!} \\
+\end{longtable}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Aritmetica Modulare e Overflow degli
+  \passthrough{\lstinline!int!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    In Java non viene lanciata alcuna eccezione se un calcolo intero
+    supera il limite massimo: avviene il \textbf{wrap-around} secondo
+    l'aritmetica del complemento a due a 32 bit.
+  \item
+    Se \passthrough{\lstinline!a = 2147483647!} (\(2^{31}-1\)),
+    l'operazione \passthrough{\lstinline!a + 1!} restituisce
+    \(-2147483648\) (\(-2^{31}\)).
+  \end{itemize}
+\item
+  \textbf{Conversioni di Tipo (Casting)}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Widening (Allargamento / Implicito)}: da un tipo più stretto
+    a uno più ampio (nessuna perdita d'ordine di grandezza):
+    \[\text{byte} \longrightarrow \text{short} \longrightarrow \text{int} \longrightarrow \text{long} \longrightarrow \text{float} \longrightarrow \text{double}\]
+    Es: \passthrough{\lstinline!float f = 3;!} converte automaticamente
+    \passthrough{\lstinline!int 3!} in \passthrough{\lstinline!3.0f!}.
+  \item
+    \textbf{Narrowing (Restringimento / Esplicito obbligatorio)}: da un
+    tipo più ampio a uno più stretto, richiede il cast sintattico
+    \passthrough{\lstinline!(tipo)!} perché comporta potenziale
+    troncamento o perdita di informazione: Es:
+    \passthrough{\lstinline!int i = (int) 3.2;!} scarta la parte
+    decimale e memorizza \passthrough{\lstinline!3!}.
+  \end{itemize}
+\item
+  \textbf{I Caratteri sono Numeri Interi Unsigned a 16 bit}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Un \passthrough{\lstinline!char!} memorizza il codice numerico
+    Unicode (UTF-16 code unit).
+  \item
+    \passthrough{\lstinline!'V'!}, \passthrough{\lstinline!(char) 86!} e
+    \passthrough{\lstinline!'\\u0056'!} sono tre rappresentazioni
+    letterali dello \textbf{stesso identico dato binario} (valore
+    decimale 86).
+  \end{itemize}
+\item
+  \textbf{Tipi Non-Primitivi (Reference Types) e la Classe
+  \passthrough{\lstinline!String!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Tutto ciò che non è un tipo primitivo è un \textbf{oggetto}.
+  \item
+    \passthrough{\lstinline!String!} è una classe immutabile.
+    L'operatore \passthrough{\lstinline!+!} tra una stringa e qualsiasi
+    altro tipo (primitivo o oggetto) applica automaticamente
+    l'overloading di concatenazione, invocando internamente la
+    conversione a stringa.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{C. Modello di Memoria, Puntatori e Garbage Collection (Slide
+14--21)}\label{c.-modello-di-memoria-puntatori-e-garbage-collection-slide-1421}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Assenza di Variabili Globali}: In Java non esiste lo scope
+  globale in stile C. Ogni dato o funzione appartiene a una classe o a
+  un'istanza.
+\item
+  \textbf{La Verità sui Puntatori in Java}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{«Java does have pointers, but there is no pointer
+    arithmetic»}: ogni variabile di tipo non primitivo è tecnicamente un
+    \textbf{puntatore/riferimento} (\emph{reference}) a un blocco di
+    memoria nello \textbf{Heap}.
+  \item
+    La JVM protegge la memoria: il programmatore non può vedere
+    l'indirizzo fisico, né fare \passthrough{\lstinline!ptr++!} o
+    dereferenziare offset arbitrari.
+  \item
+    Il passaggio dei parametri ai metodi in Java è \textbf{sempre
+    rigorosamente per valore} (\emph{pass-by-value}): per gli oggetti,
+    viene copiato per valore il \textbf{riferimento} (l'indirizzo
+    logico).
+  \end{itemize}
+\item
+  \textbf{Rappresentazione di un Reference}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Una variabile d'istanza non inizializzata contiene
+    \passthrough{\lstinline!null!} (es.
+    \passthrough{\lstinline!Vehicle@null!}).
+  \item
+    Quando viene invocato \passthrough{\lstinline!new Vehicle()!}, la
+    JVM alloca l'oggetto nello Heap e restituisce l'indirizzo:
+    \passthrough{\lstinline!myCar!} conterrà un valore del tipo
+    \passthrough{\lstinline!Vehicle@25c7f37d!}.
+  \end{itemize}
+\item
+  \textbf{Errori di Memoria e
+  \passthrough{\lstinline!NullPointerException!} (NPE)}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Se si tenta di invocare un metodo o accedere a un campo su una
+    reference che vale \passthrough{\lstinline!null!} (es.
+    \passthrough{\lstinline!myCar2.setFrameNumber(5)!}), la JVM solleva
+    una \textbf{\passthrough{\lstinline!NullPointerException!}} a
+    runtime, interrompendo l'esecuzione.
+  \end{itemize}
+\item
+  \textbf{Perché i programmatori scrivono
+  \passthrough{\lstinline!myCar = null;!}?}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    L'assegnamento a \passthrough{\lstinline!null!} rimuove il puntatore
+    verso l'oggetto nello Heap. Se nessun'altra reference punta a
+    quell'area di memoria, l'oggetto diventa \textbf{irraggiungibile}
+    (\emph{unreachable}) ed eleggibile per la \textbf{Garbage Collection
+    (GC)}, consentendo alla JVM di bonificare la memoria.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2. Codice: Analisi Dettagliata del
+Codice:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione04/Example.java}{\texttt{Example.java}}}{2. Codice: Analisi Dettagliata del Codice: Example.java}}\label{codice-analisi-dettagliata-del-codice-example.java}
+
+Analizziamo riga per riga il sorgente della Lezione 04, evidenziando
+tutte le trappole e i dettagli d'esame:
+
+\begin{lstlisting}[language=Java]
+public class Example {
+    static float f1;
+    static float f2 = 3.4f;
+    static String s1;
+    static final double PI = 3.14; 
+    
+    public static void main(String[] args) {
+        int i1 = 6;
+        int i2;
+        char c1 = 'V';
+        char c2 = 86;
+        char c3 = '\u0056';
+        String s2;
+            
+        System.out.println("i1: " + i1);
+        // System.out.println("i2: " + i2); // compile-time error
+        System.out.println("f1: " + f1);
+        System.out.println("f2: " + f2);
+        System.out.println("c1: " + c1 + " c2: " + c2 + " c3: " + c3);
+        System.out.println("s1: " + s1);
+        /*
+         System.out.println("s2: " + s2); // compile-time error
+         System.out.println(s1.toString()); // run-time error
+         PI = 3.0; // compile-time error
+        */
+        int k = 0;
+        System.out.println(true | k++ == 0);
+        System.out.println("k (standard eval): " + k);
+        k = 0;
+        System.out.println(true || k++ == 0);
+        System.out.println("k (short-circuit eval): " + k);
+        //
+        int n = 4;
+        n ++;
+        // int n = 8; // compile-time error
+        {
+            int m = 7;
+            m ++;
+        }
+        {
+            int m = 8;
+            m --;
+        }
+        System.out.println("n: " + n);
+        // System.out.println("m: " + m); // compile-time error
+    }
+}
+\end{lstlisting}
+
+\paragraph{Analisi: Le Finezze Implementative Spiegate Riga per
+Riga:}\label{analisi-le-finezze-implementative-spiegate-riga-per-riga}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Variabili Statiche/Campi vs Variabili Locali (\emph{Definite
+  Assignment Analysis})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!static float f1;!} e
+    \passthrough{\lstinline!static String s1;!}: sono campi a livello di
+    classe. \textbf{La JVM li inizializza SEMPRE automaticamente al loro
+    default}: \passthrough{\lstinline!f1!} diventa
+    \passthrough{\lstinline!0.0f!} e \passthrough{\lstinline!s1!}
+    diventa \passthrough{\lstinline!null!}.
+  \item
+    \passthrough{\lstinline!int i2;!} e
+    \passthrough{\lstinline!String s2;!}: sono variabili locali allocate
+    nel frame dello \textbf{Stack}. \textbf{Le variabili locali NON
+    hanno valori di default}.
+  \item
+    Se tentiamo di leggere \passthrough{\lstinline!i2!} o
+    \passthrough{\lstinline!s2!} prima di aver assegnato loro un valore
+    (\passthrough{\lstinline!System.out.println(i2)!}), il compilatore
+    Java blocca la compilazione con l'errore:
+    \passthrough{\lstinline!variable i2 might not have been initialized!}.
+  \end{itemize}
+\item
+  \textbf{Suffisso dei Floating Point (\passthrough{\lstinline!3.4f!})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!static float f2 = 3.4f;!}: il letterale
+    \passthrough{\lstinline!3.4!} senza suffissi è un
+    \passthrough{\lstinline!double!} a 64 bit. Scrivere
+    \passthrough{\lstinline!float f = 3.4;!} genera errore di
+    compilazione (\emph{loss of precision}). Il suffisso
+    \passthrough{\lstinline!f!} forza il letterale a 32 bit.
+  \end{itemize}
+\item
+  \textbf{Costanti con \passthrough{\lstinline!final!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!static final double PI = 3.14;!}: la keyword
+    \passthrough{\lstinline!final!} rende la variabile a sola lettura
+    dopo l'inizializzazione. Il tentativo di riassegnamento
+    \passthrough{\lstinline!PI = 3.0;!} viene respinto dal compilatore
+    (\passthrough{\lstinline!cannot assign a value to final variable PI!}).
+    Per convenzione Java, le costanti
+    \passthrough{\lstinline!static final!} si scrivono in
+    \passthrough{\lstinline!MAIUSCOLO\_SNAKE\_CASE!}.
+  \end{itemize}
+\item
+  \textbf{I 3 modi di rappresentare un \passthrough{\lstinline!char!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!c1 = 'V'!}: letterale carattere.
+  \item
+    \passthrough{\lstinline!c2 = 86!}: valore intero decimale
+    ASCII/Unicode per la `V'.
+  \item
+    \passthrough{\lstinline!c3 = '\\u0056'!}: sequenza di escape Unicode
+    a 16 bit in esadecimale (\(5 \times 16 + 6 = 86\)).
+  \item
+    Stampati a video, producono tutti e tre il carattere
+    \passthrough{\lstinline!V!}.
+  \end{itemize}
+\item
+  \textbf{Concatenazione di \passthrough{\lstinline!null!} vs
+  \passthrough{\lstinline!NullPointerException!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!System.out.println("s1: " + s1);!} stampa
+    \passthrough{\lstinline!"s1: null"!}. L'operatore
+    \passthrough{\lstinline!+!} converte in sicurezza il riferimento
+    nullo nella stringa letterale \passthrough{\lstinline!"null"!}.
+  \item
+    \passthrough{\lstinline!System.out.println(s1.toString());!} genera
+    invece un \textbf{Run-Time Error}
+    (\passthrough{\lstinline!NullPointerException!}): non è possibile
+    dereferenziare un puntatore nullo per invocarvi un metodo d'istanza.
+  \end{itemize}
+\item
+  \textbf{Operatori Logici Standard (\passthrough{\lstinline!|!},
+  \passthrough{\lstinline!\&!}) vs Corto-Circuito (\emph{Short-Circuit}
+  \passthrough{\lstinline!||!}, \passthrough{\lstinline!\&\&!}) e Side
+  Effects}:
+
+  \begin{itemize}
+  \item
+    Caso \passthrough{\lstinline!true | k++ == 0!}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      L'operatore singolo \passthrough{\lstinline!|!} (non a corto
+      circuito) \textbf{valuta SEMPRE entrambi gli operandi}.
+    \item
+      Anche se la parte sinistra è già \passthrough{\lstinline!true!},
+      la parte destra \passthrough{\lstinline!k++ == 0!} viene valutata:
+      \passthrough{\lstinline!k!} viene confrontato con
+      \passthrough{\lstinline!0!} (dando \passthrough{\lstinline!true!})
+      e poi incrementato di \(1\).
+    \item
+      Stampa a video: \passthrough{\lstinline!true!}, seguito da
+      \passthrough{\lstinline!k (standard eval): 1!}.
+    \end{itemize}
+  \item
+    Caso \passthrough{\lstinline!true || k++ == 0!}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      L'operatore doppio \passthrough{\lstinline!||!} (a corto circuito)
+      verifica la parte sinistra: poiché è
+      \passthrough{\lstinline!true!}, il risultato globale dell'or
+      logico è già matematicamente certo
+      (\passthrough{\lstinline!true!}).
+    \item
+      La parte destra viene \textbf{completamente ignorata e mai
+      valutata}!
+    \item
+      Di conseguenza, \passthrough{\lstinline!k++!} \textbf{non viene
+      eseguito}.
+    \item
+      Stampa a video: \passthrough{\lstinline!true!}, seguito da
+      \passthrough{\lstinline!k (short-circuit eval): 0!}.
+    \end{itemize}
+  \item
+    \emph{Importanza pratica}: lo short-circuit
+    \passthrough{\lstinline!\&\&!} è l'idioma fondamentale per evitare
+    crash su \passthrough{\lstinline!null!}:
+
+\begin{lstlisting}[language=Java]
+if (s != null && s.length() > 0) { ... } // Se s è null, non chiama mai s.length()!
+\end{lstlisting}
+  \end{itemize}
+\item
+  \textbf{Scope delle Variabili e Divieto di Shadowing Locale}:
+
+  \begin{itemize}
+  \item
+    In Java, il ciclo di vita e la visibilità delle variabili sono
+    delimitati dalle graffe \passthrough{\lstinline!\{ ... \}!}.
+  \item
+    \passthrough{\lstinline!int n = 4; n++;!} dichiara
+    \passthrough{\lstinline!n!} nello scope del metodo. Scrivere
+    \passthrough{\lstinline!int n = 8;!} nello stesso scope o in un
+    sottoblocco interno genera l'errore:
+    \passthrough{\lstinline!Variable 'n' is already defined in the scope!}.
+    In Java le variabili locali non possono oscurare altre variabili
+    locali omonime.
+  \item
+    Blocchi anonimi indipendenti:
+
+\begin{lstlisting}[language=Java]
+{ int m = 7; m++; }
+{ int m = 8; m--; }
+\end{lstlisting}
+
+    La variabile \passthrough{\lstinline!m!} del primo blocco viene
+    distrutta alla chiusura della prima graffa. La seconda
+    \passthrough{\lstinline!m!} è una nuova variabile in uno scope
+    disgiunto. All'esterno dei blocchi, \passthrough{\lstinline!m!} non
+    esiste (\passthrough{\lstinline!cannot find symbol variable m!}).
+  \end{itemize}
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{3. Test: Output Esatto di
+Esecuzione}\label{test-output-esatto-di-esecuzione}
+
+Eseguendo \passthrough{\lstinline!Example.java!} da terminale o
+IntelliJ:
+
+\begin{lstlisting}
+i1: 6
+f1: 0.0
+f2: 3.4
+c1: V c2: V c3: V
+s1: null
+true
+k (standard eval): 1
+true
+k (short-circuit eval): 0
+n: 5
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{studynote}[Nota di Studio] Con la \textbf{Lezione 4 / T04} abbiamo chiarito le basi di
+tipo, stack/heap e operatori.
+
+Il prossimo blocco raggruppa le \textbf{Lezioni 05-06 / Slide T05
+(\emph{Java Basic Syntax}) e T06 (\emph{Java Classes and Objects})},
+dove nasce il progetto incrementale centrale del corso: - Struttura
+della prima classe ad oggetti:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezioni05-06/SimpleDate}{\passthrough{\lstinline!SimpleDate!}}
+(\passthrough{\lstinline!Date.java!} e
+\passthrough{\lstinline!MainDate.java!}). - La classe sperimentale
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezioni05-06/StringPlayground.java}{\passthrough{\lstinline!StringPlayground.java!}}.
+- La prima validazione delle date: algoritmo dei giorni del mese e
+calcolo degli anni bisestili secondo il calendario Gregoriano. -
+Sintassi Java: costrutti di controllo
+(\passthrough{\lstinline!if-else!}, \passthrough{\lstinline!switch!},
+\passthrough{\lstinline!for!}, \passthrough{\lstinline!while!},
+\passthrough{\lstinline!do-while!}), etichette (\emph{labeled
+break/continue}). - Metodi, parametri, ritorno e la keyword
+\passthrough{\lstinline!this!}. - La classe
+\passthrough{\lstinline!MainDate!}: test delle istanze, instanziazione
+con \passthrough{\lstinline!new!} e stampa dello stato.
+\end{studynote}
+
+\textbf{Dammi conferma per aprire le Lezioni 05-06 / T05-T06 e
+analizzare la prima versione di \passthrough{\lstinline!SimpleDate!} e
+\passthrough{\lstinline!StringPlayground!}!}
+
+
+\end{document}

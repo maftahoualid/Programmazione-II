@@ -1,0 +1,577 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T08 --- Costruttori, Inizializzazione ed Incapsulamento}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T08 --- Costruttori, Inizializzazione ed Incapsulamento \\[0.3em] \large\sffamily Ciclo di Inizializzazione, Overloading dei Costruttori, Modificatori e SimpleDate v3}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+In questo blocco analizziamo in dettaglio la teoria dei costruttori,
+dell'incapsulamento e dell'information hiding
+(\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Slides-20260902/T08\%20-\%20Class\%20Constructors\%20and\%20Encapsulation.pdf}{T08
+- Class Constructors and Encapsulation.pdf}), confrontandola con il
+codice ufficiale in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione08/SimpleDate/src}{\passthrough{\lstinline!Lezione08!}},
+dove nasce l'enum \textbf{\passthrough{\lstinline!Language.java!}},
+vengono aggiunti gli array dei mesi per la stampa estesa
+(\passthrough{\lstinline!prettyPrint()!}) e si introduce
+l'\textbf{Enhanced For (for-each)}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1. Teoria: Concetti Teorici dalle Slide (Slide
+T08)}\label{teoria-concetti-teorici-dalle-slide-slide-t08}
+
+\paragraph{A. Il Ciclo di Vita e i Meccanismi dei Costruttori (Slide
+1--12)}\label{a.-il-ciclo-di-vita-e-i-meccanismi-dei-costruttori-slide-112}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Cosa avviene esattamente dietro le quinte con
+  \passthrough{\lstinline!new Clazz()!}}:
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    La JVM calcola l'ingombro in byte di tutti i campi e alloca un
+    blocco contiguo di memoria nello \textbf{Heap}.
+  \item
+    Genera un riferimento (\emph{reference}) univoco che punta a
+    quell'area di memoria.
+  \item
+    Inizializza tutti i campi ai rispettivi valori di default
+    (\passthrough{\lstinline!0!}, \passthrough{\lstinline!false!},
+    \passthrough{\lstinline!null!}).
+  \item
+    Invoca il \textbf{costruttore} designato passando implicitamente il
+    puntatore \passthrough{\lstinline!this!}.
+  \item
+    Restituisce l'indirizzo dell'oggetto alla variabile a sinistra
+    dell'assegnamento.
+  \end{enumerate}
+\item
+  \textbf{Caratteristiche Tassative di un Costruttore}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Deve avere lo \textbf{stesso identico nome della classe}.
+  \item
+    \textbf{Non ha alcun tipo di ritorno} (nemmeno
+    \passthrough{\lstinline!void!}!).
+  \item
+    Viene eseguito una sola volta, all'atto della creazione
+    dell'istanza.
+  \end{itemize}
+\item
+  \textbf{Default Constructor (Costruttore di Default)}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Se il programmatore \textbf{non dichiara alcun costruttore}, il
+    compilatore Java inserisce automaticamente un costruttore vuoto
+    senza argomenti (\passthrough{\lstinline!public Clazz() \{ \}!}).
+  \item
+    Attenzione: \textbf{Regola aurea d'esame}: se il programmatore
+    dichiara \emph{anche un solo} costruttore con parametri (es.
+    \passthrough{\lstinline!public Car(String color)!}), il compilatore
+    \textbf{non genera più il costruttore di default}! Invocare
+    \passthrough{\lstinline!new Car()!} senza argomenti provocherà un
+    \textbf{Compile-Time Error}.
+  \end{itemize}
+\item
+  \textbf{False Constructor (Il Falso Costruttore --- Trabocchetto
+  d'Esame)}:
+
+  \begin{itemize}
+  \item
+    Se si inserisce un tipo di ritorno (ad esempio
+    \passthrough{\lstinline!void Car(String color)!}):
+
+\begin{lstlisting}[language=Java]
+public class Car {
+    void Car(String color) { ... } // Attenzione:  NON È UN COSTRUTTORE!
+}
+\end{lstlisting}
+  \item
+    Per il compilatore questo è un \textbf{normale metodo d'istanza}
+    (avente incidentalmente lo stesso nome della classe). Il compilatore
+    aggiungerà comunque il costruttore di default
+    \passthrough{\lstinline!Car()!}, e il metodo
+    \passthrough{\lstinline!void Car(...)!} non verrà mai invocato al
+    momento del \passthrough{\lstinline!new!}!
+  \end{itemize}
+\item
+  \textbf{Copy Constructor}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Costruttore che accetta un'altra istanza della medesima classe per
+    clonarne lo stato (\passthrough{\lstinline!Car(Car other)!}). In
+    Java non esiste la copia automatica bit-a-bit del C++: deve essere
+    scritta esplicitamente dal programmatore.
+  \end{itemize}
+\item
+  \textbf{Constructor Overloading e Chaining con
+  \passthrough{\lstinline!this(...)!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Più costruttori con firme distinte.
+  \item
+    La chiamata \passthrough{\lstinline!this(...)!} verso un costruttore
+    fratello serve a evitare duplicazione di logica di validazione e
+    \textbf{deve essere tassativamente la prima riga di codice nel corpo
+    del costruttore}.
+  \item
+    \emph{Meme delle slide (p.~11)}: Il matematico in lacrime che grida
+    \emph{``Abuse of notation''} vs il Chad Programmer che usa
+    l'overloading per semplificare il codice.
+  \end{itemize}
+\item
+  \textbf{Distruttori e il Metodo \passthrough{\lstinline!finalize()!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    In Java non esiste la deallocazione manuale: non esistono
+    distruttori (\passthrough{\lstinline!\~Car()!}).
+  \item
+    Esisteva il metodo protetto
+    \passthrough{\lstinline!protected void finalize()!} invocato prima
+    della rimozione da parte del Garbage Collector.
+  \item
+    Attenzione: \textbf{Attenzione}:
+    \passthrough{\lstinline!finalize()!} è ufficialmente
+    \textbf{deprecato da Java 9} in poi (e rimosso/reso no-op nelle
+    versioni moderne) per l'imprevedibilità temporale dell'esecuzione
+    del GC e rischi di deadlock. Non va mai utilizzato.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{B. Incapsulamento, Information Hiding e Modificatori di
+Accesso (Slide
+13--24)}\label{b.-incapsulamento-information-hiding-e-modificatori-di-accesso-slide-1324}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Incapsulamento}: aggregazione fisica nello stesso file
+  sorgente di dati (campi) e procedure (metodi).
+\item
+  \textbf{Information Hiding}: occultamento della rappresentazione
+  interna dello stato.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{Meme della Cipolla (p.~18)}: \emph{«Most software is written
+    like an onion: The more layers you peel back, the more you want to
+    cry»}. L'Information Hiding crea confini netti per proteggere il
+    codice dal disfacimento.
+  \item
+    \emph{Meme di Gandalf (p.~24)}: \emph{«YOU SHALL NOT ACCESS MY
+    MEMBERS»}.
+  \end{itemize}
+\item
+  \textbf{I 4 Livelli di Visibilità in Java}:
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    \passthrough{\lstinline!private!}: visibile esclusivamente
+    all'interno della stessa classe.
+  \item
+    \emph{Default (Package-Private)}: nessun modificatore; visibile
+    all'interno della classe e a tutte le classi residenti nello stesso
+    package.
+  \item
+    \passthrough{\lstinline!protected!}: visibile nel package e a tutte
+    le sottoclassi derivate (anche in package diversi).
+  \item
+    \passthrough{\lstinline!public!}: visibile ovunque, da qualsiasi
+    package del Classpath.
+  \end{enumerate}
+\item
+  \textbf{Vantaggi Architetturali di Getter e Setter}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{Nei Setter}: possibilità di intercettare valori anomali,
+    applicare regole di business e loggare le modifiche prima di mutare
+    lo stato.
+  \item
+    \emph{Nei Getter}: possibilità di alterare la rappresentazione
+    interna della memoria senza rompere il codice dei client
+    (\textbf{Retro-compatibilità / Loose Coupling}). Ad esempio,
+    cambiare il campo interno da \passthrough{\lstinline!int age!} a
+    \passthrough{\lstinline!short age!} per dimezzare l'occupazione di
+    RAM, mantenendo il getter
+    \passthrough{\lstinline!public int getAge() \{ return age; \}!}
+    (promozione implicita di tipo) senza che il mondo esterno debba
+    ricompilare o cambiare una sola riga di codice.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{C. Asserzioni e Testing (Slide
+25--26)}\label{c.-asserzioni-e-testing-slide-2526}
+
+\begin{itemize}
+\item
+  La parola chiave \passthrough{\lstinline!assert!}:
+
+\begin{lstlisting}[language=Java]
+assert person.getAge() != 0 : "Age cannot be 0";
+\end{lstlisting}
+
+  \begin{itemize}
+  \item
+    Se l'espressione a sinistra valuta \passthrough{\lstinline!false!},
+    la JVM interrompe l'esecuzione e lancia un
+    \passthrough{\lstinline!AssertionError!} mostrando il messaggio a
+    destra dei due punti.
+  \item
+    Richiede obbligatoriamente l'attivazione a runtime con il flag JVM
+    \textbf{\passthrough{\lstinline!-ea!}} (\emph{Enable Assertions}):
+
+\begin{lstlisting}[language=bash]
+java -ea TestPerson
+\end{lstlisting}
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2. Codice: Evoluzione del Codice:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione08/SimpleDate/src}{\texttt{Lezione08}}}{2. Codice: Evoluzione del Codice: Lezione08}}\label{codice-evoluzione-del-codice-lezione08}
+
+In \passthrough{\lstinline!Lezione08!} il docente applica un refactoring
+strutturale a \passthrough{\lstinline!SimpleDate!}:
+
+\paragraph{\texorpdfstring{1. Introduzione del Tipo Enumerato
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione08/SimpleDate/src/Language.java}{\texttt{Language.java}}}{1. Introduzione del Tipo Enumerato Language.java}}\label{introduzione-del-tipo-enumerato-language.java}
+
+Viene abbandonato il primitivo \passthrough{\lstinline!byte lang!} (dove
+\passthrough{\lstinline!0!} era IT e \passthrough{\lstinline!1!} era US,
+fragile e poco leggibile) a favore di un tipo enum fortemente tipizzato:
+
+\begin{lstlisting}[language=Java]
+public enum Language {
+    IT, US;
+
+    public String toString() {
+        switch (this) {
+            case IT: return "italiano";
+            case US: return "american";
+            default: return null;
+        }
+    }
+}
+\end{lstlisting}
+
+\emph{Finezza}: Anche gli enum in Java sono tipi reference completi e
+possono sovrascrivere \passthrough{\lstinline!toString()!} per
+restituire una descrizione testuale appropriata.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{2. Refactoring di
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione08/SimpleDate/src/Date.java}{\texttt{Date.java}}}{2. Refactoring di Date.java}}\label{refactoring-di-date.java}
+
+\begin{lstlisting}
+ public class Date {
+-    private byte lang; // 0: IT, 1: US
++    private Language lang;
++    private static final String[] MONTHS_IT = { "gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "setembre", "ottobre", "novembre", "dicembre" };
++    private static final String[] MONTHS_US = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+
+     public Date(int day, int month, int year) {
+         this.day = day;
+         this.month = month;
+         this.year = year;
+         verify();
+-        lang = 0;
++        lang = Language.IT;
+     }
+
+-    public void setLang(byte lang) { ... }
++    public void setAmerican() { lang = Language.US; }
++    public void setItalian() { lang = Language.IT; }
+
++    public String getMonthAsString() {
++        if (lang == Language.IT) return MONTHS_IT[month-1];
++        else return MONTHS_US[month-1];
++    }
+
++    public String prettyPrint() {
++        if (lang == Language.IT) return day + " " + MONTHS_IT[month-1] + " " + year;
++        else return MONTHS_US[month-1] + " " + day + ", " + year;
++    }
+\end{lstlisting}
+
+\paragraph{\texorpdfstring{Analisi: Dettagli Tecnici e Trabocchetti nel
+Codice di
+\texttt{Date}:}{Analisi: Dettagli Tecnici e Trabocchetti nel Codice di Date:}}\label{analisi-dettagli-tecnici-e-trabocchetti-nel-codice-di-date}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Separazione Semantica dei Metodi di Configurazione}: Invece di
+  un setter generico che accetta valori arbitrari, il prof definisce due
+  metodi espliciti auto-esplicativi:
+  \passthrough{\lstinline!setItalian()!} e
+  \passthrough{\lstinline!setAmerican()!}.
+\item
+  \textbf{Array di Costanti di Classe
+  (\passthrough{\lstinline!private static final String[]!})}: Gli
+  elenchi dei nomi dei mesi sono \passthrough{\lstinline!static final!}
+  (condivisi da tutte le istanze senza duplicare memoria nello Heap) e
+  \passthrough{\lstinline!private!} (inaccessibili all'esterno).
+  \emph{Curiosità nel codice del prof}: nell'array
+  \passthrough{\lstinline!MONTHS\_IT!} c'è un piccolo refuso:
+  \passthrough{\lstinline!"setembre"!} con una sola `t'.
+\item
+  \textbf{Persistenza del Refuso del Prof nei Getter}: Anche in questa
+  lezione, alle righe 43--44 di \passthrough{\lstinline!Date.java!}:
+
+\begin{lstlisting}[language=Java]
+public int getDay() { return day; }
+public int getMonth() { return day; } // Ritorna day anziché month!
+public int getYear() { return day; }  // Ritorna day anziché year!
+\end{lstlisting}
+
+  Un chiaro refuso di copia-incolla che non è stato corretto dal docente
+  nel rilascio ufficiale. Nel proprio codice personale è doveroso
+  restituire i rispettivi campi \passthrough{\lstinline!month!} e
+  \passthrough{\lstinline!year!}.
+\item
+  \textbf{\passthrough{\lstinline!prettyPrint()!} e Formattazione
+  Culturale}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    In italiano: giorno, mese per esteso, anno (es.
+    \passthrough{\lstinline!7 gennaio 2025!}).
+  \item
+    In inglese/americano: mese per esteso, giorno, virgola, anno (es.
+    \passthrough{\lstinline!February 20, 2025!}).
+  \end{itemize}
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{3. Novità in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione08/SimpleDate/src/MainDate.java}{\texttt{MainDate.java}}:
+Array di Oggetti ed Enhanced
+For}{3. Novità in MainDate.java: Array di Oggetti ed Enhanced For}}\label{novituxe0-in-maindate.java-array-di-oggetti-ed-enhanced-for}
+
+\begin{lstlisting}[language=Java]
+// Inizializzazione rapida di un array di oggetti nello Heap
+Date[] dates = { d1, d2, d3, new Date(14, 2, 2024) };
+
+// 1. Scansione all'indietro classica tramite indice
+for (int i = dates.length - 1; i >= 0; i--)
+    System.out.println(dates[i].toString() + ": " + dates[i].getMonthAsString());
+
+// 2. Scansione in avanti con Enhanced For (For-Each)
+for (Date date : dates)
+    System.out.println(date.toString() + ": " + date.getMonthAsString());
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  Il costrutto
+  \textbf{\passthrough{\lstinline!for (Tipo elemento : collezione)!}}
+  evita di manipolare manualmente indici di scorrimento, rendendo il
+  codice più leggibile ed eliminando il rischio di errori di off-by-one
+  o out-of-bounds.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{3. Ciclo: Corrispondenza con i Tuoi Moduli
+Workspace}\label{ciclo-corrispondenza-con-i-tuoi-moduli-workspace}
+
+Nel tuo repository
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26}{\passthrough{\lstinline!esercizi-wally-25-26!}}:
+- \textbf{\passthrough{\lstinline!es06!}}:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es06/src/main/java/es06/Person.java}{\passthrough{\lstinline!Person.java!}}
+implementa l'esempio accademico della persona con i metodi di
+validazione \passthrough{\lstinline!verifyAge!} e
+\passthrough{\lstinline!verifyName!}, incapsulamento rigoroso e gestione
+dei setter/getter. - \textbf{\passthrough{\lstinline!es07!}}:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es07/src/main/java/es07/Language.java}{\passthrough{\lstinline!Language.java!}}
+definisce l'enum \passthrough{\lstinline!Language!} sfruttando
+modernamente la \emph{Switch Expression} di Java 14+
+(\passthrough{\lstinline!case IT -> "italiano";!}).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{studynote}[Nota di Studio] Con la \textbf{Lezione 08} abbiamo completato l'intero ciclo
+di vita dei costruttori, l'incapsulamento dei dati, gli enum base e la
+gestione dei formati estesi.
+
+Il prossimo blocco è la \textbf{Lezione 09 / Slide T09: \emph{Arrays and
+Enumerative Types}}: - Approfondimento teorico sistematico sugli
+\textbf{Array in Java} (dichiarazione, allocazione nello Heap, proprietà
+immutabile \passthrough{\lstinline!.length!}, array multidimensionali,
+copie superficiali vs profonde). - Analisi rigorosa degli
+\textbf{Enumerative Types (\passthrough{\lstinline!enum!})}: costruttori
+di enum, campi interni, metodi \passthrough{\lstinline!values()!} e
+\passthrough{\lstinline!ordinal()!}. - Evoluzione del codice in
+\passthrough{\lstinline!Lezione09!}: - Potenziamento di
+\passthrough{\lstinline!Language.java!} con campi interni
+(\passthrough{\lstinline!format!},
+\passthrough{\lstinline!description!}) e costruttore privato. -
+Riscrittura ed espansione di \passthrough{\lstinline!Date.java!}.
+\end{studynote}
+
+\textbf{Dammi conferma per aprire la Lezione 09 / T09 e continuare!}
+
+
+\end{document}

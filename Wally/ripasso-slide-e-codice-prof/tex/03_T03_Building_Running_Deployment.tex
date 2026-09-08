@@ -1,0 +1,639 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T03 --- Compilazione, Esecuzione e Deployment}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T03 --- Compilazione, Esecuzione e Deployment \\[0.3em] \large\sffamily JVM, Bytecode, JDK vs JRE, Strumenti CLI (javac, java, jar) e Apache Maven}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+In questo blocco analizziamo l'ecosistema tecnologico di Java,
+l'architettura della \textbf{Java Virtual Machine (JVM)}, i meccanismi
+di compilazione, il \textbf{Dynamic Class Loading}, la gestione del
+\textbf{Classpath} e le strategie di impacchettamento con file
+\textbf{JAR} ed eseguibili
+(\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Slides-20260902/T03\%20-\%20Building,\%20Running\%20and\%20Deployment\%20in\%20Java.pdf}{T03
+- Building, Running and Deployment in Java.pdf}).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1. Teoria: Concetti Teorici dalle
+Slide}\label{teoria-concetti-teorici-dalle-slide}
+
+\paragraph{A. Il Linguaggio Java e le sue Proprietà Fondamentali (Slide
+1--11)}\label{a.-il-linguaggio-java-e-le-sue-proprietuxe0-fondamentali-slide-111}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Cenni Storici}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Creato da \textbf{James Gosling} presso Sun Microsystems (progetto
+    \emph{Oak} nel 1991, rilasciato ufficialmente come Java nel
+    \textbf{1995}, poi acquisito da Oracle).
+  \item
+    Motto: \emph{``Write Once, Run Everywhere''} (WORA).
+  \end{itemize}
+\item
+  \textbf{Le Caratteristiche Chiave del Linguaggio}:
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    \textbf{Robustezza}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \emph{Tipizzazione forte e statica (Strongly Typed)}: ogni
+      variabile ed espressione ha un tipo noto a tempo di compilazione;
+      i vincoli di tipo sono verificati dal compilatore prima
+      dell'esecuzione.
+    \item
+      \emph{Nessuna manipolazione esplicita di puntatori}: in Java non
+      esistono l'operatore di indirizzo \passthrough{\lstinline!\&!},
+      l'aritmetica dei puntatori né la deallocazione manuale
+      (\passthrough{\lstinline!free()!}). Questo elimina alla radice
+      \emph{dangling pointers}, \emph{segmentation fault} e \emph{buffer
+      overflow}.
+    \item
+      \emph{Controlli a runtime}: la JVM esegue verifiche automatiche su
+      ogni accesso ad array
+      (\passthrough{\lstinline!ArrayIndexOutOfBoundsException!}) e sui
+      riferimenti (\passthrough{\lstinline!NullPointerException!}).
+    \item
+      \emph{Garbage Collection (GC) automatica}: un thread demone a
+      bassa priorità della JVM individua ed elimina gli oggetti non più
+      raggiungibili nello Heap, riducendo drasticamente i \emph{memory
+      leak}.
+    \item
+      \emph{Gestione strutturata degli errori}: gestione degli stati
+      anomali tramite eccezioni controllate e non controllate
+      (\passthrough{\lstinline!try-catch-finally!}).
+    \end{itemize}
+  \item
+    \textbf{Dinamicità}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \emph{Caricamento e linking dinamico (Dynamic Linking)}: le classi
+      non vengono collegate in un unico binario monolitico a
+      compile-time, ma sono caricate in memoria dalla JVM
+      \emph{on-demand}, solo quando effettivamente referenziate dal
+      codice in esecuzione.
+    \item
+      \emph{Allocazione dinamica}: la dimensione delle strutture dati e
+      degli array può essere determinata a runtime
+      (\passthrough{\lstinline!new int[size]!}).
+    \end{itemize}
+  \item
+    \textbf{Portabilità e Architettura a Bytecode}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Nei linguaggi puramente compilati (C/C++), il compilatore genera
+      direttamente codice macchina specifico per l'architettura target
+      (x86, x64, ARM) e per il sistema operativo (Linux, Windows,
+      macOS). Il programmatore deve ricompilare o mantenere build
+      cross-platform separate.
+    \item
+      In Java, il compilatore (\passthrough{\lstinline!javac!}) traduce
+      il sorgente \passthrough{\lstinline!.java!} in un formato
+      intermedio indipendente dall'hardware: il \textbf{Bytecode}
+      (\passthrough{\lstinline!.class!}).
+    \item
+      È la \textbf{JVM} a farsi carico della traduzione del bytecode in
+      istruzioni macchina della CPU ospitante. La portabilità cessa di
+      essere un onere del programmatore e diventa un servizio fornito
+      dal runtime.
+    \end{itemize}
+  \item
+    \textbf{Prestazioni e Compilatore JIT (\emph{Just-In-Time})}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Java non è puramente interpretato. La JVM include un compilatore
+      \textbf{JIT} che monitora a runtime le porzioni di bytecode
+      eseguite più frequentemente (\emph{hot spots}) e le compila al
+      volo in codice macchina nativo ottimizzato, memorizzandole nella
+      cache del codice.
+    \end{itemize}
+  \end{enumerate}
+\item
+  \textbf{Java vs JavaScript}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Citazione di Christian Heilmann: \emph{«Java is to JavaScript what
+    Car is to Carpet»} (hanno in comune solo le prime quattro lettere).
+    JavaScript nacque da Netscape con quel nome per motivi puramente
+    commerciali; i due linguaggi non condividono né modello dei tipi, né
+    macchina virtuale, né filosofia di design.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{B. Ecosistema Java: JDK vs JRE (Slide
+11)}\label{b.-ecosistema-java-jdk-vs-jre-slide-11}
+
+La distinzione tra ambiente di sviluppo e ambiente di esecuzione: -
+\textbf{JDK (\emph{Java Development Kit})}: ambiente per programmatori:
+- \passthrough{\lstinline!javac!}: il compilatore che traduce sorgenti
+\passthrough{\lstinline!.java!} in bytecode
+\passthrough{\lstinline!.class!}. - \passthrough{\lstinline!java!}: il
+launcher applicativo che avvia la JVM. -
+\passthrough{\lstinline!javadoc!}: generatore di documentazione HTML a
+partire dai commenti speciali \passthrough{\lstinline!/** ... */!}. -
+\passthrough{\lstinline!javap!}: disassemblatore di bytecode (permette
+di ispezionare il bytecode generato). - \passthrough{\lstinline!jdb!}:
+debugger da riga di comando. - \textbf{JRE (\emph{Java Runtime
+Environment})}: ambiente minimale per l'utente finale: - \textbf{JVM
+(\emph{Java Virtual Machine})}: il motore di esecuzione. - Librerie
+standard delle API Java (il modulo base
+\passthrough{\lstinline!java.base!} contenente
+\passthrough{\lstinline!java.lang!},
+\passthrough{\lstinline!java.util!}, \passthrough{\lstinline!java.io!},
+ecc.). - Compilatore JIT integrato.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{C. Compilazione, Esecuzione e Dynamic Class Loading (Slide
+12--16)}\label{c.-compilazione-esecuzione-e-dynamic-class-loading-slide-1216}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{La Struttura del Programma Minimo}:
+
+\begin{lstlisting}[language=Java]
+// Salvato obbligatoriamente in MyClass.java (stesso nome della classe pubblica)
+public class MyClass {
+    public static void main(String[] args) {
+        System.out.println("Hello World!");
+    }
+}
+\end{lstlisting}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{Regola aurea}: In un file \passthrough{\lstinline!.java!} può
+    essere presente al massimo \textbf{una sola classe pubblica}, e il
+    nome del file deve coincidere esattamente (incluso il
+    maiuscolo/minuscolo) con il nome di tale classe.
+  \item
+    \emph{Firma del metodo \passthrough{\lstinline!main!}}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \passthrough{\lstinline!public!}: deve essere accessibile
+      dall'esterno da parte del launcher della JVM.
+    \item
+      \passthrough{\lstinline!static!}: la JVM lo invoca direttamente
+      sulla classe, senza dover prima istanziare un oggetto
+      (\passthrough{\lstinline!MyClass obj = new MyClass()!}).
+    \item
+      \passthrough{\lstinline!void!}: non restituisce un codice numerico
+      di ritorno (l'uscita anomala si gestisce con
+      \passthrough{\lstinline!System.exit(code)!}).
+    \item
+      \passthrough{\lstinline!String[] args!}: array di stringhe
+      contenente i parametri passati da riga di comando.
+    \end{itemize}
+  \end{itemize}
+\item
+  \textbf{Pipeline di Esecuzione della JVM}:
+  \[\text{Sorgente } (.java) \xrightarrow{\texttt{javac}} \text{Bytecode } (.class) \xrightarrow{\text{Loader}} \text{Bytecode Verifier} \xrightarrow{\text{Interpreter / JIT}} \text{OS / Hardware}\]
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Bytecode Verifier}: componente di sicurezza fondamentale
+    della JVM. Prima di eseguire qualsiasi file
+    \passthrough{\lstinline!.class!}, scansiona le istruzioni per
+    verificare che non violino i limiti dello stack, non convertano
+    puntatori illegalmente e rispettino le regole di visibilità.
+  \end{itemize}
+\item
+  \textbf{Dynamic Class Loading e Classpath
+  (\passthrough{\lstinline!-cp!})}:
+
+  \begin{itemize}
+  \item
+    La JVM non cerca i file nel filesystem a caso: utilizza il
+    \textbf{Classpath} (una lista ordinata di directory e archivi
+    \passthrough{\lstinline!.jar!}).
+  \item
+    Quando durante l'esecuzione il codice fa riferimento per la prima
+    volta a una classe \passthrough{\lstinline!X!}:
+
+    \begin{enumerate}
+    \def\labelenumii{\arabic{enumii}.}
+    \tightlist
+    \item
+      Il \passthrough{\lstinline!ClassLoader!} cerca
+      \passthrough{\lstinline!X.class!} nella prima cartella specificata
+      nel Classpath.
+    \item
+      Se non la trova, passa alla successiva.
+    \item
+      Se la trova, la carica in memoria e ne inizializza le strutture
+      statiche.
+    \item
+      Se non la trova in nessuna cartella del Classpath, solleva
+      \passthrough{\lstinline!ClassNotFoundException!} o
+      \passthrough{\lstinline!NoClassDefFoundError!}.
+    \end{enumerate}
+  \item
+    Esempio di esecuzione esplicita:
+
+\begin{lstlisting}[language=bash]
+java -cp . MyClass
+\end{lstlisting}
+
+    Il parametro \passthrough{\lstinline!-cp .!} istruisce la JVM a
+    cercare le classi compilate nella directory corrente
+    (\passthrough{\lstinline!.!}). Le classi standard di sistema
+    (\passthrough{\lstinline!System!}, \passthrough{\lstinline!String!})
+    vengono invece caricate automaticamente dal bootstrap classloader
+    della JDK.
+  \end{itemize}
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{D. Deployment e Gestione dei File JAR (Slide
+17--18)}\label{d.-deployment-e-gestione-dei-file-jar-slide-1718}
+
+\begin{itemize}
+\item
+  \textbf{Anatomia di un file JAR (\emph{Java Archive})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Un file \passthrough{\lstinline!.jar!} è fisicamente un
+    \textbf{archivio compresso in formato standard ZIP}.
+  \item
+    Raggruppa decine o centinaia di file
+    \passthrough{\lstinline!.class!}, risorse (immagini, file di
+    configurazione) e metadati.
+  \end{itemize}
+\item
+  \textbf{Creazione manuale da CLI}:
+
+\begin{lstlisting}[language=bash]
+jar cvf MyJar.jar MyClass.class
+\end{lstlisting}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!c!}: \emph{create} (crea nuovo archivio).
+  \item
+    \passthrough{\lstinline!v!}: \emph{verbose} (mostra i file
+    aggiunti).
+  \item
+    \passthrough{\lstinline!f!}: \emph{file} (il parametro successivo è
+    il nome del file \passthrough{\lstinline!.jar!} da produrre).
+  \end{itemize}
+\item
+  \textbf{Esecuzione tramite Classpath}:
+
+\begin{lstlisting}[language=bash]
+java -cp MyJar.jar MyClass
+\end{lstlisting}
+\item
+  \textbf{JAR Auto-Eseguibile (\passthrough{\lstinline!java -jar!})}:
+
+  \begin{itemize}
+  \item
+    Per consentire all'utente di lanciare l'archivio direttamente con
+    \passthrough{\lstinline!java -jar MyJar.jar!}, il JAR deve
+    specificare quale classe ospita il metodo
+    \passthrough{\lstinline!main!}.
+  \item
+    Questa informazione risiede nel file
+    \passthrough{\lstinline!META-INF/MANIFEST.MF!} sotto la direttiva:
+
+\begin{lstlisting}
+Main-Class: MyClass
+\end{lstlisting}
+  \item
+    Creazione con file manifest esterno:
+
+\begin{lstlisting}[language=bash]
+jar cvfm MyClass.jar manifest.txt MyClass.class
+\end{lstlisting}
+  \item
+    Creazione con sintassi moderna senza file di testo intermedio (flag
+    \passthrough{\lstinline!e!} per entrypoint):
+
+\begin{lstlisting}[language=bash]
+jar cfe MyClass.jar MyClass MyClass.class
+\end{lstlisting}
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{E. Strumenti di Sviluppo: Da Editor a IntelliJ IDEA (Slide
+19--26)}\label{e.-strumenti-di-sviluppo-da-editor-a-intellij-idea-slide-1926}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{CLI vs IDE}: per progetti complessi, l'uso del terminale e di
+  un editor di testo semplice diventa poco scalabile.
+\item
+  \textbf{Vantaggi dell'IDE (\emph{Integrated Development
+  Environment})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{Syntax highlighting} e \emph{live code inspection/linting}
+    (segnalazione immediata degli errori di tipo e code smell prima
+    ancora di compilare).
+  \item
+    \emph{Debugger integrato} con breakpoint, ispezione dello stack dei
+    frame e monitoraggio variabili.
+  \item
+    \emph{Integrazione con Version Control (Git)} e \emph{Build
+    Automation Tools (Maven / Gradle)}.
+  \item
+    \emph{Monito del docente}: l'auto-completamento o la generazione
+    automatica di codice da parte dell'IDE è utile in ambito
+    professionale, ma va limitata durante la fase di apprendimento per
+    comprendere a fondo le regole sintattiche e semantiche del
+    linguaggio.
+  \end{itemize}
+\item
+  \textbf{Scelta del corso}: \textbf{IntelliJ IDEA} (gratuito in
+  versione Community o con licenza Education per studenti universitari).
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2. Codice: Collegamento Pratico con il
+Tuo Progetto: Maven e
+\texttt{guida-jar.md}}{2. Codice: Collegamento Pratico con il Tuo Progetto: Maven e guida-jar.md}}\label{codice-collegamento-pratico-con-il-tuo-progetto-maven-e-guida-jar.md}
+
+Nel tuo workspace
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26}{\passthrough{\lstinline!esercizi-wally-25-26!}},
+hai formalizzato questi esatti concetti in modo eccellente in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/guida-jar.md}{\passthrough{\lstinline!guida-jar.md!}}
+e nei file di configurazione Maven:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Il Fully Qualified Name e il Filesystem}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Come visto a lezione, se una classe appartiene al package
+    \passthrough{\lstinline!es01!}, il bytecode generato deve risiedere
+    fisicamente nel percorso \passthrough{\lstinline!es01/Date.class!}.
+  \item
+    Quando si invoca la JVM, il nome della classe da passare deve essere
+    il FQN (\passthrough{\lstinline!es01.MainDate!}).
+  \end{itemize}
+\item
+  \textbf{Automazione del Packaging con Maven}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Invece di lanciare manualmente \passthrough{\lstinline!jar cfe!},
+    nei singoli moduli (es.
+    \href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es01/pom.xml}{\passthrough{\lstinline!es01/pom.xml!}})
+    usi il plugin
+    \textbf{\passthrough{\lstinline!maven-assembly-plugin!}}:
+  \end{itemize}
+
+\begin{lstlisting}[language=XML]
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-assembly-plugin</artifactId>
+    <version>3.7.1</version>
+    <configuration>
+        <archive>
+            <manifest>
+                <mainClass>es01.MainDate</mainClass>
+            </manifest>
+        </archive>
+        <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+        </descriptorRefs>
+    </configuration>
+    <executions>
+        <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+                <goal>single</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+\end{lstlisting}
+
+  Questo genera automaticamente nella cartella
+  \passthrough{\lstinline!target/!} il cosiddetto \emph{Fat JAR}
+  contenente sia il bytecode dell'applicazione sia il file
+  \passthrough{\lstinline!META-INF/MANIFEST.MF!} precompilato.
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{3. Test: Verifica dei Comandi da
+Terminale}\label{test-verifica-dei-comandi-da-terminale}
+
+Puoi verificare l'intero ciclo di build ed esecuzione da riga di comando
+testando il modulo \passthrough{\lstinline!es01!} tramite lo script:
+
+\begin{lstlisting}[language=bash]
+./esercizi.sh package es01
+\end{lstlisting}
+
+Lo script esegue internamente: 1.
+\passthrough{\lstinline!mvn clean package -pl es01!} 2. Individua il
+file JAR autoprodotto in
+\passthrough{\lstinline!es01/target/es01-*-jar-with-dependencies.jar!}
+3. Esegue \passthrough{\lstinline!java -jar ...!} verificando che
+l'entrypoint \passthrough{\lstinline!es01.MainDate!} risponda
+correttamente.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{studynote}[Nota di Studio] Con T03 abbiamo concluso l'intera panoramica propedeutica
+(Introduzione, Paradigmi/UML e Tooling/JVM).
+
+A partire dal prossimo blocco entriamo nel codice sorgente vero e
+proprio con la \textbf{Lezione 4 / Slide T04: \emph{Types and Objects}}
+e il file ufficiale del docente
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione04/Example.java}{\passthrough{\lstinline!Example.java!}}:
+- Tipi primitivi (dimensioni, range, valori di default) vs Reference
+Types. - Rappresentazione dei caratteri (\passthrough{\lstinline!char!}
+come intero senza segno a 16 bit, codifica ASCII e Unicode
+\passthrough{\lstinline!\\u0056!}). - Regole di inizializzazione:
+variabili di istanza/statiche (default zero/null) vs variabili locali
+dello stack (nessun default \(\rightarrow\) errore a compile-time!). -
+Operatori logici standard (\passthrough{\lstinline!\&!},
+\passthrough{\lstinline!|!}) vs operatori a corto circuito
+(\emph{short-circuit} \passthrough{\lstinline!\&\&!},
+\passthrough{\lstinline!||!}) e relativi effetti collaterali
+(\passthrough{\lstinline!k++!}). - Scope dei blocchi di codice annidati
+(\passthrough{\lstinline!\{ ... \}!}) e shadowing/visibilità delle
+variabili.
+\end{studynote}
+
+\textbf{Dammi conferma per aprire la Lezione 4 / T04 e analizzare teoria
+e codice di \passthrough{\lstinline!Example.java!}!}
+
+
+\end{document}

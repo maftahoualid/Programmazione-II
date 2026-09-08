@@ -1,4 +1,0 @@
-default-jdk
-maven
-curl
-unzip

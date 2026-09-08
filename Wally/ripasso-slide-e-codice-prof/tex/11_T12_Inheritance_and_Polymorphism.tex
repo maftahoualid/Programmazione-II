@@ -1,0 +1,628 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T12 --- Ereditarietà, Dynamic Binding e Polimorfismo}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T12 --- Ereditarietà, Dynamic Binding e Polimorfismo \\[0.3em] \large\sffamily Estensione di Classi, super, Overriding vs Overloading, Polimorfismo e MavenDate v3}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+In questo blocco analizziamo in modo esaustivo i due pilastri più
+importanti dell'OOP in Java: l'\textbf{Ereditarietà} e il
+\textbf{Polimorfismo}
+(\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Slides-20260902/T12\%20-\%20Inheritance\%20and\%20Polymorphism.pdf}{T12
+- Inheritance and Polymorphism.pdf}). Nel codice di
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione12/MavenDate}{\passthrough{\lstinline!Lezione12/MavenDate!}},
+la gerarchia evolve introducendo la classe astratta intermedia
+\textbf{\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione12/MavenDate/src/main/java/it/oop/core/FormattedDate.java}{\passthrough{\lstinline!FormattedDate!}}},
+l'interfaccia
+\textbf{\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione12/MavenDate/src/main/java/it/oop/core/Time.java}{\passthrough{\lstinline!Time!}}},
+la classe estesa
+\textbf{\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione12/MavenDate/src/main/java/it/oop/core/TimeStamp.java}{\passthrough{\lstinline!TimeStamp!}}}
+e l'interfaccia standard \textbf{\passthrough{\lstinline!Comparable!}}
+per l'ordinamento naturale degli array.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1. Teoria: Concetti Teorici dalle Slide (Slide
+T12)}\label{teoria-concetti-teorici-dalle-slide-slide-t12}
+
+\paragraph{\texorpdfstring{A. Ereditarietà di Classe (\texttt{extends})
+e Riuso (Slide
+1--17)}{A. Ereditarietà di Classe (extends) e Riuso (Slide 1--17)}}\label{a.-ereditarietuxe0-di-classe-extends-e-riuso-slide-117}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Relazione ``IS-A'' vs ``HAS-A''}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{Ereditarietà (``IS-A'')}: un'auto \emph{è un} veicolo
+    (\passthrough{\lstinline!Car extends Vehicle!}); una data italiana
+    \emph{è una} data
+    (\passthrough{\lstinline!ItalianDate extends Date!}).
+  \item
+    \emph{Composizione (``HAS-A'')}: un'auto \emph{ha un} motore
+    (\passthrough{\lstinline!Car!} ha un campo
+    \passthrough{\lstinline!Engine!}); una persona \emph{ha una} data di
+    nascita (\passthrough{\lstinline!Person!} ha un campo
+    \passthrough{\lstinline!Date!}).
+  \end{itemize}
+\item
+  \textbf{Ereditarietà Singola in Java}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    In Java \textbf{non esiste l'ereditarietà multipla tra classi} (a
+    differenza del C++). Una classe può estendere al massimo \textbf{una
+    sola classe genitore diretta}
+    (\passthrough{\lstinline!extends SuperClass!}). Questo previene il
+    cosiddetto \emph{Diamond Problem}.
+  \end{itemize}
+\item
+  \textbf{Overriding vs Overloading}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{Method Overloading}: metodi nella stessa classe con lo stesso
+    nome ma parametri diversi (risolto staticamente a compile-time).
+  \item
+    \emph{Method Overriding}: una sottoclasse riscrive l'implementazione
+    di un metodo ereditato mantenendo \textbf{la stessa identica
+    segnatura} (nome, tipi dei parametri, ordine) e un tipo di ritorno
+    identico o covariante.
+  \item
+    \textbf{L'Annotazione \passthrough{\lstinline!@Override!}}: Non è
+    sintatticamente obbligatoria per far funzionare l'overriding, ma è
+    una best practice fondamentale: dice al compilatore di verificare
+    che quel metodo esista davvero nella superclasse, intercettando
+    errori di battitura (es. scrivere per sbaglio
+    \passthrough{\lstinline!tostring()!} con la `s' minuscola verrebbe
+    segnalato come errore).
+  \end{itemize}
+\item
+  \textbf{Costruttori ed Ereditarietà: La Parola Chiave
+  \passthrough{\lstinline!super!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Attenzione: \textbf{I costruttori NON vengono mai ereditati dalle
+    sottoclassi}.
+  \item
+    All'interno del costruttore di una sottoclasse, la prima istruzione
+    deve essere una chiamata a \passthrough{\lstinline!super(...)!}
+    oppure a un altro costruttore con
+    \passthrough{\lstinline!this(...)!}.
+  \item
+    Se il programmatore non scrive nulla, il compilatore inserisce
+    automaticamente \textbf{\passthrough{\lstinline!super();!}}
+    (invocazione del costruttore vuoto della superclasse).
+  \item
+    Attenzione: \textbf{Trappola d'esame}: Se la superclasse non
+    possiede un costruttore senza parametri (perché ne ha definito uno
+    con parametri e non ha aggiunto quello di default), omettere
+    \passthrough{\lstinline!super(...)!} genera un \textbf{Compile-Time
+    Error}!
+  \item
+    \passthrough{\lstinline!super.metodo()!} permette inoltre di
+    invocare l'implementazione originaria della superclasse, bypassando
+    l'override locale.
+  \end{itemize}
+\item
+  \textbf{Classi e Metodi \passthrough{\lstinline!final!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!final class!}: non può essere estesa da
+    nessun'altra classe (es. \passthrough{\lstinline!String!},
+    \passthrough{\lstinline!Integer!}).
+  \item
+    \passthrough{\lstinline!final method!}: non può essere sovrascritto
+    (\emph{overridden}) da nessuna sottoclasse.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{B. La Classe Radice Universale:
+\texttt{java.lang.Object} (Slide
+18--31)}{B. La Classe Radice Universale: java.lang.Object (Slide 18--31)}}\label{b.-la-classe-radice-universale-java.lang.object-slide-1831}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{«The One Ring»}: in Java qualsiasi classe estende implicitamente
+  \passthrough{\lstinline!java.lang.Object!}. Se una classe non
+  specifica \passthrough{\lstinline!extends!}, estende direttamente
+  \passthrough{\lstinline!Object!}.
+\item
+  \textbf{I Metodi Universali di \passthrough{\lstinline!Object!}}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!public String toString()!}: rappresentazione
+    testuale (\passthrough{\lstinline!NomeClasse@hashcode!}).
+  \item
+    \passthrough{\lstinline!public boolean equals(Object obj)!}:
+    confronto semantico (di default confronta l'identità con
+    \passthrough{\lstinline!==!}).
+  \item
+    \passthrough{\lstinline!public int hashCode()!}: valore hash
+    associato all'oggetto.
+  \item
+    \passthrough{\lstinline!public final Class<?> getClass()!}:
+    restituisce il descrittore a runtime del tipo della classe.
+  \end{itemize}
+\item
+  \textbf{Il Contratto Formale di \passthrough{\lstinline!equals!}}:
+  Ogni implementazione di \passthrough{\lstinline!equals!} deve
+  rispettare 5 proprietà matematiche:
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    \emph{Riflessiva}: \passthrough{\lstinline!x.equals(x)!} è sempre
+    \passthrough{\lstinline!true!}.
+  \item
+    \emph{Simmetrica}: \passthrough{\lstinline!x.equals(y)!} ritorna
+    \passthrough{\lstinline!true!} se e solo se
+    \passthrough{\lstinline!y.equals(x)!} ritorna
+    \passthrough{\lstinline!true!}.
+  \item
+    \emph{Transitiva}: se \passthrough{\lstinline!x.equals(y)!} è
+    \passthrough{\lstinline!true!} e
+    \passthrough{\lstinline!y.equals(z)!} è
+    \passthrough{\lstinline!true!}, allora
+    \passthrough{\lstinline!x.equals(z)!} è
+    \passthrough{\lstinline!true!}.
+  \item
+    \emph{Consistente}: invocazioni multiple producono lo stesso
+    risultato finché lo stato non muta.
+  \item
+    \emph{Non-Nullità}: per qualsiasi
+    \passthrough{\lstinline"x != null"}, la chiamata
+    \passthrough{\lstinline!x.equals(null)!} \textbf{deve restituire
+    \passthrough{\lstinline!false!}} senza lanciare eccezioni.
+  \end{enumerate}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{C. Polimorfismo e Dynamic Method Dispatch (Late Binding)
+(Slide
+32--50)}\label{c.-polimorfismo-e-dynamic-method-dispatch-late-binding-slide-3250}
+
+\begin{itemize}
+\item
+  \textbf{Principio di Sostituzione di Liskov (LSP)}: Se \(S\) è
+  sottotipo di \(T\), qualsiasi porzione di codice scritta per
+  interagire con \(T\) deve poter operare in modo trasparente e corretto
+  con un'istanza di \(S\).
+\item
+  \textbf{Tipo Statico vs Tipo Dinamico}:
+
+\begin{lstlisting}[language=Java]
+Date d = new ItalianDate(1, 1, 1970);
+\end{lstlisting}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Tipo Statico (a Compile-Time)}: è il tipo dichiarato della
+    variabile reference (\passthrough{\lstinline!Date!}). Il compilatore
+    accetta solo invocazioni a metodi e accessi a campi definiti nella
+    classe \passthrough{\lstinline!Date!}.
+  \item
+    \textbf{Tipo Dinamico (a Runtime)}: è il tipo effettivo dell'oggetto
+    allocato nello Heap (\passthrough{\lstinline!ItalianDate!}).
+  \end{itemize}
+\item
+  \textbf{Dynamic Method Dispatch (Late Binding)}: Quando a runtime
+  viene eseguita una chiamata a un metodo d'istanza (es.
+  \passthrough{\lstinline!d.toString()!}), la JVM consulta la
+  \textbf{Virtual Method Table (vtable)} dell'oggetto concreto nello
+  Heap e seleziona \textbf{la versione del metodo definita dal Tipo
+  Dinamico}! Non importa che \passthrough{\lstinline!d!} sia dichiarata
+  come \passthrough{\lstinline!Date!}: verrà eseguito il
+  \passthrough{\lstinline!toString()!} specializzato di
+  \passthrough{\lstinline!ItalianDate!}.
+\item
+  \textbf{Regole di Conversione di Tipo (Casting tra Oggetti)}:
+
+  \begin{itemize}
+  \item
+    \textbf{Upcasting (verso la superclasse)}:
+    \passthrough{\lstinline!Date d = new ItalianDate(...);!}
+    \(\implies\) \textbf{Implicito, automatico e sempre sicuro al
+    100\%}.
+  \item
+    \textbf{Downcasting (verso la sottoclasse)}:
+    \passthrough{\lstinline!ItalianDate id = (ItalianDate) d;!}
+    \(\implies\) \textbf{Esplicito obbligatorio}.
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Se l'oggetto concreto nello Heap è effettivamente un'istanza
+      compatibile, il cast ha successo.
+    \item
+      Se l'oggetto concreto nello Heap è di tipo diverso (es. un
+      \passthrough{\lstinline!Date!} generico o un
+      \passthrough{\lstinline!AmericanDate!}), la JVM interrompe
+      l'esecuzione e lancia una
+      \textbf{\passthrough{\lstinline!ClassCastException!}}!
+    \end{itemize}
+  \item
+    \textbf{Downcasting Sicuro con
+    \passthrough{\lstinline!instanceof!}}: Per evitare crash a runtime
+    si verifica preventivamente la compatibilità:
+
+\begin{lstlisting}[language=Java]
+if (d instanceof ItalianDate) {
+    ItalianDate id = (ItalianDate) d;
+}
+\end{lstlisting}
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2. Codice: Evoluzione del Codice:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione12/MavenDate}{\texttt{Lezione12/MavenDate}}}{2. Codice: Evoluzione del Codice: Lezione12/MavenDate}}\label{codice-evoluzione-del-codice-lezione12mavendate}
+
+In \passthrough{\lstinline!Lezione12!} la gerarchia del progetto diventa
+ricca e completa:
+
+\begin{lstlisting}
+classDiagram
+    class Object {
+        +toString()
+        +equals(Object)
+    }
+    class Comparable {
+        <<interface>>
+        +compareTo(Object)
+    }
+    class Time {
+        <<interface>>
+        +getSeconds()
+        +getMinutes()
+        +getHours()
+    }
+    class Date {
+        #day: int
+        -month: int
+        -year: int
+        +toString()
+        +equals(Object)
+        +compareTo(Object)
+    }
+    class FormattedDate {
+        <<abstract>>
+        #format: String
+        #months: String[]
+        +printFormat() final
+        +getMonthAsString() final
+        +prettyPrint()* String
+    }
+    class ItalianDate {
+        +prettyPrint()
+        +toString()
+    }
+    class AmericanDate {
+        +prettyPrint()
+        +toString()
+    }
+    class TimeStamp {
+        #seconds: int
+        #minutes: int
+        #hours: int
+        +toString()
+        +equals(Object)
+    }
+
+    Object <|-- Date
+    Comparable <|.. Date
+    Date <|-- FormattedDate
+    FormattedDate <|-- ItalianDate
+    FormattedDate <|-- AmericanDate
+    Date <|-- TimeStamp
+    Time <|.. TimeStamp
+\end{lstlisting}
+
+\paragraph{\texorpdfstring{1. L'Interfaccia \texttt{Comparable} in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione12/MavenDate/src/main/java/it/oop/core/Date.java}{\texttt{Date.java}}}{1. L'Interfaccia Comparable in Date.java}}\label{linterfaccia-comparable-in-date.java}
+
+\passthrough{\lstinline!Date!} implementa l'interfaccia standard
+\passthrough{\lstinline!java.lang.Comparable!} per consentire
+l'ordinamento naturale:
+
+\begin{lstlisting}[language=Java]
+public class Date implements Comparable {
+    ...
+    @Override
+    public int compareTo(Object other) {
+        Date otherAsDate = (Date) other;
+        int diff = this.year - otherAsDate.getYear();
+        if (diff != 0) return diff;
+        diff = this.month - otherAsDate.getMonth();
+        if (diff != 0) return diff;
+        return this.day - otherAsDate.getDay();
+    }
+}
+\end{lstlisting}
+
+\emph{Logica di confronto}: confronta prima gli anni, se uguali
+confronta i mesi, se uguali confronta i giorni. Restituisce un intero
+negativo se \passthrough{\lstinline!this < other!}, zero se uguali,
+positivo se \passthrough{\lstinline!this > other!}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{2. L'Astrazione con Classe Astratta:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione12/MavenDate/src/main/java/it/oop/core/FormattedDate.java}{\texttt{FormattedDate.java}}}{2. L'Astrazione con Classe Astratta: FormattedDate.java}}\label{lastrazione-con-classe-astratta-formatteddate.java}
+
+Centralizza i dati di formattazione evitando duplicazioni tra
+\passthrough{\lstinline!ItalianDate!} e
+\passthrough{\lstinline!AmericanDate!}:
+
+\begin{lstlisting}[language=Java]
+public abstract class FormattedDate extends Date {
+    protected final String format;
+    protected final String[] months;
+
+    public FormattedDate(int day, int month, int year, String format, String[] months) {
+        super(day, month, year);
+        this.format = format;
+        this.months = months;
+    }
+
+    // Metodi final: le sottoclassi non possono sovrascriverli (Template Method Pattern)
+    public final String printFormat() { return format; }
+    public final String getMonthAsString() { return months[getMonth() - 1]; }
+
+    // Metodo astratto: DEVE essere implementato dalle sottoclassi concrete
+    public abstract String prettyPrint();
+}
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{3. Ereditarietà Multipla di Tipo:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione12/MavenDate/src/main/java/it/oop/core/TimeStamp.java}{\texttt{TimeStamp.java}}}{3. Ereditarietà Multipla di Tipo: TimeStamp.java}}\label{ereditarietuxe0-multipla-di-tipo-timestamp.java}
+
+Mostra come combinare l'estensione di una classe concreta con
+l'implementazione di un'interfaccia:
+
+\begin{lstlisting}[language=Java]
+public class TimeStamp extends Date implements Time {
+    protected final int seconds;
+    protected final int minutes;
+    protected final int hours;
+
+    public TimeStamp(int seconds, int minutes, int hours, int day, int month, int year) {
+        super(day, month, year);
+        this.seconds = seconds;
+        this.minutes = minutes;
+        this.hours = hours;
+    }
+
+    @Override
+    public String toString() {
+        // Riusa il toString() della superclasse aggiungendo l'orario con zero-padding a due cifre:
+        return String.format("%s[%02d:%02d:%02d]", super.toString(), hours, minutes, seconds);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        // 1. Verifica prima l'uguaglianza della data con super.equals():
+        if (super.equals(other) == false) return false;
+        if (!(other instanceof TimeStamp)) return false;
+        TimeStamp otherAsTimeStamp = (TimeStamp) other;
+        // 2. Poi verifica l'orario:
+        return hours == otherAsTimeStamp.getHours() &&
+               minutes == otherAsTimeStamp.getMinutes() &&
+               seconds == otherAsTimeStamp.getSeconds();
+    }
+}
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{4. Dimostrazione Pratica in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione12/MavenDate/src/main/java/it/oop/ui/MainDate.java}{\texttt{MainDate.java}}}{4. Dimostrazione Pratica in MainDate.java}}\label{dimostrazione-pratica-in-maindate.java}
+
+\begin{lstlisting}[language=Java]
+Time ts1 = new TimeStamp(0, 0, 10, 10, 11, 2025);
+System.out.println(ts1.toString()); // Esegue TimeStamp.toString() tramite Late Binding!
+
+// ts1.getDay(); // COMPILE-TIME ERROR: il tipo statico Time non possiede il metodo getDay()!
+System.out.println(((Date) ts1).getDay()); // OK: cast esplicito a Date!
+
+Date[] arr = { ts2, itDate, new Date(9, 9, 2025) };
+Arrays.sort(arr); // Ordina l'array eterogeneo grazie a compareTo()!
+System.out.println(Arrays.toString(arr));
+\end{lstlisting}
+
+\textbf{Output a video prodotto dall'ordinamento polimorfico}:
+
+\begin{lstlisting}
+[y2025m9d9, 3/11/2025, y2025m11d10[10:00:00]]
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  L'ordinamento colloca correttamente prima il 9 settembre, poi il 3
+  novembre (\passthrough{\lstinline!itDate!}) e infine il 10 novembre
+  (\passthrough{\lstinline!TimeStamp!}).
+\item
+  In fase di stampa, ciascun elemento viene formattato dal
+  \textbf{proprio} metodo \passthrough{\lstinline!toString()!} dinamico.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{studynote}[Nota di Studio] Con la \textbf{Lezione 12} abbiamo analizzato la gerarchia
+completa di ereditarietà, l'overriding con
+\passthrough{\lstinline!super!}, il late binding, la classe astratta
+\passthrough{\lstinline!FormattedDate!} e l'ordinamento con
+\passthrough{\lstinline!Comparable!}.
+
+Il prossimo blocco è la \textbf{Lezione 13 / Slide T13: \emph{Abstract
+Classes and Interfaces}}: - Differenze ontologiche e strutturali tra
+\textbf{Classi Astratte} e \textbf{Interfacce}. - Metodi
+\passthrough{\lstinline!default!} e metodi
+\passthrough{\lstinline!static!} nelle interfacce (Java 8+). -
+Ereditarietà multipla tramite interfacce e risoluzione dei conflitti
+(\emph{Diamond Problem} sui metodi default). - Evoluzione di
+\passthrough{\lstinline!MavenDate!} in
+\passthrough{\lstinline!Lezione13!}: - La classe
+\passthrough{\lstinline!Date!} viene ripensata per gestire il calendario
+completo. - Analisi delle nuove interfacce e classi di supporto.
+\end{studynote}
+
+\textbf{Dammi conferma per aprire la Lezione 13 / T13 e analizzare a
+fondo Classi Astratte e Interfacce!}
+
+
+\end{document}

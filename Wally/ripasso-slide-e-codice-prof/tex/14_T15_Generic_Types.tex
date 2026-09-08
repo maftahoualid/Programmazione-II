@@ -1,0 +1,847 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T15 --- Tipi Generici, Wildcard e Type Erasure}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T15 --- Tipi Generici, Wildcard e Type Erasure \\[0.3em] \large\sffamily Polimorfismo Parametrico, Bounded Type Parameters, Invarianza, Wildcard (PECS) e Type Erasure}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{1. Analisi Teorica Approfondita (Slide
+T15)}\label{analisi-teorica-approfondita-slide-t15}
+
+La lezione 15 introduce formalmente i \textbf{Tipi Generici}
+(\emph{Generics}), introdotti in Java 5 per abilitare il
+\textbf{polimorfismo parametrico}, eliminare la fragilità dei cast a
+\passthrough{\lstinline!Object!} e garantire la \textbf{Type Safety} a
+tempo di compilazione.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.1 L'Idea Guida \& La Tazza
+\texttt{Cup\textless{}T\textgreater{}} (Slide
+2-3)}{1.1 L'Idea Guida \& La Tazza Cup\textless T\textgreater{} (Slide 2-3)}}\label{lidea-guida-la-tazza-cupt-slide-2-3}
+
+Nella Slide 3 campeggia l'immagine di una tazza con la scritta:
+\[\mathbf{Cup\langle T\rangle}\] accompagnata dal motto: \textbf{``Same
+container, different content''}. Un contenitore (una tazza, una coppia,
+una lista, un albero) possiede una logica strutturale identica a
+prescindere dal tipo di dato che custodisce (caffè, tè, stringhe,
+interi, date). Prima di Java 5, per ottenere contenitori riusabili si
+usava \passthrough{\lstinline!Object!}, con conseguenze disastrose
+sull'affidabilità del software.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.2 Polimorfismo Parametrico vs Approccio
+Basato su \texttt{Object} (Slide
+4-7)}{1.2 Polimorfismo Parametrico vs Approccio Basato su Object (Slide 4-7)}}\label{polimorfismo-parametrico-vs-approccio-basato-su-object-slide-4-7}
+
+Consideriamo la funzione identità matematica \(\lambda x.\, x\): * Se
+riceve un \passthrough{\lstinline!int!}, restituisce lo stesso
+\passthrough{\lstinline!int!}. * Se riceve una
+\passthrough{\lstinline!String!}, restituisce la stessa
+\passthrough{\lstinline!String!}.
+
+\paragraph{\texorpdfstring{L'approccio ingenuo (pre-Java 5): segnaposto
+\texttt{Object}}{L'approccio ingenuo (pre-Java 5): segnaposto Object}}\label{lapproccio-ingenuo-pre-java-5-segnaposto-object}
+
+\begin{lstlisting}[language=Java]
+public class Pair {
+    private Object first, second;
+    public Pair(Object first, Object second) {
+        this.first = first;
+        this.second = second;
+    }
+    public Object getFirst() { return first; }
+    public Object getSecond() { return second; }
+}
+\end{lstlisting}
+
+\begin{itemize}
+\item
+  \textbf{Casting obbligatorio}:
+
+\begin{lstlisting}[language=Java]
+Pair p = new Pair("one", "two");
+String first = (String) p.getFirst(); // Cast esplicito verboso e tedioso
+\end{lstlisting}
+\item
+  \textbf{Il disastro della mancanza di Type Safety}:
+
+\begin{lstlisting}[language=Java]
+Pair q = new Pair(1, 2); // Autoboxing da int a Integer
+String second = (String) q.getSecond(); // COMPILA SENZA ERRORI!
+// Ma a RUNTIME crasha con: java.lang.ClassCastException: class java.lang.Integer cannot be cast to class java.lang.String
+\end{lstlisting}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.3 Classi e Metodi Generici (Slide
+8-10)}\label{classi-e-metodi-generici-slide-8-10}
+
+Con i Generics, la classe introduce una o più \textbf{variabili di tipo}
+(\emph{Type Parameters}):
+
+\begin{lstlisting}[language=Java]
+public class Pair<T> {
+    private T first, second;
+    public Pair(T first, T second) {
+        this.first = first;
+        this.second = second;
+    }
+    public T getFirst() { return first; }
+    public T getSecond() { return second; }
+}
+\end{lstlisting}
+
+\begin{itemize}
+\item
+  \textbf{Sintassi d'uso}:
+
+\begin{lstlisting}[language=Java]
+Pair<String> p = new Pair<String>("one", "two");
+Pair<Integer> q = new Pair<Integer>(1, 2);
+\end{lstlisting}
+\item
+  \textbf{Controllo a compile-time}:
+
+\begin{lstlisting}[language=Java]
+String first = p.getFirst(); // Nessun cast necessario: p restituisce String garantita!
+String second = q.getSecond(); // COMPILE-TIME ERROR: Type mismatch (Integer non convertibile a String)
+\end{lstlisting}
+
+  L'errore viene intercettato prima ancora di mandare in esecuzione il
+  programma!
+\item
+  \textbf{Regola fondamentale sui Tipi Primitivi}: \textbf{Un parametro
+  di tipo \(T\) può essere sostituito solo da tipi riferimento
+  (oggetti), MAI da tipi primitivi!} Non è consentito scrivere
+  \passthrough{\lstinline!Pair<int>!}, ma si deve usare il wrapper
+  \passthrough{\lstinline!Pair<Integer>!}.
+\item
+  \textbf{Convenzioni di Naming}: Si usano lettere maiuscole singole:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!T!}: \emph{Type} generico.
+  \item
+    \passthrough{\lstinline!E!}: \emph{Element} (usato nelle collezioni:
+    \passthrough{\lstinline!List<E>!},
+    \passthrough{\lstinline!Set<E>!}).
+  \item
+    \passthrough{\lstinline!K, V!}: \emph{Key} e \emph{Value} (usato
+    nelle mappe: \passthrough{\lstinline!Map<K, V>!}).
+  \item
+    \passthrough{\lstinline!N!}: \emph{Number}.
+  \item
+    \passthrough{\lstinline!S, U!}: Tipi secondari ausiliari.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.4 Interfacce della Libreria Standard Riscritte con i
+Generics (Slide
+11-13)}\label{interfacce-della-libreria-standard-riscritte-con-i-generics-slide-11-13}
+
+\begin{itemize}
+\item
+  \textbf{\passthrough{\lstinline!Comparable<T>!}}:
+
+\begin{lstlisting}[language=Java]
+public interface Comparable<T> {
+    int compareTo(T obj);
+}
+\end{lstlisting}
+
+  Consente alla classe che la implementa (es.
+  \passthrough{\lstinline!Student implements Comparable<Student>!}) di
+  ricevere direttamente un parametro di tipo
+  \passthrough{\lstinline!Student!} nel metodo
+  \passthrough{\lstinline!compareTo(Student other)!}, eliminando
+  controlli \passthrough{\lstinline!instanceof!} e downcast forzati.
+\item
+  \textbf{\passthrough{\lstinline!Iterable<E>!} e
+  \passthrough{\lstinline!Iterator<E>!}}:
+
+\begin{lstlisting}[language=Java]
+public interface Iterable<E> {
+    Iterator<E> iterator();
+}
+public interface Iterator<E> {
+    boolean hasNext();
+    E next();
+}
+\end{lstlisting}
+
+  Permette a costrutti come il ciclo \passthrough{\lstinline!for-each!}
+  di iterare in modo fortemente tipizzato senza alcun cast:
+
+\begin{lstlisting}[language=Java]
+for (Student student : classRoom) {
+    System.out.println(student.toString());
+}
+\end{lstlisting}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.5 Il Diamond Operator
+\texttt{\textless{}\textgreater{}} (Slide
+14)}{1.5 Il Diamond Operator \textless\textgreater{} (Slide 14)}}\label{il-diamond-operator-slide-14}
+
+Introdotto in Java 7, evita la ridondanza tra la dichiarazione del tipo
+di riferimento e l'istanziazione:
+
+\begin{lstlisting}[language=Java]
+// Java 5 e 6:
+Pair<Integer> intPair = new Pair<Integer>(2, 4);
+
+// Java 7+:
+Pair<Integer> intPair = new Pair<>(2, 4); // Il compilatore inferisce il tipo Integer dai membri a sinistra
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.6 Bounded Type Parameters: Vincolare i Parametri di
+Tipo (Slide
+15-17)}\label{bounded-type-parameters-vincolare-i-parametri-di-tipo-slide-15-17}
+
+\begin{itemize}
+\item
+  \textbf{Unbounded Type Parameter (Slide 15)}: Se dichiariamo
+  \passthrough{\lstinline!public class Pair<T>!}, \(T\) è privo di
+  vincoli. Il compilatore applica il meccanismo del \textbf{Type
+  Erasure} assumendo che \(T\) sia un generico
+  \passthrough{\lstinline!Object!}. Di conseguenza, su un oggetto di
+  tipo \(T\) è possibile invocare \textbf{esclusivamente i metodi
+  definiti in \passthrough{\lstinline!Object!}}
+  (\passthrough{\lstinline!equals!}, \passthrough{\lstinline!hashCode!},
+  \passthrough{\lstinline!toString!},
+  \passthrough{\lstinline!getClass!}). Se tentiamo di chiamare
+  \passthrough{\lstinline!first.getName()!}, il compilatore rigetta il
+  codice con errore:
+  \passthrough{\lstinline!cannot find symbol: method getName() in T!}.
+\item
+  \textbf{Upper Bound con \passthrough{\lstinline!extends!} (Slide
+  16-17)}: Possiamo imporre che \(T\) sia un sottotipo di una
+  determinata classe o implementi una o più interfacce:
+
+\begin{lstlisting}[language=Java]
+public class Pair<T extends Person> {
+    private T first, second;
+    // ...
+    public String getFirstName() {
+        return first.getName(); // PERFETTAMENTE LEGALE: T è garantito essere almeno una Person!
+    }
+}
+\end{lstlisting}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Vincoli multipli}:
+    \passthrough{\lstinline!<T extends ClassA \& InterfaceB \& InterfaceC>!}.
+    La classe (se presente) deve comparire per prima, seguita dalle
+    interfacce separate da \passthrough{\lstinline!\&!}.
+  \item
+    \emph{Nota terminologica della Slide 16}: La slide cita
+    \passthrough{\lstinline!class Clazz<T super S>!}, ma in Java a
+    livello di dichiarazione di classe generica è ammesso solo
+    \passthrough{\lstinline!extends!}. La parola chiave
+    \passthrough{\lstinline!super!} è utilizzabile
+    \textbf{esclusivamente nelle Wildcards} (che vediamo subito sotto).
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.7 Ereditarietà e Generics: La Trappola dell'Invarianza
+(Slide
+18-20)}\label{ereditarietuxe0-e-generics-la-trappola-dellinvarianza-slide-18-20}
+
+Questo è uno dei punti più critici dell'intero corso e delle domande
+d'esame.
+
+\needspace{7cm}
+\begin{asciibox}
+   Ereditarietà Normale             Ereditarietà con Generics
+      ┌────────────┐                     ┌───────────────┐
+      │   Person   │                     │ Pair<Person>  │
+      └─────▲──────┘                     └───────▲───────┘
+            │ extends                            │ (Nessun legame
+            │                                    │  di parentela!)
+      ┌─────┴──────┐                     ┌───────┴───────┐
+      │  Student   │                     │ Pair<Student> │
+      └────────────┘                     └───────────────┘
+   Student È UN Person             Pair<Student> NON È Pair<Person>
+\end{asciibox}
+
+\begin{itemize}
+\item
+  \textbf{Invarianza dei Generics (Slide 19)}: Anche se
+  \passthrough{\lstinline!Student!} è sottotipo di
+  \passthrough{\lstinline!Person!},
+  \textbf{\passthrough{\lstinline!Pair<Student>!} NON è un sottotipo di
+  \passthrough{\lstinline!Pair<Person>!}}!
+
+\begin{lstlisting}[language=Java]
+Student s = new Student("Sam", 123);
+Person p = s; // OK: principio di sostituzione di Liskov
+
+Pair<Student> pairS = new Pair<>(s, new Student("Paul", 456));
+Pair<Person> pairP = pairS; // COMPILE-TIME ERROR: Incompatible types!
+\end{lstlisting}
+\item
+  \textbf{Perché Java vieta questo assegnamento?}: Se
+  \passthrough{\lstinline!pairP = pairS!} fosse consentito, potremmo
+  eseguire:
+
+\begin{lstlisting}[language=Java]
+pairP.setFirst(new Professor("Mario", 999)); // Legale su Pair<Person>, poiché un Professor è una Person!
+\end{lstlisting}
+
+  Ma poiché \passthrough{\lstinline!pairP!} e
+  \passthrough{\lstinline!pairS!} punterebbero allo stesso identico
+  oggetto nell'Heap, \passthrough{\lstinline!pairS!} (che pretende di
+  contenere solo \passthrough{\lstinline!Student!}) si troverebbe a
+  contenere un \passthrough{\lstinline!Professor!}, distruggendo la
+  garanzia di tipo a runtime!
+\item
+  \textbf{Il Contrasto con gli Array (Array Covariance, Slide 20)}: In
+  Java gli array sono storicamente \textbf{covarianti}:
+
+\begin{lstlisting}[language=Java]
+Student[] arrS = { new Student("Sam", 123) };
+Person[] arrP = arrS; // COMPILA PERFETTAMENTE!
+arrP[0] = new Professor("Mario", 999); // BOOM! A runtime genera: java.lang.ArrayStoreException
+\end{lstlisting}
+
+  La covarianza degli array è universalmente riconosciuta come una
+  debolezza storica di Java (introdotta in Java 1.0 prima dell'avvento
+  dei generics). I Generics sono stati resi \textbf{invarianti} proprio
+  per risolvere questa falla a tempo di compilazione.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.8 Wildcards:
+\texttt{\textless{}?\textgreater{}},
+\texttt{\textless{}?\ extends\ T\textgreater{}},
+\texttt{\textless{}?\ super\ T\textgreater{}} (Slide
+21-23)}{1.8 Wildcards: \textless?\textgreater, \textless? extends T\textgreater, \textless? super T\textgreater{} (Slide 21-23)}}\label{wildcards-extends-t-super-t-slide-21-23}
+
+Per recuperare la flessibilità polimorfica senza rinunciare alla Type
+Safety, Java ha introdotto il carattere jolly (\emph{Wildcard})
+\passthrough{\lstinline!?!}.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Unbounded Wildcard (\passthrough{\lstinline!<?>!}, Slide 21)}:
+
+  \begin{itemize}
+  \item
+    Rappresenta un tipo totalmente sconosciuto:
+
+\begin{lstlisting}[language=Java]
+Pair<?> pairUnknown = pairS; // Legale!
+\end{lstlisting}
+  \item
+    Possiamo \textbf{leggere} elementi, ma il loro tipo a compile-time è
+    unicamente \passthrough{\lstinline!Object!}.
+  \item
+    \textbf{Non possiamo scrivere o aggiungere nulla} (tranne il
+    letterale \passthrough{\lstinline!null!}), perché non sappiamo quale
+    sia il tipo effettivo accettabile.
+  \end{itemize}
+\item
+  \textbf{Upper-Bounded Wildcard
+  (\passthrough{\lstinline!<? extends T>!}, Slide 22-23)}:
+
+  \begin{itemize}
+  \item
+    Accetta \passthrough{\lstinline!T!} o qualsiasi sottoclasse di
+    \passthrough{\lstinline!T!}:
+
+\begin{lstlisting}[language=Java]
+Pair<? extends Person> pairP = pairS; // Legale! Student extends Person
+\end{lstlisting}
+  \item
+    Ora possiamo invocare in sicurezza tutti i metodi di
+    \passthrough{\lstinline!Person!}:
+
+\begin{lstlisting}[language=Java]
+System.out.println(pairP.getFirst().getName()); // OK!
+\end{lstlisting}
+  \item
+    \textbf{Sintassi pulita nei metodi}: Invece di dichiarare un
+    parametro formale di tipo esplicito a livello di metodo:
+
+\begin{lstlisting}[language=Java]
+<T extends Person> void printPair(Pair<T> p) { ... }
+\end{lstlisting}
+
+    possiamo scrivere in modo molto più compatto e leggibile:
+
+\begin{lstlisting}[language=Java]
+void printPair(Pair<? extends Person> p) { ... }
+\end{lstlisting}
+  \end{itemize}
+\item
+  \textbf{Il Principio Guida PECS (\emph{Producer Extends, Consumer
+  Super})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Se la struttura generica funge da \textbf{produttore} di dati
+    (vogliamo solo \emph{leggere} dati di tipo
+    \passthrough{\lstinline!T!}), si usa
+    \passthrough{\lstinline!<? extends T>!}.
+  \item
+    Se la struttura funge da \textbf{consumatore} di dati (vogliamo
+    \emph{scrivere/aggiungere} elementi di tipo
+    \passthrough{\lstinline!T!}), si usa
+    \passthrough{\lstinline!<? super T>!}.
+  \end{itemize}
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{\texorpdfstring{2. Analisi Dettagliata del Codice
+(\texttt{Lezione15/MavenDate})}{2. Analisi Dettagliata del Codice (Lezione15/MavenDate)}}\label{analisi-dettagliata-del-codice-lezione15mavendate}
+
+Tra la Lezione 14 e la Lezione 15, il prof. Pasqua compie due modifiche
+sostanziali: 1. Implementa \passthrough{\lstinline!hashCode()!} in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione15/MavenDate/src/main/java/it/oop/core/Date.java\#L102-L105}{Date.java}.
+2. Riscrive ed espande
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione15/MavenDate/src/main/java/it/oop/ui/MainDate.java}{MainDate.java}
+per integrare la libreria delle \textbf{Java Collections}
+(\passthrough{\lstinline!List!}, \passthrough{\lstinline!Set!},
+\passthrough{\lstinline!Map!}), il contratto
+\passthrough{\lstinline!equals!}/\passthrough{\lstinline!hashCode!}, e i
+meccanismi di ordinamento con \passthrough{\lstinline!Comparable!} e
+\passthrough{\lstinline!Comparator!} (usando classi anonime e lambdas).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2.1 Il Contratto \texttt{equals} /
+\texttt{hashCode} in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione15/MavenDate/src/main/java/it/oop/core/Date.java\#L102-L105}{Date.java}}{2.1 Il Contratto equals / hashCode in Date.java}}\label{il-contratto-equals-hashcode-in-date.java}
+
+Nel passaggio da Lezione 14 a Lezione 15 viene aggiunto a
+\passthrough{\lstinline!Date!}:
+
+\begin{lstlisting}[language=Java]
+    @Override
+    public int hashCode() {
+        return (day + month) * year;
+    }
+\end{lstlisting}
+
+\paragraph{Perché questo metodo è vitale e non
+opzionale?}\label{perchuxe9-questo-metodo-uxe8-vitale-e-non-opzionale}
+
+In Java vige la regola ferrea del contratto di
+\passthrough{\lstinline!Object!}: \textgreater{} \textbf{Se due oggetti
+sono considerati uguali dal metodo
+\passthrough{\lstinline!equals(Object)!}
+(\passthrough{\lstinline!a.equals(b) == true!}), allora le chiamate a
+\passthrough{\lstinline!hashCode()!} su entrambi gli oggetti DEVONO
+restituire lo stesso valore intero
+(\passthrough{\lstinline!a.hashCode() == b.hashCode()!}).}
+
+Se si fa l'override di \passthrough{\lstinline!equals!} senza fare
+l'override di \passthrough{\lstinline!hashCode!}, strutture dati basate
+su hash come \passthrough{\lstinline!HashSet!} e
+\passthrough{\lstinline!HashMap!} falliscono miseramente: considerano
+due date identiche come memorizzate in \emph{bucket} differenti,
+inserendo duplicati o non trovando chiavi presenti.
+
+Nel codice di \passthrough{\lstinline!MainDate.java!}:
+
+\begin{lstlisting}[language=Java]
+AmericanDate usD1 = new AmericanDate(7, 11, 2025);
+AmericanDate usD2 = new AmericanDate(7, 11, 2025);
+System.out.println("usD1 ?= usD2: " + usD1.equals(usD2)); // true
+System.out.println("hash(usD1): " + usD1.hashCode());      // 36450
+System.out.println("hash(usD2): " + usD2.hashCode());      // 36450
+\end{lstlisting}
+
+Calcolo: \((7 + 11) \times 2025 = 18 \times 2025 = 36450\). Entrambi gli
+oggetti hanno identico hash code!
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2.2 \texttt{List} vs \texttt{Set}:
+Accettazione vs Rifiuto dei Duplicati in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione15/MavenDate/src/main/java/it/oop/ui/MainDate.java\#L43-L55}{MainDate.java}}{2.2 List vs Set: Accettazione vs Rifiuto dei Duplicati in MainDate.java}}\label{list-vs-set-accettazione-vs-rifiuto-dei-duplicati-in-maindate.java}
+
+\begin{lstlisting}[language=Java]
+// 1. Creazione di una List (ammette elementi duplicati e mantiene l'ordine di inserimento)
+List<Date> dateList = new ArrayList<>();
+dateList.add(new AmericanDate(7, 11, 2025));
+dateList.add(new Date(9, 11, 2025));
+dateList.add(new TimeStamp(0, 0, 0, 8, 11, 2025));
+dateList.add(new AmericanDate(7, 11, 2025)); // Duplicato!
+System.out.println("list(" + dateList.size() + "): " + dateList.toString());
+
+// 2. Creazione di un Set (insieme matematico: nessun duplicato consentito)
+Set<Date> dateSet = new HashSet<>();
+dateSet.add(new AmericanDate(7, 11, 2025));
+dateSet.add(new Date(9, 11, 2025));
+dateSet.add(new TimeStamp(0, 0, 0, 8, 11, 2025));
+dateSet.add(new AmericanDate(7, 11, 2025)); // Duplicato: viene scartato silenziosamente!
+System.out.println("set(" + dateSet.size() + "): " + dateSet.toString());
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Risultato a runtime}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!dateList.size()!} vale \textbf{4} (contiene
+    entrambe le istanze di \passthrough{\lstinline!7/11/2025!}).
+  \item
+    \passthrough{\lstinline!dateSet.size()!} vale \textbf{3} (la seconda
+    istanza è stata rifiutata perché \passthrough{\lstinline!equals!} ha
+    restituito \passthrough{\lstinline!true!} e
+    l'\passthrough{\lstinline!hashCode!} coincideva).
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2.3
+\texttt{Map\textless{}K,\ V\textgreater{}} e Lambdas Registrate
+Dinamicamente in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione15/MavenDate/src/main/java/it/oop/ui/MainDate.java\#L61-L69}{MainDate.java}}{2.3 Map\textless K, V\textgreater{} e Lambdas Registrate Dinamicamente in MainDate.java}}\label{mapk-v-e-lambdas-registrate-dinamicamente-in-maindate.java}
+
+\begin{lstlisting}[language=Java]
+Map<String, FormattedDateConverter> converter = new HashMap<>();
+// Registrazione di strategie di conversione tramite espressioni lambda
+converter.put("usToIt", d -> new ItalianDate(d.getDay(), d.getMonth(), d.getYear()));
+converter.put("itToUs", d -> new AmericanDate(d.getDay(), d.getMonth(), d.getYear()));
+
+FormattedDate usDate = new AmericanDate(1, 1, 1970);
+FormattedDate itDate = converter.get("usToIt").convert(usDate);
+System.out.println(itDate.prettyPrint()); // Stampa "1 gennaio 1970"
+
+for (String k : converter.keySet())
+    System.out.println(converter.get(k).toString());
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Finezza di esame sul \passthrough{\lstinline!toString()!}
+  delle Lambdas}: Quando si invoca \passthrough{\lstinline!toString()!}
+  su un oggetto lambda in Java, la JVM non stampa il codice sorgente,
+  bensì il descrittore sintetico della classe generata a runtime
+  (\passthrough{\lstinline!invokedynamic!}):
+  \passthrough{\lstinline!it.oop.ui.MainDate$$Lambda/0x...!} (la
+  notazione interna con i due dollari \passthrough{\lstinline!$$Lambda!}
+  è la convenzione standard con cui la JVM battezza le classi sintetiche
+  generate dinamicamente).
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2.4 Ordinamento: \texttt{Comparable} vs
+\texttt{Comparator} (Slide 11 \&
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione15/MavenDate/src/main/java/it/oop/ui/MainDate.java\#L70-L88}{MainDate.java})}{2.4 Ordinamento: Comparable vs Comparator (Slide 11 \& MainDate.java)}}\label{ordinamento-comparable-vs-comparator-slide-11-maindate.java}
+
+In Java esistono due modi per ordinare oggetti: 1. \textbf{Ordinamento
+Naturale con \passthrough{\lstinline!Comparable<T>!}}: * Definito
+all'interno della classe stessa tramite
+\passthrough{\lstinline!compareTo(T other)!}. *
+\passthrough{\lstinline!Date!} implementa
+\passthrough{\lstinline!Comparable<Date>!}:
+\passthrough{\lstinline"java      Collections.sort(dateList); // Funziona direttamente!"}
+La lista disordinata
+\passthrough{\lstinline![11/7/2025, y2025m11d9, y2025m11d8, 11/7/2025]!}
+viene riordinata cronologicamente:
+\passthrough{\lstinline![11/7/2025, 11/7/2025, y2025m11d8[00:00:00], y2025m11d9]!}.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  \textbf{Ordinamento Personalizzato con
+  \passthrough{\lstinline!Comparator<T>!}}:
+
+  \begin{itemize}
+  \item
+    Consideriamo \passthrough{\lstinline!DateInterval!}: eredita da
+    \passthrough{\lstinline!OrderedPair<Date>!}, ma \textbf{NON
+    implementa \passthrough{\lstinline!Comparable<DateInterval>!}}!
+  \item
+    Se si prova a chiamare:
+
+\begin{lstlisting}[language=Java]
+// Collections.sort(intvList); // COMPILE-TIME ERROR:
+// no suitable method found for sort(List<DateInterval>)
+// reason: cannot infer type-variable(s) T (DateInterval is not Comparable)
+\end{lstlisting}
+  \item
+    Per risolvere il problema, il prof. Pasqua applica due stili per
+    fornire un \passthrough{\lstinline!Comparator<DateInterval>!}
+    esterno:
+
+    \begin{itemize}
+    \item
+      \textbf{Stile 1: Classe Anonima} (ordinamento per data di inizio
+      \passthrough{\lstinline!left!} crescente):
+
+\begin{lstlisting}[language=Java]
+Collections.sort(intvList, new Comparator<DateInterval>() {
+    @Override
+    public int compare(DateInterval di1, DateInterval di2) {
+        return di1.getLeft().compareTo(di2.getLeft());
+    }
+});
+\end{lstlisting}
+    \item
+      \textbf{Stile 2: Espressione Lambda} (ordinamento per data di fine
+      \passthrough{\lstinline!right!} decrescente):
+
+\begin{lstlisting}[language=Java]
+Collections.sort(intvList, (di1, di2) -> di2.getRight().compareTo(di1.getRight()));
+\end{lstlisting}
+    \end{itemize}
+  \end{itemize}
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{3. Risultato di Compilazione ed Esecuzione
+Reale}\label{risultato-di-compilazione-ed-esecuzione-reale}
+
+Comando eseguito nel progetto
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione15/MavenDate}{Lezione15/MavenDate}:
+
+\begin{lstlisting}[language=bash]
+mvn compile exec:java -Dexec.mainClass="it.oop.ui.MainDate"
+\end{lstlisting}
+
+Output ottenuto:
+
+\begin{lstlisting}
+y2025m9d10
+y2025m1d1
+00:00:00
+true
+OOP exam on 2 febbraio 2026
+date pair: [y2025m2d1 .. y2025m1d1]
+Pair not ordered!
+OOP exam on 2 febbraio 2026
+list(4): [11/7/2025, y2025m11d9, y2025m11d8[00:00:00], 11/7/2025]
+set(3): [11/7/2025, y2025m11d9, y2025m11d8[00:00:00]]
+usD1 ?= usD2: true
+hash(usD1): 36450
+hash(usD2): 36450
+1 gennaio 1970
+it.oop.ui.MainDate$$Lambda/0x000000008f383b48@21043ee9
+it.oop.ui.MainDate$$Lambda/0x000000008f383920@6dc5f73f
+[11/7/2025, 11/7/2025, y2025m11d8[00:00:00], y2025m11d9]
+[[y2025m1d1 .. y2025m1d20], [y2025m1d10 .. y2025m1d31]]
+[[y2025m1d10 .. y2025m1d31], [y2025m1d1 .. y2025m1d20]]
+\end{lstlisting}
+
+\subsubsection{Decodifica puntuale
+dell'output:}\label{decodifica-puntuale-delloutput}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \passthrough{\lstinline!list(4): [...]!} vs
+  \passthrough{\lstinline!set(3): [...]!} \(\rightarrow\) Dimostrazione
+  pratica che \passthrough{\lstinline!HashSet!} elimina il duplicato
+  \passthrough{\lstinline!11/7/2025!} grazie al corretto funzionamento
+  congiunto di \passthrough{\lstinline!equals()!} e
+  \passthrough{\lstinline!hashCode()!}.
+\item
+  \passthrough{\lstinline!hash(usD1): 36450!} e
+  \passthrough{\lstinline!hash(usD2): 36450!} \(\rightarrow\) Rispetto
+  formale del contratto di \passthrough{\lstinline!Object!}.
+\item
+  \passthrough{\lstinline!1 gennaio 1970!} \(\rightarrow\) La mappa
+  \passthrough{\lstinline!converter!} recupera il converter
+  \passthrough{\lstinline!"usToIt"!} memorizzato come lambda e trasforma
+  \passthrough{\lstinline!1/1/1970!} in formato italiano.
+\item
+  \passthrough{\lstinline!it.oop.ui.MainDate$$Lambda/...!}
+  \(\rightarrow\) Nome sintetico dell'oggetto funzionale generato dalla
+  JVM a runtime (in cui il doppio dollaro
+  \passthrough{\lstinline!$$Lambda!} rappresenta il discriminatore
+  standard del bytecode).
+\item
+  \passthrough{\lstinline![11/7/2025, 11/7/2025, y2025m11d8[00:00:00], y2025m11d9]!}
+  \(\rightarrow\) Lista ordinata secondo l'ordinamento naturale di
+  \passthrough{\lstinline!Date!} (7 nov, poi 8 nov, poi 9 nov).
+\item
+  \passthrough{\lstinline![[y2025m1d1 .. y2025m1d20], [y2025m1d10 .. y2025m1d31]]!}
+  \(\rightarrow\) Intervalli ordinati per data d'inizio crescente (1 gen
+  prima del 10 gen) tramite \passthrough{\lstinline!Comparator!} in
+  classe anonima.
+\item
+  \passthrough{\lstinline![[y2025m1d10 .. y2025m1d31], [y2025m1d1 .. y2025m1d20]]!}
+  \(\rightarrow\) Intervalli ordinati per data di fine decrescente (31
+  gen prima del 20 gen) tramite \passthrough{\lstinline!Comparator!} in
+  espressione lambda.
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+Dimmi \textbf{``vai''} per procedere con il \textbf{Blocco 15} (Lezione
+16 / Slide T16 --- \emph{Collections Framework}, gerarchia completa di
+\passthrough{\lstinline!List!}, \passthrough{\lstinline!Set!},
+\passthrough{\lstinline!Queue!}, \passthrough{\lstinline!Map!},
+complessità asintotiche, iteratori e diff in
+\passthrough{\lstinline!Lezione16/MavenDate!}).
+
+
+\end{document}

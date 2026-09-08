@@ -1,0 +1,955 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T14 --- Classi Annidate, Interne, Locali ed Anonime}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T14 --- Classi Annidate, Interne, Locali ed Anonime \\[0.3em] \large\sffamily Static Nested vs Inner Classes, Enclosing Pointer, Shadowing, Effectively Final e Classi Anonime}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{1. Analisi Teorica Approfondita (Slide
+T14)}\label{analisi-teorica-approfondita-slide-t14}
+
+La lezione 14 esplora la gerarchia delle classi definite all'interno di
+altre classi (meccanismo introdotto fin da Java 1.1), le classi anonime,
+l'evoluzione verso le \textbf{espressioni Lambda} (Java 8) e la feature
+dei \textbf{Varargs}.
+
+\needspace{7cm}
+\begin{asciibox}
+                 ┌───────────────────────────┐
+                 │  Classi Annidate in Java  │
+                 └─────────────┬─────────────┘
+                               │
+            ┌──────────────────┴──────────────────┐
+            ▼                                     ▼
+ ┌───────────────────────┐             ┌───────────────────────┐
+ │ Static Nested Classes │             │     Inner Classes     │
+ │   (static class ...)  │             │     (non-static)      │
+ └───────────────────────┘             └───────────┬───────────┘
+                                                   │
+                  ┌────────────────────────────────┼─────────────────┐
+                  ▼                                ▼                 ▼
+       ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐
+       │Member Inner Class│ │   Local Class    │ │ Anonymous Class  │
+       │(a livello classe)│ │(dentro un metodo)│ │(senza nome/corpo)│
+       └──────────────────┘ └──────────────────┘ └────────┬─────────┘
+                                                           │ (SAM Interface)
+                                                           ▼
+                                                 ┌──────────────────┐
+                                                 │Lambda Expression │
+                                                 │  (arg -> body)   │
+                                                 └──────────────────┘
+\end{asciibox}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.1 Static Nested Classes
+(\texttt{static\ class\ Nested})}{1.1 Static Nested Classes (static class Nested)}}\label{static-nested-classes-static-class-nested}
+
+Una classe dichiarata con il modificatore
+\passthrough{\lstinline!static!} all'interno di un'altra classe
+contenitore (\emph{enclosing class}):
+
+\begin{lstlisting}[language=Java]
+package pkg;
+class Outer {
+    static class Nested {
+        // ...
+    }
+}
+\end{lstlisting}
+
+\begin{itemize}
+\item
+  \textbf{Natura}: È a tutti gli effetti una classe di primo livello
+  (\emph{top-level}), ma inserita nel \emph{namespace} della classe che
+  la ospita.
+\item
+  \textbf{Nome completo (Fully Qualified Name)}:
+  \passthrough{\lstinline!pkg.Outer.Nested!} (a livello di bytecode su
+  disco viene generato il file
+  \passthrough{\lstinline!Outer$Nested.class!}).
+\item
+  \textbf{Accesso ai membri}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Trattandosi di un membro statico, \textbf{ha accesso a tutti i
+    membri statici} della classe contenitore, \textbf{compresi quelli
+    privati (\passthrough{\lstinline!private!})}!
+  \item
+    \textbf{NON ha accesso} ai membri di istanza (campi o metodi non
+    statici) di \passthrough{\lstinline!Outer!}, poiché non esiste alcun
+    riferimento implicito ad un'istanza di
+    \passthrough{\lstinline!Outer!}.
+  \end{itemize}
+\item
+  \textbf{Istanziazione}: Può essere istanziata in modo totalmente
+  indipendente dall'esistenza di un oggetto
+  \passthrough{\lstinline!Outer!}:
+
+\begin{lstlisting}[language=Java]
+Outer.Nested nestedObject = new Outer.Nested();
+\end{lstlisting}
+\item
+  \textbf{Caso d'uso tipico}: Il pattern \textbf{Builder} (visto in
+  \href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione14/MavenDate/src/main/java/it/oop/core/Date.java\#L85-L106}{Date.java}),
+  classi di utilità, nodi interni di strutture dati (es.
+  \passthrough{\lstinline!static class Node<E>!} in un albero o grafo).
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.2 Member Inner Classes
+(\texttt{class\ Inner}
+non-statica)}{1.2 Member Inner Classes (class Inner non-statica)}}\label{member-inner-classes-class-inner-non-statica}
+
+Una classe dichiarata all'interno di un'altra classe \textbf{senza} la
+parola chiave \passthrough{\lstinline!static!}:
+
+\begin{lstlisting}[language=Java]
+package pkg;
+class Outer {
+    class Inner {
+        // ...
+    }
+}
+\end{lstlisting}
+
+\begin{itemize}
+\item
+  \textbf{Natura}: Un'istanza di \passthrough{\lstinline!Inner!}
+  \textbf{non può esistere senza un'istanza associata di
+  \passthrough{\lstinline!Outer!}}.
+\item
+  \textbf{Riferimento implicito (\passthrough{\lstinline!Outer.this!} o
+  \passthrough{\lstinline!this$0!})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Ogni oggetto \passthrough{\lstinline!Inner!} memorizza internamente
+    un puntatore sintetico nascosto all'oggetto
+    \passthrough{\lstinline!Outer!} che l'ha generato.
+  \item
+    Tramite questo puntatore, \passthrough{\lstinline!Inner!} ha accesso
+    a \textbf{tutti} i membri di \passthrough{\lstinline!Outer!}, sia
+    statici che di istanza, inclusi quelli
+    \passthrough{\lstinline!private!}!
+  \end{itemize}
+\item
+  \textbf{Sintassi di istanziazione da codice esterno}:
+
+\begin{lstlisting}[language=Java]
+Outer outerObject = new Outer();
+Outer.Inner innerObject = outerObject.new Inner(); // Sintassi specifica con outerObject.new
+\end{lstlisting}
+\end{itemize}
+
+\paragraph{\texorpdfstring{Confronto: \texttt{Nested} vs \texttt{Inner}
+(Slide
+7)}{Confronto: Nested vs Inner (Slide 7)}}\label{confronto-nested-vs-inner-slide-7}
+
+\begin{lstlisting}[language=Java]
+class Outer {
+    private static int I = 5;
+    private int i;
+
+    static class Nested {
+        // NON ha accesso al campo di istanza i!
+        static void print() { System.out.println(I); } // OK: accede a membro statico privato I
+    }
+
+    class Inner {
+        // Ha accesso sia a I che al campo di istanza i della sua Outer associata
+        void print() { System.out.println(i); }
+    }
+
+    public void outerMethod() {
+        Nested.print();
+        Inner innerObject = new Inner(); // Qui 'this.new Inner()' è implicito
+        innerObject.print();
+    }
+}
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.3 Local Classes (Classi Locali a un
+Metodo)}\label{local-classes-classi-locali-a-un-metodo}
+
+Una classe definita all'interno del corpo di un blocco di codice
+(tipicamente un metodo):
+
+\begin{lstlisting}[language=Java]
+public void outerMethod() {
+    final int j = 1;
+
+    class Local { // NESSUN modificatore di visibilità ammesso (no public, private, protected)
+        int addOne() { return j + 1; }
+    }
+
+    Local localObject = new Local();
+    System.out.println(localObject.addOne()); // Stampa 2
+}
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Regole di visibilità}: La classe è visibile e istanziabile
+  \textbf{esclusivamente all'interno del blocco/metodo} in cui è
+  dichiarata.
+\item
+  \textbf{Cattura delle variabili locali (\emph{Variable Capture} \&
+  \emph{Closures})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Può accedere alle variabili locali e ai parametri del metodo
+    contenitore \textbf{solo se sono dichiarati
+    \passthrough{\lstinline!final!} oppure sono \emph{effectively
+    final}} (ovvero il loro valore non viene mai modificato dopo
+    l'inizializzazione).
+  \item
+    \textbf{Perché questo vincolo severo? (Domanda classica d'esame)}:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Le variabili locali risiedono nello \textbf{Stack Frame} del
+      metodo e vengono distrutte non appena il metodo termina
+      (\passthrough{\lstinline!return!}).
+    \item
+      L'oggetto della classe locale
+      (\passthrough{\lstinline!localObject!}) risiede nell'\textbf{Heap}
+      e potrebbe sopravvivere ben oltre la fine del metodo (ad esempio
+      se restituito come interfaccia o registrato come listener).
+    \item
+      Per permettere all'oggetto di accedere a
+      \passthrough{\lstinline!j!}, il compilatore Java crea un campo
+      sintetico nascosto dentro \passthrough{\lstinline!Local!} e vi
+      \textbf{copia} il valore di \passthrough{\lstinline!j!} al momento
+      della creazione.
+    \item
+      Se \passthrough{\lstinline!j!} potesse essere riassegnato
+      (\passthrough{\lstinline!j++!}), il valore nello stack e la copia
+      nell'heap diverrebbero disallineati, rompendo la coerenza del
+      linguaggio. Rendendo la variabile immutabile
+      (\passthrough{\lstinline!final!}), la copia rimane identica e
+      coerente per sempre.
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.4 Il Meme della Slide 10: \emph{Objects
+inside
+objects}}{1.4 Il Meme della Slide 10: Objects inside objects}}\label{il-meme-della-slide-10-objects-inside-objects}
+
+Nella Slide 10, il prof. Pasqua inserisce il celebre meme di Xzibit
+(\emph{Pimp My Ride}): \textgreater{} \emph{``YO DAWG, I HEAR YOU LIKE
+OBJECT ORIENTED PROGRAMMING SO I NESTED A CLASS INSIDE YOUR CLASS SO YOU
+CAN CREATE OBJECTS WHILE YOU CREATE OBJECTS''}
+
+A sottolineare con ironia la tentazione (e il potere) di creare
+gerarchie di classi dentro classi per incapsulare comportamenti
+strettamente accoppiati.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.5 Motivazioni Architetturali \& Il Caso
+di Studio \emph{Iterator Pattern} (Slide
+11-12)}{1.5 Motivazioni Architetturali \& Il Caso di Studio Iterator Pattern (Slide 11-12)}}\label{motivazioni-architetturali-il-caso-di-studio-iterator-pattern-slide-11-12}
+
+Perché annidare le classi? 1. \textbf{Migliore organizzazione del
+codice}: collocare classi di supporto logico all'interno del namespace
+della sola classe che le utilizza. 2. \textbf{Politica di visibilità
+privilegiata (\emph{Privileged Access})}: le classi annidate possono
+leggere lo stato privato della classe ospitante senza costringere a
+esporre metodi \passthrough{\lstinline!public!} o
+\passthrough{\lstinline!package-private!} pericolosi verso l'esterno. 3.
+\textbf{Meno complessità nel codebase}: evita la proliferazione di
+decine di minuscoli file \passthrough{\lstinline!.java!} separati.
+
+\paragraph{\texorpdfstring{L'Esempio del pattern \texttt{Iterable} /
+\texttt{Iterator} (Slide
+12)}{L'Esempio del pattern Iterable / Iterator (Slide 12)}}\label{lesempio-del-pattern-iterable-iterator-slide-12}
+
+\begin{itemize}
+\item
+  \textbf{Senza annidamento (Due classi separate)}:
+  \passthrough{\lstinline!CRIterator!} deve essere dichiarata
+  all'esterno, riceve l'array \passthrough{\lstinline!Student[] arr!}
+  nel costruttore e necessita di visibilità speciale:
+
+\begin{lstlisting}[language=Java]
+class ClassRoom implements Iterable {
+    private Student[] students;
+    @Override
+    public Iterator iterator() { return new CRIterator(students); }
+}
+class CRIterator implements Iterator {
+    private Student[] arr;
+    private int next = 0;
+    CRIterator(Student[] arr) { this.arr = arr; }
+    @Override public boolean hasNext() { return next < arr.length; }
+    @Override public Object next() { return new Student(arr[next++]); }
+}
+\end{lstlisting}
+\item
+  \textbf{Con Inner Class (Soluzione idiomatica Java)}:
+  \passthrough{\lstinline!CRIterator!} è una
+  \passthrough{\lstinline!Inner Class!} dentro
+  \passthrough{\lstinline!ClassRoom!}. Non serve memorizzare un array
+  duplicato: accede direttamente al campo privato
+  \passthrough{\lstinline!students!} di
+  \passthrough{\lstinline!ClassRoom!}!
+
+\begin{lstlisting}[language=Java]
+class ClassRoom implements Iterable {
+    private Student[] students;
+    @Override
+    public Iterator iterator() { return new CRIterator(); }
+
+    class CRIterator implements Iterator {
+        private int next = 0;
+        @Override public boolean hasNext() { return next < students.length; }
+        @Override public Object next() { return new Student(students[next++]); }
+    }
+}
+\end{lstlisting}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.6 Anonymous Classes (Classi Anonime, Slide
+13-16)}\label{anonymous-classes-classi-anonime-slide-13-16}
+
+Una classe locale \textbf{priva di nome}, definita e istanziata
+contestualmente all'interno di una singola espressione. *
+\textbf{Vincolo}: Può essere creata solo estendendo una classe esistente
+o implementando un'interfaccia: ```java // 1. Estendendo una classe
+esistente: Person sam = new Person(``Sam'') \{ @Override public String
+toString() \{ return ``It's Sam!''; \} \};
+
+// 2. Implementando un'interfaccia: Time init = new Time() \{ @Override
+public int getHours() \{ return 0; \} @Override public int getMinutes()
+\{ return 0; \} @Override public int getSeconds() \{ return 0; \} \};
+\passthrough{\lstinline"* **Regola aurea sui Costruttori**: **Una classe anonima NON può dichiarare alcun costruttore esplicito!** (Poiché i costruttori devono avere per definizione lo stesso nome della classe, e una classe anonima non ha nome). Eventuali inizializzazioni devono sfruttare gli *instance initializer blocks* `\{ ... \}` o i parametri passati al costruttore della superclasse (`new SuperClass(arg1, arg2) \{ ... \}`). * **Espressioni**: Essendo espressioni, devono terminare con un punto e virgola `;` (se assegnate a una variabile) o possono essere passate direttamente come parametri attuali di un metodo:"}java
+tasks.add(new Runnable() \{ @Override public void run() \{
+System.out.println(``Running!''); \} \}); ```
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.7 Lambda Expressions (Slide
+17-19)}\label{lambda-expressions-slide-17-19}
+
+Introdotte in Java 8, sono una notazione sintattica ultra-compatta per
+implementare \textbf{interfacce funzionali} (interfacce con un
+\textbf{unico metodo astratto}, note come SAM --- \emph{Single Abstract
+Method}).
+
+\begin{lstlisting}
+(parametri) -> corpo
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Parametri}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Nessun parametro: \passthrough{\lstinline!() -> 42!}
+  \item
+    Un parametro: \passthrough{\lstinline!x -> x + 1!} (le parentesi
+    tonde sono opzionali se non si specifica il tipo esplicito)
+  \item
+    Due o più parametri: \passthrough{\lstinline!(x, y) -> x + y!}
+  \end{itemize}
+\item
+  \textbf{Corpo}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Espressione singola: \passthrough{\lstinline!param -> param - 1!}
+    (restituzione implicita del valore calcolato, niente
+    \passthrough{\lstinline!return!} né graffe)
+  \item
+    Blocco di codice:
+    \passthrough{\lstinline!param -> \{ int res = param - 1; return res; \}!}
+    (richiede graffe esplicite e \passthrough{\lstinline!return!})
+  \end{itemize}
+\item
+  \textbf{Inferenza di tipo (\emph{Type Inference})}: Il compilatore
+  Java deduce i tipi dei parametri e del valore di ritorno dal contesto
+  d'uso (\emph{target typing} dell'interfaccia funzionale).
+\item
+  \textbf{Differenza tra Classi Anonime e Lambda}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    La classe anonima può implementare interfacce con più metodi
+    astratti o estendere classi concrete/astratte; la lambda può
+    implementare \textbf{solo interfacce funzionali SAM}.
+  \item
+    La classe anonima crea un nuovo scope per
+    \passthrough{\lstinline!this!} (che punta all'istanza anonima
+    stessa); nella lambda \passthrough{\lstinline!this!} è
+    \textbf{lessicale} (punta all'istanza della classe circostante).
+  \item
+    La classe anonima può dichiarare campi di istanza che mantengono
+    stato; la lambda è per natura \emph{stateless}.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.8 Varargs (\texttt{type...\ args},
+Slide
+20-21)}{1.8 Varargs (type... args, Slide 20-21)}}\label{varargs-type...-args-slide-20-21}
+
+Consente a un metodo di accettare un numero variabile (da zero a molti)
+di argomenti dello stesso tipo:
+
+\begin{lstlisting}[language=Java]
+static int min(int... values) {
+    int res = Integer.MAX_VALUE;
+    for (int v : values)
+        if (v < res) res = v;
+    return res;
+}
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Dietro le quinte del compilatore}: Il parametro
+  \passthrough{\lstinline!int... values!} viene tradotto esattamente in
+  un array \passthrough{\lstinline!int[] values!}. Al momento della
+  chiamata:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!min(1, 0, 5)!} \(\rightarrow\) il
+    compilatore inietta il codice:
+    \passthrough{\lstinline!min(new int[]\{ 1, 0, 5 \})!}.
+  \item
+    \passthrough{\lstinline!min()!} (senza argomenti) \(\rightarrow\)
+    crea un array vuoto \passthrough{\lstinline!min(new int[]\{\})!}.
+  \end{itemize}
+\item
+  \textbf{Regole tassative}:
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    Ci può essere \textbf{al massimo un} parametro varargs per metodo.
+  \item
+    Il parametro varargs deve essere tassativamente l'\textbf{ultimo}
+    nella lista dei parametri formali
+    (\passthrough{\lstinline!void foo(String s, int... nums)!} è valido;
+    \passthrough{\lstinline!void foo(int... nums, String s)!} genera
+    errore di compilazione).
+  \end{enumerate}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{\texorpdfstring{2. Analisi Dettagliata del Codice
+(\texttt{Lezione14/MavenDate})}{2. Analisi Dettagliata del Codice (Lezione14/MavenDate)}}\label{analisi-dettagliata-del-codice-lezione14mavendate}
+
+Nella Lezione 14 il progetto
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione14/MavenDate}{MavenDate}
+introduce il primo ponte fondamentale verso i \textbf{Tipi Generici}
+(anticipando la teoria formale di Slide T15) e sfrutta le classi
+annidate, le classi anonime e le lambda viste nella Lezione 13.
+
+\subsubsection{\texorpdfstring{2.1 Diff di
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione14/MavenDate/src/main/java/it/oop/core/Date.java\#L1-L80}{Date.java}
+(Lezione 13 vs Lezione
+14)}{2.1 Diff di Date.java (Lezione 13 vs Lezione 14)}}\label{diff-di-date.java-lezione-13-vs-lezione-14}
+
+Fino alla Lezione 13, \passthrough{\lstinline!Date!} implementava
+l'interfaccia non tipizzata (\emph{raw})
+\passthrough{\lstinline!Comparable!}:
+
+\begin{lstlisting}
+--- Lezione13/Date.java
++++ Lezione14/Date.java
+@@ -1,6 +1,6 @@
+ package it.oop.core;
+ 
+-public class Date implements Comparable {
++public class Date implements Comparable<Date> {
+ 
+@@ -73,15 +73,14 @@
+     @Override
+-    public int compareTo(Object other) {
+-        Date otherAsDate = (Date) other;
+-        int diff = this.year - otherAsDate.getYear();
++    public int compareTo(Date other) {
++        int diff = this.year - other.getYear();
+         if (diff != 0)
+             return diff;
+-        diff = this.month - otherAsDate.getMonth();
++        diff = this.month - other.getMonth();
+         if (diff != 0)
+             return diff;
+-        return this.day - otherAsDate.getDay();
++        return this.day - other.getDay();
+     }
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Beneficio immediato del Generics}:
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    La firma del metodo diventa fortemente tipizzata a compile-time:
+    \passthrough{\lstinline!compareTo(Date other)!} anziché
+    \passthrough{\lstinline!compareTo(Object other)!}.
+  \item
+    Viene eliminato il cast esplicito
+    \passthrough{\lstinline!(Date) other!}, azzerando il rischio di
+    incorrere a runtime in una
+    \passthrough{\lstinline!ClassCastException!}.
+  \end{enumerate}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2.2 La Nuova Classe Generica
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione14/MavenDate/src/main/java/it/oop/core/Pair.java}{Pair.java}}{2.2 La Nuova Classe Generica Pair.java}}\label{la-nuova-classe-generica-pair.java}
+
+\begin{lstlisting}[language=Java]
+package it.oop.core;
+
+public class Pair<F, S> {
+    private final F first;
+    private final S second;
+
+    public Pair(F first, S second) {
+        this.first = first;
+        this.second = second;
+    }
+
+    public F getFirst() { return first; }
+    public S getSecond() { return second; }
+}
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \passthrough{\lstinline!F!} (\emph{First}) e
+  \passthrough{\lstinline!S!} (\emph{Second}) sono due \textbf{Type
+  Parameters} indipendenti.
+\item
+  I campi sono \passthrough{\lstinline!private final!}, rendendo la
+  coppia immutabile una volta istanziata.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2.3 La Classe Generica con Bounded Type
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione14/MavenDate/src/main/java/it/oop/core/OrderedPair.java}{OrderedPair.java}}{2.3 La Classe Generica con Bounded Type OrderedPair.java}}\label{la-classe-generica-con-bounded-type-orderedpair.java}
+
+\begin{lstlisting}[language=Java]
+package it.oop.core;
+
+public class OrderedPair <T extends Comparable<T>> {
+    private final T first;
+    private final T second;
+
+    public OrderedPair(T first, T second) {
+        this.first = first;
+        this.second = second;
+        if (first.compareTo(second) > 0)
+            System.out.println("Pair not ordered!");
+    }
+
+    public T getFirst() { return first; }
+    public T getSecond() { return second; }
+}
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Bounded Type Parameter
+  (\passthrough{\lstinline!<T extends Comparable<T>>!})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Il tipo \passthrough{\lstinline!T!} non può essere un qualsiasi tipo
+    \passthrough{\lstinline!Object!}: deve tassativamente implementare
+    l'interfaccia \passthrough{\lstinline!Comparable<T>!}.
+  \item
+    Grazie a questo vincolo, il compilatore consente all'interno del
+    costruttore di invocare legalmente
+    \passthrough{\lstinline!first.compareTo(second)!}.
+  \item
+    Se si tentasse di istanziare
+    \passthrough{\lstinline!OrderedPair<Object>!}, il compilatore
+    bloccherebbe l'operazione con un errore prima ancora di eseguire.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2.4 Le Sottoclassi Specializzate
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione14/MavenDate/src/main/java/it/oop/core/DatePair.java}{DatePair.java}
+e
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione14/MavenDate/src/main/java/it/oop/core/DateInterval.java}{DateInterval.java}}{2.4 Le Sottoclassi Specializzate DatePair.java e DateInterval.java}}\label{le-sottoclassi-specializzate-datepair.java-e-dateinterval.java}
+
+\paragraph{\texorpdfstring{\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione14/MavenDate/src/main/java/it/oop/core/DatePair.java}{DatePair.java}}{DatePair.java}}\label{datepair.java}
+
+\begin{lstlisting}[language=Java]
+package it.oop.core;
+
+public class DatePair extends Pair<Date, Date> {
+    public DatePair(Date left, Date right) {
+        super(left, right);
+    }
+
+    public Date getLeft() { return getFirst(); }
+    public Date getRight() { return getSecond(); }
+
+    @Override
+    public String toString() {
+        Date l = getLeft();
+        Date r = getRight();
+        return String.format("[%s .. %s]", l.toString(), r.toString());
+    }
+}
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  Fissa sia \passthrough{\lstinline!F!} che \passthrough{\lstinline!S!}
+  al tipo concreto \passthrough{\lstinline!Date!}
+  (\passthrough{\lstinline!extends Pair<Date, Date>!}).
+\item
+  Offre metodi con semantica di dominio più chiara:
+  \passthrough{\lstinline!getLeft()!} e
+  \passthrough{\lstinline!getRight()!}.
+\end{itemize}
+
+\paragraph{\texorpdfstring{\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione14/MavenDate/src/main/java/it/oop/core/DateInterval.java}{DateInterval.java}}{DateInterval.java}}\label{dateinterval.java}
+
+\begin{lstlisting}[language=Java]
+package it.oop.core;
+
+public class DateInterval extends OrderedPair<Date> {
+    public DateInterval(Date left, Date right) {
+        super(left, right);
+    }
+
+    public Date getLeft() { return getFirst(); }
+    public Date getRight() { return getSecond(); }
+
+    @Override
+    public String toString() {
+        Date l = getLeft();
+        Date r = getRight();
+        return String.format("[%s .. %s]", l.toString(), r.toString());
+    }
+}
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  Eredita da \passthrough{\lstinline!OrderedPair<Date>!}: è legale
+  perché \passthrough{\lstinline!Date implements Comparable<Date>!}.
+\item
+  Se le date passate non sono cronologicamente ordinate
+  (\passthrough{\lstinline!left > right!}), il costruttore di
+  \passthrough{\lstinline!OrderedPair!} emette il messaggio d'avviso
+  \passthrough{\lstinline'"Pair not ordered!"'}.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2.5
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione14/MavenDate/src/main/java/it/oop/ui/MainDate.java}{MainDate.java}}{2.5 MainDate.java}}\label{maindate.java}
+
+Raccoglie in un unico punto di ingresso tutte le feature viste nelle
+lezioni 13 e 14:
+
+\begin{lstlisting}[language=Java]
+package it.oop.ui;
+
+import it.oop.core.*;
+import it.oop.core.Date;
+
+public class MainDate {
+
+    public static void main(String[] args) {
+        // 1. Static Nested Class (Builder Pattern da Lezione 13)
+        Date.Builder dateBuilder = new Date.Builder(2025);
+        Date d1 = dateBuilder.build(10,9);
+        Date d2 = dateBuilder.build(10,-1);
+        System.out.println(d1.toString());
+        System.out.println(d2.toString());
+
+        // 2. Anonymous Class che implementa l'interfaccia Time (Lezione 13/14)
+        Time init = new Time() {
+            @Override public int getHours() { return 0; }
+            @Override public int getMinutes() { return 0; }
+            @Override public int getSeconds() { return 0; }
+            @Override public String toString() {
+                return String.format("%02d:%02d:%02d", getHours(), getMinutes(), getSeconds());
+            }
+        };
+        System.out.println(init.toString());
+
+        // 3. Lambda Expression che implementa FormattedDateConverter (Lezione 13/14)
+        FormattedDateConverter toAmerican =
+                d -> new AmericanDate(d.getDay(), d.getMonth(), d.getYear());
+        System.out.println(toAmerican.convert(new ItalianDate(11, 11, 2025)) instanceof AmericanDate);
+
+        // 4. Generics: Pair con Diamond Operator <>
+        Pair<String, FormattedDate> event =
+                new Pair<>("OOP exam", new ItalianDate(2, 2, 2026));
+        System.out.println(event.getFirst() + " on " + event.getSecond().prettyPrint());
+
+        // 5. DatePair e DateInterval
+        DatePair dp = new DatePair(new Date(1,2,2025), new Date(1,1,2025));
+        System.out.println("date pair: " + dp.toString());
+
+        // Qui scatta l'avviso di ordinamento perché 1/2/2025 è successivo a 1/1/2025!
+        DateInterval di = new DateInterval(new Date(1,2,2025), new Date(1,1,2025));
+
+        // 6. Wildcard con Bounded Type (anticipazione Lezione 15)
+        Pair<?, ? extends FormattedDate> unknown = event;
+        System.out.println(unknown.getFirst().toString() + " on " + unknown.getSecond().prettyPrint());
+    }
+}
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{3. Risultato di Compilazione ed Esecuzione
+Reale}\label{risultato-di-compilazione-ed-esecuzione-reale}
+
+Comando eseguito nel workspace del corso:
+
+\begin{lstlisting}[language=bash]
+mvn compile exec:java -Dexec.mainClass="it.oop.ui.MainDate"
+\end{lstlisting}
+
+Output ottenuto:
+
+\begin{lstlisting}
+y2025m9d10
+y2025m1d1
+00:00:00
+true
+OOP exam on 2 febbraio 2026
+date pair: [y2025m2d1 .. y2025m1d1]
+Pair not ordered!
+OOP exam on 2 febbraio 2026
+\end{lstlisting}
+
+\subsubsection{Dettaglio riga per riga
+dell'output:}\label{dettaglio-riga-per-riga-delloutput}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \passthrough{\lstinline!y2025m9d10!} \(\rightarrow\) generato da
+  \passthrough{\lstinline!d1 = dateBuilder.build(10, 9)!} (10 settembre
+  2025).
+\item
+  \passthrough{\lstinline!y2025m1d1!} \(\rightarrow\) generato da
+  \passthrough{\lstinline!d2 = dateBuilder.build(10, -1)!} (mese errato
+  fallback su 1/1/2025).
+\item
+  \passthrough{\lstinline!00:00:00!} \(\rightarrow\) generato
+  dall'override di \passthrough{\lstinline!toString()!} della
+  \textbf{classe anonima} \passthrough{\lstinline!init!} che implementa
+  \passthrough{\lstinline!Time!}.
+\item
+  \passthrough{\lstinline!true!} \(\rightarrow\) la \textbf{lambda}
+  \passthrough{\lstinline!toAmerican!} converte l'istanza di
+  \passthrough{\lstinline!ItalianDate!} in
+  \passthrough{\lstinline!AmericanDate!}.
+\item
+  \passthrough{\lstinline!OOP exam on 2 febbraio 2026!} \(\rightarrow\)
+  \passthrough{\lstinline!Pair<String, FormattedDate>!} con
+  formattazione italiana.
+\item
+  \passthrough{\lstinline!date pair: [y2025m2d1 .. y2025m1d1]!}
+  \(\rightarrow\) \passthrough{\lstinline!DatePair!} stampa le due date
+  senza controllo di sequenzialità.
+\item
+  \passthrough{\lstinline"Pair not ordered!"} \(\rightarrow\) emesso dal
+  costruttore di \passthrough{\lstinline!OrderedPair!} dentro
+  \passthrough{\lstinline!new DateInterval(1/2/2025, 1/1/2025)!} perché
+  \passthrough{\lstinline!1/2/2025 > 1/1/2025!}.
+\item
+  \passthrough{\lstinline!OOP exam on 2 febbraio 2026!} \(\rightarrow\)
+  invocazione polimorfica tramite wildcard generica
+  \passthrough{\lstinline!Pair<?, ? extends FormattedDate>!}.
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+Dimmi \textbf{``vai''} per procedere con il \textbf{Blocco 14} (Lezione
+15 / Slide T15 --- \emph{Generic Types}, Type Erasure, Wildcards, PECS e
+diff in \passthrough{\lstinline!Lezione15/MavenDate!}).
+
+
+\end{document}

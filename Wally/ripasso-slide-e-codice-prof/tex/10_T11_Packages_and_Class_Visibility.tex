@@ -1,0 +1,559 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T11 --- Package, Moduli e Regole di Visibilità}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T11 --- Package, Moduli e Regole di Visibilità \\[0.3em] \large\sffamily Struttura Cartelle, Modificatori public/protected/default/private e MavenDate v2 con equals()}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+In questo blocco analizziamo la modularità avanzata offerta dai package,
+le regole di risoluzione dei nomi e i livelli di visibilità dei membri
+(\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Slides-20260902/T11\%20-\%20Packages\%20and\%20Class\%20Visibility.pdf}{T11
+- Packages and Class Visibility.pdf}). Sul piano pratico, in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione11/MavenDate}{\passthrough{\lstinline!Lezione11/MavenDate!}}
+assistiamo a una grande svolta architetturale: 1. Nascono le sottoclassi
+specializzate
+\textbf{\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione11/MavenDate/src/main/java/it/oop/core/ItalianDate.java}{\passthrough{\lstinline!ItalianDate!}}}
+e
+\textbf{\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione11/MavenDate/src/main/java/it/oop/core/AmericanDate.java}{\passthrough{\lstinline!AmericanDate!}}}
+tramite estensione (\passthrough{\lstinline!extends Date!}). 2. Viene
+introdotto il modificatore \textbf{\passthrough{\lstinline!protected!}}.
+3. Viene implementato l'algoritmo canonico per l'overriding del metodo
+\textbf{\passthrough{\lstinline!equals(Object)!}}. 4. Viene risolto il
+bug storico dei getter \passthrough{\lstinline!getMonth()!} e
+\passthrough{\lstinline!getYear()!}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1. Teoria: Concetti Teorici dalle Slide (Slide
+T11)}\label{teoria-concetti-teorici-dalle-slide-slide-t11}
+
+\paragraph{A. Modularità, Gerarchia e Convenzioni dei Package (Slide
+1--11)}\label{a.-modularituxe0-gerarchia-e-convenzioni-dei-package-slide-111}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Definizione di Package}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Un package è un raggruppamento logico di classi correlate che scala
+    il concetto di incapsulamento a livello di libreria.
+  \item
+    Definisce un \textbf{namespace isolato}: classi con lo stesso nome
+    possono coesistere senza conflitti se collocate in package
+    differenti (es. \passthrough{\lstinline!it.oop.ui.Date!} vs
+    \passthrough{\lstinline!it.oop.core.Date!}).
+  \end{itemize}
+\item
+  \textbf{Convenzione di Naming Standard}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Si usa il nome di dominio Internet invertito in caratteri minuscoli:
+    \passthrough{\lstinline!it.univr.mypackage!},
+    \passthrough{\lstinline!it.oop.core!}.
+  \end{itemize}
+\item
+  \textbf{Dichiarazione e Corrispondenza col Filesystem}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    La direttiva \passthrough{\lstinline!package nomepkg;!} deve essere
+    \textbf{la prima istruzione non di commento} all'inizio del file
+    \passthrough{\lstinline!.java!}.
+  \item
+    Java impone una corrispondenza 1-a-1 tra la gerarchia dei package e
+    la struttura delle cartelle su disco: la classe
+    \passthrough{\lstinline!it.oop.core.Date!} deve trovarsi nel
+    percorso \passthrough{\lstinline!it/oop/core/Date.java!}.
+  \end{itemize}
+\item
+  \textbf{Sotto-Package e Wildcard}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    I package possono essere annidati (es.
+    \passthrough{\lstinline!java.awt.event!} è un sottopackage di
+    \passthrough{\lstinline!java.awt!}).
+  \item
+    Attenzione: \textbf{Regola d'esame}: la direttiva
+    \passthrough{\lstinline!import pkg.*;!} importa solo le classi
+    direttamente contenute in \passthrough{\lstinline!pkg!}. \textbf{Non
+    importa le classi contenute nei suoi sotto-package} (per importare
+    \passthrough{\lstinline!java.awt.event!} è obbligatorio scrivere
+    \passthrough{\lstinline!import java.awt.event.*;!}).
+  \end{itemize}
+\item
+  \textbf{Il Default Package (Unnamed Package)}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Se un file \passthrough{\lstinline!.java!} omette la dichiarazione
+    \passthrough{\lstinline!package!}, la classe appartiene al package
+    predefinito senza nome.
+  \item
+    \textbf{Limitazione critica}: Le classi nel default package
+    \textbf{non possono essere importate né utilizzate} da classi
+    situate in package con nome. Nel software professionale e agli esami
+    il suo uso è fortemente scoraggiato.
+  \end{itemize}
+\item
+  \textbf{Compilazione e Packaging con Strumenti Standard e Maven}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!javac -d bin/ src/pkg/MyClass.java!}: il
+    flag \passthrough{\lstinline!-d!} crea automaticamente l'albero
+    delle sottocartelle nella directory di destinazione
+    \passthrough{\lstinline!bin/!}.
+  \item
+    Con Maven: il layout \passthrough{\lstinline!src/main/java!} e
+    \passthrough{\lstinline!src/test/java!} unito al
+    \passthrough{\lstinline!pom.xml!} automatizza compilazione, test
+    surefire e packaging in Fat JAR.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{B. Visibilità di Classe e Matrice di Accesso dei Membri
+(Slide
+12--19)}\label{b.-visibilituxe0-di-classe-e-matrice-di-accesso-dei-membri-slide-1219}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Visibilità a Livello di Classe (Top-Level Classes)}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!public class Clazz!}: accessibile e
+    istanziabile da qualsiasi package del Classpath.
+  \item
+    \passthrough{\lstinline!class Clazz!} (\emph{Package-Private} /
+    default): visibile e utilizzabile \textbf{esclusivamente all'interno
+    dello stesso package}. Non può essere usata all'esterno, anche se i
+    suoi metodi interni sono dichiarati
+    \passthrough{\lstinline!public!}.
+  \item
+    \emph{Nota}: le classi di primo livello non possono essere
+    dichiarate \passthrough{\lstinline!private!} né
+    \passthrough{\lstinline!protected!} (questi modificatori sono
+    ammessi solo per classi annidate/interne).
+  \end{itemize}
+\item
+  \textbf{La Matrice dei Modificatori di Accesso (Fields e Methods)}:
+\end{itemize}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1667}}
+  >{\centering\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2083}}
+  >{\centering\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2083}}
+  >{\centering\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2083}}
+  >{\centering\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2083}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Modificatore
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Stessa Classe
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Stesso Package
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Sottoclasse (Altro Package)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Mondo Esterno
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{\passthrough{\lstinline!private!}} & {[}OK{]} & {[}NO{]} &
+{[}NO{]} & {[}NO{]} \\
+\textbf{Default} \emph{(package-private)} & {[}OK{]} & {[}OK{]} &
+{[}NO{]} & {[}NO{]} \\
+\textbf{\passthrough{\lstinline!protected!}} & {[}OK{]} & {[}OK{]} &
+{[}OK{]} & {[}NO{]} \\
+\textbf{\passthrough{\lstinline!public!}} & {[}OK{]} & {[}OK{]} &
+{[}OK{]} & {[}OK{]} \\
+\end{longtable}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Risoluzione dei Nomi}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Se una classe importa due tipi omonimi o usa una classe locale
+    avente lo stesso nome di una classe importata, per disambiguare è
+    obbligatorio usare il \textbf{Fully Qualified Name (FQN)}:
+    \passthrough{\lstinline!it.oop.ui.Date d = new it.oop.ui.Date(12345);!}
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2. Codice: Evoluzione del Codice:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione11/MavenDate}{\texttt{Lezione11/MavenDate}}}{2. Codice: Evoluzione del Codice: Lezione11/MavenDate}}\label{codice-evoluzione-del-codice-lezione11mavendate}
+
+In \passthrough{\lstinline!Lezione11!}, il codice di
+\passthrough{\lstinline!MavenDate!} compie un balzo in avanti con
+l'introduzione di gerarchie di classi e l'overriding:
+
+\paragraph{\texorpdfstring{1. Generalizzazione in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione11/MavenDate/src/main/java/it/oop/core/Date.java}{\texttt{Date.java}}}{1. Generalizzazione in Date.java}}\label{generalizzazione-in-date.java}
+
+\begin{lstlisting}[language=Java]
+package it.oop.core;
+
+public class Date {
+    // 1. Campo 'protected': accessibile direttamente dalle sottoclassi
+    protected final int day;
+    // 2. Campi 'private': incapsulati e accessibili solo tramite getter
+    private final int month;
+    private final int year;
+
+    public Date(int day, int month, int year) {
+        this.day = day;
+        this.month = month;
+        this.year = year;
+        verify();
+    }
+
+    // 3. I GETTER SONO STATI CORRETTI!
+    public int getDay() { return day; }
+    public int getMonth() { return month; } // Non restituisce più day!
+    public int getYear() { return year; }   // Non restituisce più day!
+
+    // 4. Implementazione canonica di equals(Object)
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) return false;              // Controllo null-safety
+        if (this == other) return true;               // Controllo identità (stesso indirizzo)
+        if (!(other instanceof Date)) return false;   // Controllo di tipo/ereditarietà
+        Date otherAsDate = (Date) other;              // Downcast sicuro
+        return day == otherAsDate.getDay()            // Confronto dei campi
+                && month == otherAsDate.getMonth()
+                && year == otherAsDate.getYear();
+    }
+}
+\end{lstlisting}
+
+\paragraph{\texorpdfstring{Analisi: I 5 Passi Fondamentali
+dell'Algoritmo
+\texttt{equals(Object)}:}{Analisi: I 5 Passi Fondamentali dell'Algoritmo equals(Object):}}\label{analisi-i-5-passi-fondamentali-dellalgoritmo-equalsobject}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \passthrough{\lstinline!if (other == null) return false;!}: garantisce
+  che \passthrough{\lstinline!d.equals(null)!} ritorni
+  \passthrough{\lstinline!false!} senza lanciare
+  \passthrough{\lstinline!NullPointerException!}.
+\item
+  \passthrough{\lstinline!if (this == other) return true;!}:
+  ottimizzazione immediata (riflessività). Se sono lo stesso oggetto
+  nello Heap, sono identici.
+\item
+  \passthrough{\lstinline"if (!(other instanceof Date)) return false;"}:
+  verifica se l'oggetto passato è compatibile con la gerarchia
+  \passthrough{\lstinline!Date!}.
+\item
+  \passthrough{\lstinline!Date otherAsDate = (Date) other;!}: downcast
+  necessario perché la firma di \passthrough{\lstinline!equals!} accetta
+  un generico \passthrough{\lstinline!Object!}.
+\item
+  Confronto logico dei campi che definiscono lo stato:
+  \passthrough{\lstinline!day!}, \passthrough{\lstinline!month!},
+  \passthrough{\lstinline!year!}.
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{2. Le Nuove Sottoclassi:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione11/MavenDate/src/main/java/it/oop/core/ItalianDate.java}{\texttt{ItalianDate.java}}
+e
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione11/MavenDate/src/main/java/it/oop/core/AmericanDate.java}{\texttt{AmericanDate.java}}}{2. Le Nuove Sottoclassi: ItalianDate.java e AmericanDate.java}}\label{le-nuove-sottoclassi-italiandate.java-e-americandate.java}
+
+\begin{lstlisting}[language=Java]
+package it.oop.core;
+
+public class ItalianDate extends Date {
+    private static final String FORMAT = "dd/mm/yyyy";
+    private static final String[] MONTHS = { "gennaio", "febbraio", ... };
+
+    // Invocazione del costruttore genitore con 'super'
+    public ItalianDate(int day, int month, int year) {
+        super(day, month, year);
+    }
+
+    public String printFormat() { return FORMAT; }
+
+    public String prettyPrint() {
+        // 'day' è accessibile direttamente perché 'protected'!
+        // 'getYear()' è invocato tramite metodo perché 'year' è 'private' in Date!
+        return day + " " + getMonthAsString() + " " + getYear();
+    }
+
+    @Override
+    public String toString() {
+        return day + "/" + getMonth() + "/" + getYear();
+    }
+}
+\end{lstlisting}
+
+E simmetricamente per \passthrough{\lstinline!AmericanDate!}:
+
+\begin{lstlisting}[language=Java]
+public class AmericanDate extends Date {
+    private static final String FORMAT = "mm/dd/yyyy";
+
+    public AmericanDate(int day, int month, int year) {
+        super(day, month, year);
+    }
+
+    @Override
+    public String toString() {
+        // Mese prima del giorno!
+        return getMonth() + "/" + getDay() + "/" + getYear();
+    }
+}
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{\texorpdfstring{3. Polimorfismo, Upcasting e Downcasting in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione11/MavenDate/src/main/java/it/oop/ui/MainDate.java}{\texttt{MainDate.java}}}{3. Polimorfismo, Upcasting e Downcasting in MainDate.java}}\label{polimorfismo-upcasting-e-downcasting-in-maindate.java}
+
+Analizziamo i comportamenti a runtime testati dal docente:
+
+\begin{lstlisting}[language=Java]
+Date date = new Date(3, 11, 2025);
+ItalianDate itDate = new ItalianDate(3, 11, 2025);
+AmericanDate usDate = new AmericanDate(3, 11, 2025);
+
+// 1. Confronti con equals():
+System.out.println("date ?= itDate: " + date.equals(itDate));     // Stampa TRUE!
+System.out.println("itDate ?= usDate: " + itDate.equals(usDate)); // Stampa TRUE!
+\end{lstlisting}
+
+\emph{Perché stampano \passthrough{\lstinline!true!}?} Perché sia
+\passthrough{\lstinline!itDate!} che \passthrough{\lstinline!usDate!}
+estendono \passthrough{\lstinline!Date!}: l'operatore
+\passthrough{\lstinline!instanceof Date!} è soddisfatto, e i campi
+(giorno 3, mese 11, anno 2025) coincidono perfettamente!
+
+\begin{lstlisting}[language=Java]
+// 2. Upcasting (Polimorfismo di Inclusione):
+Date d = new ItalianDate(1, 1, 1970); // LECITO: ItalianDate È UN Date!
+
+// 3. Tipi Incompatibili tra rami fratelli:
+// AmericanDate ad = new ItalianDate(1, 1, 1970); // COMPILE-TIME ERROR!
+
+// 4. Downcasting esplicito lecito:
+ItalianDate id = (ItalianDate) d; // LECITO a runtime: l'oggetto nello Heap è davvero ItalianDate!
+System.out.println(id.printFormat()); // Stampa dd/mm/yyyy
+
+// 5. Downcasting illegale a runtime:
+// ItalianDate idFalso = (ItalianDate) date; // CRASH RUNTIME: ClassCastException!
+// (perché 'date' è un Date generico, non contiene la specializzazione ItalianDate)
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{3. Ciclo: Corrispondenza con i Tuoi Moduli
+Workspace}\label{ciclo-corrispondenza-con-i-tuoi-moduli-workspace}
+
+Nel tuo repository
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26}{\passthrough{\lstinline!esercizi-wally-25-26!}}:
+- \textbf{\passthrough{\lstinline!es13!}}:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es13/src/main/java/es13/model/Calculator.java}{\passthrough{\lstinline!Calculator.java!}}
+e
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es13/src/test/java/es13/TestCalculator.java}{\passthrough{\lstinline!TestCalculator.java!}}
+applicano la separazione \passthrough{\lstinline!es13.model!} e
+\passthrough{\lstinline!es13!} illustrata a lezione (Slide T11,
+pp.~3--14). - \textbf{\passthrough{\lstinline!es14!}}: implementa
+esattamente questa architettura a oggetti multi-package
+(\passthrough{\lstinline!it.oop.core!} e
+\passthrough{\lstinline!it.oop.ui!}) con
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es14/src/main/java/it/oop/core/ItalianDate.java}{\passthrough{\lstinline!ItalianDate!}},
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es14/src/main/java/it/oop/core/AmericanDate.java}{\passthrough{\lstinline!AmericanDate!}},
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es14/src/main/java/it/oop/core/Date.java}{\passthrough{\lstinline!Date!}}
+e i relativi test in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es14/src/test/java/it/oop/core/TestItalianDate.java}{\passthrough{\lstinline!src/test/java/it/oop/core/TestItalianDate.java!}}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{studynote}[Nota di Studio] Con la \textbf{Lezione 11} abbiamo visto l'introduzione
+dell'ereditarietà (\passthrough{\lstinline!extends!}), la visibilità
+\passthrough{\lstinline!protected!}, l'overriding di
+\passthrough{\lstinline!equals()!} e le regole di cast tra classi.
+
+Il prossimo blocco è la \textbf{Lezione 12 / Slide T12:
+\emph{Inheritance and Polymorphism}}: - Teoria approfondita
+sull'ereditarietà: riuso, estensione e specializzazione. - La classe
+radice universale \textbf{\passthrough{\lstinline!java.lang.Object!}} e
+i suoi metodi (\passthrough{\lstinline!toString!},
+\passthrough{\lstinline!equals!}, \passthrough{\lstinline!hashCode!},
+\passthrough{\lstinline!getClass!}, \passthrough{\lstinline!clone!}). -
+Il costrutto \passthrough{\lstinline!super!}: invocazione di costruttori
+(\passthrough{\lstinline!super(...)!}) e invocazione di metodi della
+superclasse (\passthrough{\lstinline!super.metodo()!}). -
+\textbf{Polimorfismo e Dynamic Method Dispatch (Late Binding)}: come la
+JVM decide a runtime quale metodo eseguire tramite la \emph{vtable}. -
+Regole di overriding vs overloading e l'annotazione
+\passthrough{\lstinline!@Override!}. - Evoluzione del codice in
+\passthrough{\lstinline!Lezione12!}: - La classe
+\passthrough{\lstinline!Date!} diventa la superclasse polimorfica di
+riferimento. - Aggiunta del metodo
+\passthrough{\lstinline!isLeapYear(int year)!} per la validazione
+completa dei bisestili gregoriani!
+\end{studynote}
+
+\textbf{Dammi conferma per aprire la Lezione 12 / T12 e proseguire!}
+
+
+\end{document}

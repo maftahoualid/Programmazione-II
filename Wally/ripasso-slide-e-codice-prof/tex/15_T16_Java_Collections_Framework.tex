@@ -1,0 +1,593 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T16 --- Java Collections Framework (JCF)}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T16 --- Java Collections Framework (JCF) \\[0.3em] \large\sffamily Gerarchia Collection, List, Set, Map, Queue; Prestazioni e Scelta delle Strutture Dati}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{1. Analisi Teorica Approfondita (Slide
+T16)}\label{analisi-teorica-approfondita-slide-t16}
+
+La lezione 16 è dedicata al \textbf{Java Collections Framework (JCF)}
+(\passthrough{\lstinline!java.util!}), una delle architetture cardine
+del linguaggio Java: un insieme unificato e standardizzato di
+interfacce, implementazioni concrete e algoritmi polimorfici per la
+gestione di collezioni di oggetti.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1.1 Architettura e Gerarchia delle Collezioni (Slide
+3-4)}\label{architettura-e-gerarchia-delle-collezioni-slide-3-4}
+
+Tutte le collezioni di elementi singoli discendono dall'interfaccia
+radice \passthrough{\lstinline!Iterable<E>!}:
+
+\needspace{7cm}
+\begin{asciibox}
+┌───────────────────┐
+│    Iterable<E>    │
+└─────────▲─────────┘
+          │
+┌─────────┴─────────┐
+│   Collection<E>   │
+└─────────▲─────────┘
+          │
+┌─────────┴───────────────┬─────────────────────────┐
+│                         │                         │
+┌─────────┴─────────┐     ┌─────────┴─────────┐     ┌─────────┴─────────┐
+│      List<E>      │     │      Set<E>       │     │     Queue<E>      │
+└─────────▲─────────┘     └─────────▲─────────┘     └─────────▲─────────┘
+          │                         │                         │
+   ┌──────┴──────┐           ┌──────┴──────┐           ┌──────┴──────┐
+   │             │           │             │           │             │
+┌──┴────┐   ┌────┴────┐ ┌────┴────┐   ┌────┴────┐ ┌────┴────┐   ┌────┴────┐
+│Array- │   │ Linked- │ │ HashSet │   │ TreeSet │ │Priority-│   │  Deque  │
+│ List  │   │  List   │ │         │   │(Sorted) │ │  Queue  │   │(Double) │
+└───────┘   └────┬────┘ └─────────┘   └─────────┘ └─────────┘   └────┬────┘
+                 │                                                   │
+                 └───────────────────┬───────────────────────────────┘
+                                     │ (LinkedList implementa
+                                     ▼  sia List che Deque/Queue)
+\end{asciibox}
+
+\begin{studynote}[Nota di Studio] L'interfaccia \passthrough{\lstinline!Map<K, V>!} (dizionari
+chiave-valore) \textbf{NON estende
+\passthrough{\lstinline!Collection<E>!}}, poiché memorizza coppie
+\((K, V)\) anziché singoli elementi. Tuttavia, fa parte integrante a
+pieno titolo del \emph{Java Collections Framework}.
+\end{studynote}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.2 L'Interfaccia Radice
+\texttt{Collection\textless{}E\textgreater{}} (Slide
+6-7)}{1.2 L'Interfaccia Radice Collection\textless E\textgreater{} (Slide 6-7)}}\label{linterfaccia-radice-collectione-slide-6-7}
+
+Definisce il contratto comune a tutti i contenitori di elementi:
+
+\begin{lstlisting}[language=Java]
+public interface Collection<E> extends Iterable<E> {
+    int size();
+    boolean isEmpty();
+    boolean contains(Object o);                    // Ricerca basata su equals()
+    boolean containsAll(Collection<?> c);
+    boolean add(E e);                              // Aggiunge un elemento (restituisce false se rifiutato)
+    boolean addAll(Collection<? extends E> c);     // Wildcard covariante!
+    boolean remove(Object o);
+    boolean removeAll(Collection<?> c);
+    void clear();
+    Object[] toArray();
+    <T> T[] toArray(T[] a);                        // es. set.toArray(new Person[0])
+    Iterator<E> iterator();                        // Ereditato da Iterable<E>
+}
+\end{lstlisting}
+
+\paragraph{Interscambiabilità tra Collezioni (Slide
+7)}\label{interscambiabilituxe0-tra-collezioni-slide-7}
+
+Tutte le implementazioni forniscono per convenzione un costruttore che
+accetta un'altra \passthrough{\lstinline!Collection<? extends E>!},
+permettendo conversioni istantanee:
+
+\begin{lstlisting}[language=Java]
+Collection<Person> list = new LinkedList<>();
+list.add(new Person("Joe"));
+list.add(new Person("Sam"));
+
+// Conversione da List a Set (elimina al volo eventuali duplicati):
+Collection<Person> set = new HashSet<>(list);
+
+// Esportazione in Array tipizzato:
+Person[] arrayP = set.toArray(new Person[0]); // Idioma standard Java
+\end{lstlisting}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.3 L'Interfaccia
+\texttt{List\textless{}E\textgreater{}} e le sue Implementazioni (Slide
+8-9)}{1.3 L'Interfaccia List\textless E\textgreater{} e le sue Implementazioni (Slide 8-9)}}\label{linterfaccia-liste-e-le-sue-implementazioni-slide-8-9}
+
+Una \textbf{Lista} è una sequenza ordinata di elementi che: 1.
+\textbf{Preserva l'ordine di inserimento}. 2. \textbf{Accetta elementi
+duplicati} (possono esistere più elementi \(e_1, e_2\) tali che
+\passthrough{\lstinline!e1.equals(e2)!} sia vero). 3. \textbf{Fornisce
+accesso posizionale indicizzato} tramite indice intero
+\([0 \dots \text{size}-1]\): *
+\passthrough{\lstinline!E get(int index)!}: legge l'elemento all'indice
+specificato. * \passthrough{\lstinline!E set(int index, E element)!}:
+rimpiazza l'elemento alla posizione data. *
+\passthrough{\lstinline!void add(int index, E element)!}: inserisce
+shiftando a destra gli elementi successivi. *
+\passthrough{\lstinline!E remove(int index)!}: elimina shiftando a
+sinistra. * \passthrough{\lstinline!int indexOf(Object o)!}: restituisce
+l'indice della prima occorrenza (o \(-1\)). *
+\passthrough{\lstinline!List<E> subList(int fromIndex, int toIndex)!}:
+vista sulla porzione \([fromIndex, toIndex)\).
+
+\paragraph{\texorpdfstring{Confronto delle Implementazioni:
+\texttt{ArrayList} vs \texttt{LinkedList} (Slide 5 e
+9)}{Confronto delle Implementazioni: ArrayList vs LinkedList (Slide 5 e 9)}}\label{confronto-delle-implementazioni-arraylist-vs-linkedlist-slide-5-e-9}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Operazione
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\passthrough{\lstinline!ArrayList<E>!} (Array ridimensionabile)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\passthrough{\lstinline!LinkedList<E>!} (Lista doppiamente concatenata)
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Accesso per indice (\passthrough{\lstinline!get(i)!})} &
+\textbf{\(O(1)\)} (accesso diretto in memoria contigua) &
+\textbf{\(O(n)\)} (deve scorrere i nodi dal capo più vicino) \\
+\textbf{Inserimento in coda (\passthrough{\lstinline!add(e)!})} &
+\textbf{\(O(1)\)} ammortizzato & \textbf{\(O(1)\)} \\
+\textbf{Inserimento in testa (\passthrough{\lstinline!add(0, e)!})} &
+\textbf{\(O(n)\)} (deve copiare e shiftare l'array) & \textbf{\(O(1)\)}
+(cambio puntatori dei nodi) \\
+\textbf{Cancellazione (\passthrough{\lstinline!remove(i)!})} &
+\textbf{\(O(n)\)} (shift dei successivi) & \textbf{\(O(1)\)} se si ha il
+riferimento al nodo, \(O(n)\) per cercarlo \\
+\textbf{Overhead di memoria} & Minimo (array contiguo con eventuale
+\emph{capacity} vuota) & Alto (ogni nodo crea un oggetto con puntatori
+\passthrough{\lstinline!prev!} e \passthrough{\lstinline!next!}) \\
+\textbf{Funzionalità extra} &
+\passthrough{\lstinline!ensureCapacity(int minCapacity)!} & Implementa
+anche \passthrough{\lstinline!Queue!} e \passthrough{\lstinline!Deque!}:
+\passthrough{\lstinline!addFirst()!},
+\passthrough{\lstinline!addLast()!}, \passthrough{\lstinline!pop()!},
+\passthrough{\lstinline!push()!} \\
+\end{longtable}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.4 L'Interfaccia
+\texttt{Set\textless{}E\textgreater{}} e le sue Implementazioni (Slide
+10-16)}{1.4 L'Interfaccia Set\textless E\textgreater{} e le sue Implementazioni (Slide 10-16)}}\label{linterfaccia-sete-e-le-sue-implementazioni-slide-10-16}
+
+Un \textbf{Insieme (Set)} modella il concetto matematico di insieme: 1.
+\textbf{Nessun duplicato consentito}: non possono mai coesistere due
+elementi tali che \passthrough{\lstinline!e1.equals(e2)!} sia vero. 2.
+\textbf{Nessun accesso posizionale}: non esistono indici, non si può
+fare \passthrough{\lstinline!get(i)!}. 3. L'interfaccia
+\passthrough{\lstinline!Set<E>!} non aggiunge nuovi metodi rispetto a
+\passthrough{\lstinline!Collection<E>!}, ma ne restringe il contratto
+semantico.
+
+\paragraph{\texorpdfstring{1. \texttt{HashSet\textless{}E\textgreater{}}
+(Slide
+11-14)}{1. HashSet\textless E\textgreater{} (Slide 11-14)}}\label{hashsete-slide-11-14}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Struttura interna}: Mantiene internamente una tabella hash
+  (\passthrough{\lstinline!HashMap<E, Object>!}).
+\item
+  \textbf{Complessità}: Ricerca (\passthrough{\lstinline!contains!}),
+  inserimento (\passthrough{\lstinline!add!}) e rimozione
+  (\passthrough{\lstinline!remove!}) avvengono in \textbf{tempo costante
+  medio \(O(1)\)}.
+\item
+  \textbf{Ordine}: \textbf{Nessun ordine garantito}; l'ordine di
+  scansione dell'iteratore può cambiare nel tempo se la tabella viene
+  riallocata (\emph{rehash}).
+\item
+  \textbf{Vincolo Fondamentale (Slide 12-14)}: L'univocità si basa su
+  \textbf{\passthrough{\lstinline!equals()!} e
+  \passthrough{\lstinline!hashCode()!}}.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{La Regola Aurea}: \emph{``Se fai l'override di
+    \passthrough{\lstinline!equals()!}, DEVI fare l'override anche di
+    \passthrough{\lstinline!hashCode()!}, e viceversa''}.
+  \item
+    Proprietà vincolante: \passthrough{\lstinline!a.equals(b)!}
+    \(\implies\) \passthrough{\lstinline!a.hashCode() == b.hashCode()!}.
+  \item
+    Proprietà desiderabile (riduzione collisioni):
+    \passthrough{\lstinline"!a.equals(b)"} \(\implies\) preferibilmente
+    \passthrough{\lstinline"a.hashCode() != b.hashCode()"}.
+  \item
+    Da Java 7 si usa l'utility di sistema:
+    \passthrough{\lstinline!Objects.hash(campo1, campo2, ...)!}.
+  \end{itemize}
+\end{itemize}
+
+\paragraph{\texorpdfstring{2. \texttt{TreeSet\textless{}E\textgreater{}}
+(Slide
+15-16)}{2. TreeSet\textless E\textgreater{} (Slide 15-16)}}\label{treesete-slide-15-16}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Struttura interna}: Albero binario di ricerca auto-bilanciante
+  (\textbf{Red-Black Tree}).
+\item
+  \textbf{Complessità}: \passthrough{\lstinline!add!},
+  \passthrough{\lstinline!remove!}, \passthrough{\lstinline!contains!}
+  richiedono tempo logaritmico \textbf{\(O(\log n)\)}.
+\item
+  \textbf{Ordinamento garantito}: Gli elementi sono
+  \textbf{costantemente mantenuti ordinati}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Ordinamento naturale: richiede che gli elementi implementino
+    \passthrough{\lstinline!Comparable<E>!}.
+  \item
+    Ordinamento esplicito: passando un
+    \passthrough{\lstinline!Comparator<E>!} al costruttore:
+    \passthrough{\lstinline!new TreeSet<>(comparator)!}.
+  \end{itemize}
+\item
+  \textbf{Metodi speciali per insiemi ordinati}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!E first()!}: elemento minimo.
+  \item
+    \passthrough{\lstinline!E last()!}: elemento massimo.
+  \item
+    \passthrough{\lstinline!TreeSet<E> subSet(E fromElement, E toElement)!}:
+    sottoinsieme nell'intervallo \([fromElement, toElement)\).
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.5 Mappe Associative:
+\texttt{Map\textless{}K,\ V\textgreater{}} (Slide
+17-19)}{1.5 Mappe Associative: Map\textless K, V\textgreater{} (Slide 17-19)}}\label{mappe-associative-mapk-v-slide-17-19}
+
+Una mappa modella una funzione matematica \(K \to V\) (tabella di
+associazioni chiave-valore): * Le \textbf{chiavi (\(K\)) sono univoche}
+(formano un \passthrough{\lstinline!Set<K>!}). * A ogni chiave è
+associato esattamente un valore (\(V\)). I valori possono ripetersi. *
+Metodi cardine: * \passthrough{\lstinline!V put(K key, V value)!}:
+inserisce o rimpiazza l'associazione. *
+\passthrough{\lstinline!V get(Object key)!}: restituisce il valore (o
+\passthrough{\lstinline!null!} se la chiave non esiste). *
+\passthrough{\lstinline!boolean containsKey(Object key)!} /
+\passthrough{\lstinline!boolean containsValue(Object value)!} *
+\passthrough{\lstinline!Set<K> keySet()!}: restituisce la vista
+dell'insieme delle chiavi. *
+\passthrough{\lstinline!Collection<V> values()!}: restituisce la
+collezione dei valori. *
+\passthrough{\lstinline!Set<Map.Entry<K, V>> entrySet()!}: restituisce
+le coppie chiave-valore. *
+\textbf{\passthrough{\lstinline!HashMap<K, V>!}}: implementazione
+standard basata su hashing delle chiavi, con operazioni
+\passthrough{\lstinline!put!} e \passthrough{\lstinline!get!} in
+\textbf{\(O(1)\)}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.6 Iteratori e l'Errore
+\texttt{ConcurrentModificationException} (Slide
+21-23)}{1.6 Iteratori e l'Errore ConcurrentModificationException (Slide 21-23)}}\label{iteratori-e-lerrore-concurrentmodificationexception-slide-21-23}
+
+Tutte le collezioni forniscono un \passthrough{\lstinline!Iterator<E>!}
+(\passthrough{\lstinline!hasNext()!}, \passthrough{\lstinline!next()!},
+\passthrough{\lstinline!remove()!}). Il ciclo
+\passthrough{\lstinline!for-each!} di Java è uno zucchero sintattico
+compilato tramite \passthrough{\lstinline!Iterator!}:
+
+\begin{lstlisting}[language=Java]
+for (Integer i : list) {
+    System.out.println(i);
+}
+\end{lstlisting}
+
+\paragraph{\texorpdfstring{La Trappola della Modifica Concorrente
+(\emph{Fail-Fast Iterator}, Slide
+23)}{La Trappola della Modifica Concorrente (Fail-Fast Iterator, Slide 23)}}\label{la-trappola-della-modifica-concorrente-fail-fast-iterator-slide-23}
+
+\begin{lstlisting}[language=Java]
+// CODICE ERRATO:
+int count = 0;
+for (Integer i : list) {
+    System.out.println(i);
+    if (count == 2)
+        list.remove(count); // RUNTIME ERROR: java.util.ConcurrentModificationException!
+    count++;
+}
+\end{lstlisting}
+
+\begin{itemize}
+\item
+  \textbf{Perché crasha?}: Le collezioni Java mantengono internamente un
+  contatore delle modifiche strutturali
+  (\passthrough{\lstinline!modCount!}). Quando si invoca
+  \passthrough{\lstinline!list.remove()!},
+  \passthrough{\lstinline!modCount!} viene incrementato. Al ciclo
+  successivo, la chiamata implicita a
+  \passthrough{\lstinline!it.next()!} scopre che la collezione è
+  cambiata alle sue spalle (\emph{fail-fast}) e lancia immediatamente
+  \passthrough{\lstinline!ConcurrentModificationException!} per
+  prevenire stati incoerenti.
+\item
+  \textbf{La Soluzione Corretta (Slide 23)}: Usare esplicitamente
+  l'iteratore e invocare il \textbf{suo} metodo
+  \passthrough{\lstinline!remove()!}, che aggiorna coerentemente lo
+  stato interno dell'iteratore:
+
+\begin{lstlisting}[language=Java]
+for (Iterator<Integer> it = list.iterator(); it.hasNext(); ) {
+    Integer i = it.next();
+    if (count == 2)
+        it.remove(); // PERFETTAMENTE LEGALE E SICURO!
+    count++;
+}
+\end{lstlisting}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{1.7 Algoritmi di Ordinamento:
+\texttt{Comparable} vs \texttt{Comparator} (Slide
+24-29)}{1.7 Algoritmi di Ordinamento: Comparable vs Comparator (Slide 24-29)}}\label{algoritmi-di-ordinamento-comparable-vs-comparator-slide-24-29}
+
+La classe di utilità \passthrough{\lstinline!Collections!}
+(\passthrough{\lstinline!java.util.Collections!}) fornisce due varianti
+sovraccaricate del metodo statico \passthrough{\lstinline!sort!}:
+
+\paragraph{Variante 1: Ordinamento
+Naturale}\label{variante-1-ordinamento-naturale}
+
+\begin{lstlisting}[language=Java]
+public static <T extends Comparable<? super T>> void sort(List<T> list)
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Perché \passthrough{\lstinline!<? super T>!} nella firma?
+  (Slide 26 - Domanda Classica d'Esame)}: Supponiamo di avere
+  \passthrough{\lstinline!class Student extends Person!}. Se solo
+  \passthrough{\lstinline!Person!} implementa
+  \passthrough{\lstinline!Comparable<Person>!}, allora
+  \passthrough{\lstinline!Student!} eredita il confronto basato su
+  \passthrough{\lstinline!Person!}. Se la firma fosse
+  \passthrough{\lstinline!<T extends Comparable<T>>!}, allora
+  \passthrough{\lstinline!Student!} dovrebbe implementare tassativamente
+  \passthrough{\lstinline!Comparable<Student>!}. Con
+  \passthrough{\lstinline!Comparable<? super T>!}, una lista di
+  \passthrough{\lstinline!Student!} può essere ordinata legalmente
+  usando il \passthrough{\lstinline!compareTo!} della superclasse
+  \passthrough{\lstinline!Person!}
+  (\passthrough{\lstinline!Comparable<Person>!}), garantendo il massimo
+  riuso polimorfico!
+\end{itemize}
+
+\paragraph{\texorpdfstring{Variante 2: Ordinamento On-Demand con
+\texttt{Comparator}}{Variante 2: Ordinamento On-Demand con Comparator}}\label{variante-2-ordinamento-on-demand-con-comparator}
+
+\begin{lstlisting}[language=Java]
+public static <T> void sort(List<T> list, Comparator<? super T> cmp)
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  Permette di definire criteri di ordinamento arbitrari senza toccare la
+  classe sorgente, passando:
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    Una classe dedicata
+    (\passthrough{\lstinline!class StudentComparator implements Comparator<Student>!}).
+  \item
+    Una \textbf{classe anonima}
+    (\passthrough{\lstinline!new Comparator<Student>() \{ ... \}!}).
+  \item
+    Un'\textbf{espressione Lambda}
+    (\passthrough{\lstinline!(s1, s2) -> s2.getMatricola() - s1.getMatricola()!}).
+  \end{enumerate}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{\texorpdfstring{2. Riscontro Pratico nel Codice
+(\texttt{Lezione15}/\texttt{Lezione16})}{2. Riscontro Pratico nel Codice (Lezione15/Lezione16)}}\label{riscontro-pratico-nel-codice-lezione15lezione16}
+
+Come osservato durante l'ispezione dei sorgenti: 1. Nella Lezione 15 il
+docente ha introdotto tutte le strutture viste nella Slide T16
+all'interno di
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione15/MavenDate/src/main/java/it/oop/ui/MainDate.java}{MainDate.java}:
+* \passthrough{\lstinline!List<Date> dateList = new ArrayList<>();!}
+(con duplicato \passthrough{\lstinline!AmericanDate(7,11,2025)!}
+\(\implies\) dimensione 4). *
+\passthrough{\lstinline!Set<Date> dateSet = new HashSet<>();!}
+(duplicato scartato \(\implies\) dimensione 3). *
+\passthrough{\lstinline!Map<String, FormattedDateConverter> converter = new HashMap<>();!}
+* Ordinamento naturale:
+\passthrough{\lstinline!Collections.sort(dateList);!} * Ordinamento con
+\passthrough{\lstinline!Comparator!} via classe anonima e lambda su
+\passthrough{\lstinline!DateInterval!}. 2. Nella Lezione 16 il docente
+compie il passo architetturale successivo: separa la gestione degli
+errori creando il package \passthrough{\lstinline!it.oop.exception!} con
+eccezioni personalizzate (\passthrough{\lstinline!IllegalDateException!}
+e \passthrough{\lstinline!OrderdPairException!}), preparando il terreno
+per la teoria della Slide T17.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+Dimmi \textbf{``vai''} per procedere con il \textbf{Blocco 16} (Lezione
+17 / Slide T17 --- \emph{Error Handling with Exceptions}, gerarchia
+\passthrough{\lstinline!Throwable!}/\passthrough{\lstinline!Exception!}/\passthrough{\lstinline!RuntimeException!},
+eccezioni controllate vs non controllate, costrutto
+\passthrough{\lstinline!try-catch-finally!},
+\passthrough{\lstinline!try-with-resources!} e il codice di
+\passthrough{\lstinline!Lezione16/MavenDate!}).
+
+
+\end{document}

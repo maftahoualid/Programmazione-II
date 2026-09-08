@@ -1,0 +1,530 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.84]
+
+\usepackage{xcolor}
+\definecolor{brandblue}{RGB}{20, 55, 105}
+\definecolor{accentblue}{RGB}{35, 95, 165}
+\definecolor{codebg}{RGB}{248, 249, 251}
+\definecolor{codeframe}{RGB}{215, 222, 230}
+\definecolor{javakeyword}{RGB}{0, 45, 170}
+\definecolor{javastring}{RGB}{5, 120, 20}
+\definecolor{javacomment}{RGB}{120, 120, 120}
+\definecolor{javanumber}{RGB}{20, 75, 220}
+
+\definecolor{noteborder}{RGB}{30, 110, 65}
+\definecolor{notebg}{RGB}{242, 249, 245}
+\definecolor{warnborder}{RGB}{185, 75, 10}
+\definecolor{warnbg}{RGB}{254, 248, 240}
+\definecolor{tipborder}{RGB}{30, 95, 160}
+\definecolor{tipbg}{RGB}{242, 247, 254}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\parbox[t]{0.58\textwidth}{\raggedright\small\sffamily\color{brandblue}\textbf{T10 --- Variabili, Scope, Call Stack e Memoria Heap}}}
+\rhead{\small\sffamily\color{gray}Programmazione II -- UniVR (2025/2026)}
+\cfoot{\small\sffamily Pagina \thepage\ di \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{brandblue!70!black}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{brandblue}}{\thesection}{0.8em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\sffamily\color{accentblue}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{brandblue!85!black}}{\thesubsubsection}{0.8em}{}
+
+\usepackage{needspace}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{asciibox}{Verbatim}{
+  fontsize=\fontsize{7.5pt}{9.2pt}\selectfont,
+  frame=single,
+  rulecolor=\color{codeframe},
+  fillcolor=\color{codebg},
+  framesep=2.5mm
+}
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{javakeyword}\bfseries,
+  stringstyle=\color{javastring},
+  commentstyle=\color{javacomment}\itshape,
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=7pt,
+  stepnumber=1,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=12pt,
+  framexleftmargin=12pt
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{studynote}[1][Nota]{
+  enhanced,
+  breakable,
+  colback=notebg,
+  colframe=noteborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studywarning}[1][Attenzione]{
+  enhanced,
+  breakable,
+  colback=warnbg,
+  colframe=warnborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\newtcolorbox{studytip}[1][Suggerimento]{
+  enhanced,
+  breakable,
+  colback=tipbg,
+  colframe=tipborder,
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=white,
+  title={#1},
+  arc=2mm,
+  boxrule=0.8pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt
+}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accentblue,
+  urlcolor=accentblue,
+  citecolor=brandblue,
+  pdfborder={0 0 0}
+}
+
+\title{\Huge\bfseries\sffamily\color{brandblue} T10 --- Variabili, Scope, Call Stack e Memoria Heap \\[0.3em] \large\sffamily Stack Frame, Passaggio dei Parametri per Valore, Garbage Collection e Debutto di MavenDate}
+\author{\textbf{Docente:} Prof. Michele Pasqua \quad---\quad \textbf{Appunti Revisione:} Wally}
+\date{A.A. 2025/2026 -- Universit\`a degli Studi di Verona}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.2em}
+\noindent\textcolor{brandblue}{\rule{\textwidth}{0.8pt}}
+\vspace{1.2em}
+
+In questo blocco analizziamo in profondità il modello di memoria della
+JVM (Stack vs Heap), il passaggio dei parametri per valore, gli oggetti
+immutabili e i tipi wrapper
+(\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Slides-20260902/T10\%20-\%20Java\%20Variables\%20and\%20Call\%20Stack.pdf}{T10
+- Java Variables and Call Stack.pdf}). Sul fronte pratico analizziamo il
+\textbf{grande spartiacque architetturale del corso}: il passaggio dal
+progetto manuale a pacchetti
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione10/SimpleDate}{\passthrough{\lstinline!SimpleDate!}}
+al progetto ufficiale
+\textbf{\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione10/MavenDate}{\passthrough{\lstinline!MavenDate!}}}
+con Apache Maven, file
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione10/MavenDate/pom.xml}{\passthrough{\lstinline!pom.xml!}},
+layout \passthrough{\lstinline!src/main/java!} e collisione di nomi tra
+package diversi.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{1. Teoria: Concetti Teorici dalle Slide (Slide
+T10)}\label{teoria-concetti-teorici-dalle-slide-slide-t10}
+
+\paragraph{A. Il Modello di Memoria della JVM: Stack vs Heap (Slide
+1--11)}\label{a.-il-modello-di-memoria-della-jvm-stack-vs-heap-slide-111}
+
+La memoria a disposizione di un processo Java è partizionata in tre aree
+principali: 1. \textbf{Call Stack (Stack dei Thread)}: - Memoria
+estremamente veloce, gestita a politica LIFO (Push/Pop). - È suddivisa
+in \textbf{Stack Frame} (o record di attivazione): ogni invocazione di
+metodo crea un nuovo frame nello stack contenente: - La tabella delle
+variabili locali. - I parametri formali passati al metodo. - Lo stack
+degli operandi (per i calcoli intermedi della CPU/bytecode). - I
+riferimenti alla costante del metodo e l'indirizzo di ritorno. - Quando
+il metodo termina (con \passthrough{\lstinline!return!} o eccezione), il
+frame viene rimosso istantaneamente dallo Stack e tutte le sue variabili
+locali vengono distrutte. 2. \textbf{Heap (Memoria Dinamica degli
+Oggetti)}: - Memoria globale condivisa da tutti i thread
+dell'applicazione. - Ospita tutti gli \textbf{oggetti} istanziati con
+\passthrough{\lstinline!new!}, inclusi gli \textbf{array}. - I dati
+nello Heap non si deallocano all'uscita dal metodo: sopravvivono finché
+esiste almeno un riferimento attivo nello Stack o in altri oggetti che
+punta ad essi. Quando diventano irraggiungibili (\emph{unreachable}),
+vengono eliminati dal Garbage Collector. 3. \textbf{Method Area /
+Metaspace (Memoria di Classe)}: - Ospita il bytecode compilato delle
+classi caricate dal ClassLoader, i metadati di tipo e le
+\textbf{variabili statiche} (\passthrough{\lstinline!static!}). -
+\textbf{Blocco di Inizializzazione Statica
+(\passthrough{\lstinline!static \{ ... \}!})}: - Blocco speciale
+eseguito \textbf{una sola volta} nel ciclo di vita dell'applicazione, al
+momento in cui la classe viene caricata in memoria dalla JVM:
+\passthrough{\lstinline!java     static int[] arr;     static \{         arr = new int[3];         arr[0] = 1; arr[1] = 2; arr[2] = 0;     \}!}
+- Si usa per inizializzare strutture statiche complesse che richiedono
+cicli o controlli prima dell'uso.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{B. Immutabilità e Passaggio Parametri: Pass-by-Value (Slide
+15--25)}\label{b.-immutabilituxe0-e-passaggio-parametri-pass-by-value-slide-1525}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Oggetti Immutabili (\emph{Immutable Objects})}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Un oggetto il cui stato interno non può essere modificato dopo la
+    costruzione (es. \passthrough{\lstinline!String!},
+    \passthrough{\lstinline!Integer!}, \passthrough{\lstinline!Date!} da
+    Lezione 09).
+  \item
+    \emph{Regole per creare una classe immutabile}:
+
+    \begin{enumerate}
+    \def\labelenumi{\arabic{enumi}.}
+    \tightlist
+    \item
+      Rendere tutti i campi \passthrough{\lstinline!private final!}.
+    \item
+      Non fornire metodi mutatori (nessun setter).
+    \item
+      Dichiarare la classe \passthrough{\lstinline!final!} (per impedire
+      che le sottoclassi violino l'immutabilità con override malevoli).
+    \item
+      Se l'oggetto contiene riferimenti a strutture mutabili (es. un
+      array o un'altra data mutabile), eseguire copie difensive
+      (\emph{defensive copy}) nel costruttore e nei getter.
+    \end{enumerate}
+  \item
+    \emph{Vantaggi}: Immuni da side-effects da aliasing, intrinsecamente
+    \emph{thread-safe} (possono essere condivisi tra thread concorrenti
+    senza sincronizzazione o lock).
+  \end{itemize}
+\item
+  \textbf{Come Java passa i parametri ai metodi: SEMPRE Strictly
+  Pass-by-Value}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    In Java \textbf{non esiste il passaggio per riferimento del C++
+    (\passthrough{\lstinline!int\& x!})}.
+  \item
+    \textbf{Per i tipi primitivi (\passthrough{\lstinline!int!},
+    \passthrough{\lstinline!double!})}: il metodo riceve una copia del
+    valore binario. Qualsiasi modifica locale sul parametro non ha alcun
+    effetto sulla variabile del chiamante.
+  \item
+    \textbf{Per i tipi reference (oggetti/array)}: il metodo riceve
+    \textbf{una copia per valore del riferimento} (dell'indirizzo
+    puntato):
+
+    \begin{itemize}
+    \item
+      \emph{Caso 1 (Mutazione dell'oggetto)}: se usiamo il riferimento
+      ricevuto per chiamare un metodo mutatore
+      (\passthrough{\lstinline!p.setAge(25)!}), l'oggetto puntato nello
+      Heap viene effettivamente modificato per il chiamante!
+    \item
+      \emph{Caso 2 (Riassegnamento del puntatore --- Il tranello
+      d'esame)}:
+
+\begin{lstlisting}[language=Java]
+void reset(Person p) {
+    p = new Person("Bob"); // Assegna un nuovo oggetto al puntatore locale!
+}
+\end{lstlisting}
+
+      All'esterno, la variabile del chiamante \textbf{non cambia
+      affatto}! Ha semplicemente mutato la copia locale del puntatore
+      nel proprio stack frame.
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\paragraph{C. Classi Wrapper, Autoboxing e i loro Trabocchetti (Slide
+26--35)}\label{c.-classi-wrapper-autoboxing-e-i-loro-trabocchetti-slide-2635}
+
+\begin{itemize}
+\tightlist
+\item
+  Per ciascuno degli 8 tipi primitivi, Java mette a disposizione una
+  corrispondente \textbf{Wrapper Class} nel package
+  \passthrough{\lstinline!java.lang!}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \passthrough{\lstinline!byte!} \(\rightarrow\)
+    \passthrough{\lstinline!Byte!}
+  \item
+    \passthrough{\lstinline!short!} \(\rightarrow\)
+    \passthrough{\lstinline!Short!}
+  \item
+    \passthrough{\lstinline!int!} \(\rightarrow\)
+    \passthrough{\lstinline!Integer!}
+  \item
+    \passthrough{\lstinline!long!} \(\rightarrow\)
+    \passthrough{\lstinline!Long!}
+  \item
+    \passthrough{\lstinline!float!} \(\rightarrow\)
+    \passthrough{\lstinline!Float!}
+  \item
+    \passthrough{\lstinline!double!} \(\rightarrow\)
+    \passthrough{\lstinline!Double!}
+  \item
+    \passthrough{\lstinline!char!} \(\rightarrow\)
+    \passthrough{\lstinline!Character!}
+  \item
+    \passthrough{\lstinline!boolean!} \(\rightarrow\)
+    \passthrough{\lstinline!Boolean!}
+  \end{itemize}
+\item
+  Tutte le classi wrapper sono \textbf{immutabili}.
+\item
+  \textbf{Autoboxing e Unboxing (Java 5+)}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{Autoboxing}: conversione automatica da primitivo a wrapper
+    (\passthrough{\lstinline!Integer x = 5;!} \(\implies\) compilato
+    come \passthrough{\lstinline!Integer.valueOf(5)!}).
+  \item
+    \emph{Unboxing}: estrazione automatica del valore primitivo dal
+    wrapper (\passthrough{\lstinline!int y = x;!} \(\implies\) compilato
+    come \passthrough{\lstinline!x.intValue()!}).
+  \end{itemize}
+\item
+  Attenzione: \textbf{I Due Grandi Pericoli delle Wrapper Classes}:
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \item
+    \textbf{Il Trabocchetto dell'Integer Cache (\(-128 \dots +127\))}:
+
+\begin{lstlisting}[language=Java]
+Integer a = 100, b = 100;
+System.out.println(a == b); // TRUE! (La JVM ricicla lo stesso oggetto cacheato)
+
+Integer c = 200, d = 200;
+System.out.println(c == d); // FALSE! (Fuori range [-128, 127], alloca 2 oggetti distinti nello Heap!)
+\end{lstlisting}
+
+    Conclusione: \textbf{Mai usare \passthrough{\lstinline!==!} per
+    confrontare i wrapper}, usare sempre
+    \passthrough{\lstinline!.equals()!}!
+  \item
+    \textbf{Crash da Unboxing su \passthrough{\lstinline!null!}}:
+
+\begin{lstlisting}[language=Java]
+Integer obj = null;
+int val = obj; // RUNTIME ERROR: NullPointerException!
+\end{lstlisting}
+
+    La JVM tenta di invocare \passthrough{\lstinline!obj.intValue()!},
+    fallendo rovinosamente se \passthrough{\lstinline!obj!} è nullo.
+  \end{enumerate}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{\texorpdfstring{2. Codice: Evoluzione del Codice: Il
+Passaggio a
+\texttt{MavenDate}}{2. Codice: Evoluzione del Codice: Il Passaggio a MavenDate}}\label{codice-evoluzione-del-codice-il-passaggio-a-mavendate}
+
+In
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione10}{\passthrough{\lstinline!Lezione10!}},
+il docente archivia il vecchio progetto non strutturato e adotta lo
+standard industriale \textbf{Apache Maven}.
+
+\paragraph{1. Riorganizzazione dei
+Package}\label{riorganizzazione-dei-package}
+
+Il progetto viene suddiviso in due package distinti: -
+\textbf{\passthrough{\lstinline!it.oop.core!}}: il dominio applicativo
+(le classi di modello:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione10/MavenDate/src/main/java/it/oop/core/Date.java}{\passthrough{\lstinline!Date.java!}},
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione10/MavenDate/src/main/java/it/oop/core/Language.java}{\passthrough{\lstinline!Language.java!}},
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione10/MavenDate/src/main/java/it/oop/core/BirthDay.java}{\passthrough{\lstinline!BirthDay.java!}}).
+- \textbf{\passthrough{\lstinline!it.oop.ui!}}: l'interfaccia utente
+contenente il \passthrough{\lstinline!main!}
+(\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione10/MavenDate/src/main/java/it/oop/ui/MainDate.java}{\passthrough{\lstinline!MainDate.java!}}).
+
+\paragraph{2. Il Test Didattico sulla Collisione dei Nomi di
+Package}\label{il-test-didattico-sulla-collisione-dei-nomi-di-package}
+
+Nel package \passthrough{\lstinline!it.oop.ui!}, il docente aggiunge
+appositamente una seconda classe:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione10/MavenDate/src/main/java/it/oop/ui/Date.java}{\passthrough{\lstinline!it/oop/ui/Date.java!}}:
+
+\begin{lstlisting}[language=Java]
+package it.oop.ui;
+
+class Date { // Visibilità package-private
+    public int time;
+    private int start = 0;
+
+    public Date(int time) { this.time = time; }
+}
+\end{lstlisting}
+
+E in
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione10/MavenDate/src/main/java/it/oop/ui/MainDate.java}{\passthrough{\lstinline!MainDate.java!}}
+mostra come la JVM risolve l'ambiguità:
+
+\begin{lstlisting}[language=Java]
+package it.oop.ui;
+
+import it.oop.core.Date; // 1. L'import esplicito ha la precedenza!
+
+public class MainDate {
+    public static void main(String[] args) {
+        Date d1 = new Date(7, 1, 2025); // Istanzia it.oop.core.Date!
+
+        // 2. Per istanziare la classe Date del package it.oop.ui,
+        // è obbligatorio usare il Fully Qualified Name (FQN):
+        it.oop.ui.Date d = new it.oop.ui.Date(12345);
+        System.out.println(d.time);      // OK: 'time' è public
+        // System.out.println(d.start);  // COMPILE-TIME ERROR: 'start' è private!
+    }
+}
+\end{lstlisting}
+
+\paragraph{\texorpdfstring{3. Anatomia del
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/Teoria-e-Esercitazioni/Codice-20260902/Lezione10/MavenDate/pom.xml}{\texttt{pom.xml}}
+di
+\texttt{MavenDate}}{3. Anatomia del pom.xml di MavenDate}}\label{anatomia-del-pom.xml-di-mavendate}
+
+\begin{lstlisting}[language=XML]
+<project ...>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>it.oop</groupId>
+    <artifactId>MavenDate</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- Plugin per creare il JAR eseguibile con dipendenze -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.7.1</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <!-- Entrypoint del JAR -->
+                            <mainClass>it.oop.ui.MainDate</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>assemble-all</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+\end{lstlisting}
+
+Questo file è il prototipo esatto che hai esteso in tutti i moduli del
+tuo workspace \passthrough{\lstinline!esercizi-wally-25-26!}: -
+\passthrough{\lstinline!compile!}: compila da
+\passthrough{\lstinline!src/main/java!} verso
+\passthrough{\lstinline!target/classes!}. -
+\passthrough{\lstinline!test!}: compila ed esegue i test da
+\passthrough{\lstinline!src/test/java!} verso
+\passthrough{\lstinline!target/test-classes!}. -
+\passthrough{\lstinline!package!}: genera il JAR auto-eseguibile con
+\passthrough{\lstinline!META-INF/MANIFEST.MF!} configurato con
+\passthrough{\lstinline!Main-Class: it.oop.ui.MainDate!}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{3. Ciclo: Corrispondenza con i Tuoi Moduli
+Workspace}\label{ciclo-corrispondenza-con-i-tuoi-moduli-workspace}
+
+Nel tuo repository
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26}{\passthrough{\lstinline!esercizi-wally-25-26!}}:
+- \textbf{\passthrough{\lstinline!es08!}}:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es08/src/main/java/es08/Memory.java}{\passthrough{\lstinline!Memory.java!}}
+implementa l'allocazione Stack vs Heap e il blocco
+\passthrough{\lstinline!static \{ ... \}!}. -
+\textbf{\passthrough{\lstinline!es10!}}:
+\href{file:///home/wally/Documenti/GitHub/Programmazione-II/25-26/esercizi-wally-25-26/es10/src/main/java/es10/ImmutablePerson.java}{\passthrough{\lstinline!ImmutablePerson.java!}}
+applica formalmente tutte le regole di immutabilità di T10
+(\passthrough{\lstinline!final class!}, campi
+\passthrough{\lstinline!final!}, validazione e assenza di setter).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{studynote}[Nota di Studio] Con la \textbf{Lezione 10} abbiamo completato l'intero
+quadro su memoria, call stack, tipi wrapper e la transizione a Maven.
+
+Il prossimo blocco è la \textbf{Lezione 11 / Slide T11: \emph{Packages
+and Class Visibility}}: - Tassonomia gerarchica dei package e
+convenzioni DNS invertite (\passthrough{\lstinline!it.univr...!}). -
+Regole di visibilità e accessibilità inter-package: membri
+\passthrough{\lstinline!public!}, \passthrough{\lstinline!protected!},
+package-private e \passthrough{\lstinline!private!}. - Evoluzione di
+\passthrough{\lstinline!MavenDate!}: - Refactoring dell'algoritmo
+Gregoriano: introduzione definitiva del \textbf{calcolo dell'anno
+bisestile (\passthrough{\lstinline!isLeapYear!})} in
+\passthrough{\lstinline!Date.java!}! - Integrazione di
+\passthrough{\lstinline!isLeapYear(year)!} in
+\passthrough{\lstinline!daysPerMonth(month, year)!} e fine dei mesi
+errati per Febbraio!
+\end{studynote}
+
+\textbf{Dammi conferma per procedere alla Lezione 11 / T11!}
+
+
+\end{document}
