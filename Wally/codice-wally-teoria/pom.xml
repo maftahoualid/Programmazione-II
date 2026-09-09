@@ -32,6 +32,15 @@
         <module>es14</module>
         <module>es15</module>
         <module>es16</module>
+        <module>es17</module>
+        <module>es18</module>
+        <module>es19</module>
+        <module>it.univr-es19</module>
+        <module>it.univr-es20</module>
+        <module>es20</module>
+        <module>es-20</module>
+        <module>es21</module>
+        <module>it.univr-es21</module>
     </modules>
 
     <dependencyManagement>

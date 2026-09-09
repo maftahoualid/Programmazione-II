@@ -3,8 +3,17 @@ package es16.pkg;
 public class Student extends es16.Person {
     private int matricola;
 
+    public Student() { // costruttore default
+        // se dichiaro un costruttore nella classe padre
+        // questo costruttore non verrà creato in automatico
+        // quindi devo chiamarlo esplicitamente
+        super(); // chiamata al costruttore default della superclasse
+    }
+
     public Student(String name, int matricola) {
-        super(name);
+        // super chiama il costruttore che corrisponde
+        // alla firma (il tipo e numero di argomenti)
+        super(name); // qui non chiama il default ma il parametrico
         this.matricola = matricola;
     }
 
