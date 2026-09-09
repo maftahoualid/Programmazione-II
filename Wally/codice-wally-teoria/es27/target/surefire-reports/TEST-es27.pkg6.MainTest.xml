@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="es27.pkg6.MainTest" time="0.337" tests="6" errors="0" skipped="0" failures="0">
+  <properties>
+    <property name="java.specification.version" value="25"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.class.path" value="/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/test-classes:/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/classes:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.0/junit-jupiter-5.10.0.jar:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.0/junit-jupiter-api-5.10.0.jar:/home/wally/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/wally/.m2/repository/org/junit/platform/junit-platform-commons/1.10.0/junit-platform-commons-1.10.0.jar:/home/wally/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.0/junit-jupiter-params-5.10.0.jar:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.0/junit-jupiter-engine-5.10.0.jar:/home/wally/.m2/repository/org/junit/platform/junit-platform-engine/1.10.0/junit-platform-engine-1.10.0.jar:"/>
+    <property name="java.vm.vendor" value="Ubuntu"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.vendor.url" value="https://ubuntu.com/"/>
+    <property name="os.name" value="Linux"/>
+    <property name="java.vm.specification.version" value="25"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="user.country" value="IT"/>
+    <property name="sun.boot.library.path" value="/usr/lib/jvm/java-25-openjdk-amd64/lib"/>
+    <property name="sun.java.command" value="/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/surefire/surefirebooter-20260909222211108_113.jar /home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/surefire 2026-09-09T22-21-36_599-jvmRun1 surefire-20260909222211108_111tmp surefire_22-20260909222211108_112tmp"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="surefire.test.class.path" value="/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/test-classes:/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/classes:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.0/junit-jupiter-5.10.0.jar:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.0/junit-jupiter-api-5.10.0.jar:/home/wally/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/wally/.m2/repository/org/junit/platform/junit-platform-commons/1.10.0/junit-platform-commons-1.10.0.jar:/home/wally/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.0/junit-jupiter-params-5.10.0.jar:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.0/junit-jupiter-engine-5.10.0.jar:/home/wally/.m2/repository/org/junit/platform/junit-platform-engine/1.10.0/junit-platform-engine-1.10.0.jar:"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="user.home" value="/home/wally"/>
+    <property name="user.language" value="it"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.version.date" value="2026-07-21"/>
+    <property name="java.home" value="/usr/lib/jvm/java-25-openjdk-amd64"/>
+    <property name="file.separator" value="/"/>
+    <property name="basedir" value="/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27"/>
+    <property name="java.vm.compressedOopsMode" value="Zero based"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="surefire.real.class.path" value="/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/surefire/surefirebooter-20260909222211108_113.jar"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="java.runtime.version" value="25.0.4+7-1-26.04-Ubuntu"/>
+    <property name="user.name" value="wally"/>
+    <property name="stdout.encoding" value="UTF-8"/>
+    <property name="path.separator" value=":"/>
+    <property name="os.version" value="7.0.0-31-generic"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="localRepository" value="/home/wally/.m2/repository"/>
+    <property name="java.vendor.url.bug" value="https://bugs.launchpad.net/ubuntu/+source/openjdk-25"/>
+    <property name="java.io.tmpdir" value="/tmp"/>
+    <property name="java.version" value="25.0.4"/>
+    <property name="user.dir" value="/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="native.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib"/>
+    <property name="java.vm.info" value="mixed mode, sharing"/>
+    <property name="stderr.encoding" value="UTF-8"/>
+    <property name="java.vendor" value="Ubuntu"/>
+    <property name="java.vm.version" value="25.0.4+7-1-26.04-Ubuntu"/>
+    <property name="stdin.encoding" value="UTF-8"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="69.0"/>
+  </properties>
+  <testcase name="testCase2_PropagateThrowsFileNotFoundException" classname="es27.pkg6.MainTest" time="0.009">
+    <system-out><![CDATA[  [Dummy.foo - Caso 2] Tentativo di apertura file (con delega al chiamante): file_assolutamente_inesistente_12345.txt
+]]></system-out>
+  </testcase>
+  <testcase name="testCase3_CatchAndRethrowThrowsFileNotFoundException" classname="es27.pkg6.MainTest" time="0.011">
+    <system-out><![CDATA[  [Dummy.foo - Caso 3] Tentativo di apertura file (cattura locale + re-throw): file_assolutamente_inesistente_12345.txt
+  [Dummy.foo - Caso 3] -> Intercettata localmente per log di diagnostica!
+  [Dummy.foo - Caso 3] -> Ora rilancio l'eccezione al chiamante con 'throw fnf'...
+]]></system-out>
+  </testcase>
+  <testcase name="testCase1_DirectCatchHandlesInternally" classname="es27.pkg6.MainTest" time="0.01">
+    <system-out><![CDATA[  [Dummy.foo - Caso 1] Tentativo di apertura file: file_assolutamente_inesistente_12345.txt
+  [Dummy.foo - Caso 1] -> Eccezione catturata localmente: file_assolutamente_inesistente_12345.txt (File o directory non esistente)
+  [Dummy.foo - Caso 1] -> Gestione completata: nessuna eccezione propagata al chiamante.
+]]></system-out>
+  </testcase>
+  <testcase name="testMainExecution" classname="es27.pkg6.MainTest" time="0.03">
+    <system-out><![CDATA[=== es27.pkg6: Le 3 Strategie di Gestione delle Eccezioni (Slide T17 p.17-19) ===
+
+--- Caso 1 (Slide 17): Cattura Diretta (Directly Catch) ---
+Il chiamante invoca dummy.fooCase1_DirectCatch()...
+  [Dummy.foo - Caso 1] Tentativo di apertura file: file_inesistente_per_test.txt
+  [Dummy.foo - Caso 1] -> Eccezione catturata localmente: file_inesistente_per_test.txt (File o directory non esistente)
+  [Dummy.foo - Caso 1] -> Gestione completata: nessuna eccezione propagata al chiamante.
+-> Il chiamante continua regolarmente senza interruzioni.
+
+--- Caso 2 (Slide 18): Propagazione al Chiamante (Propagate to Caller) ---
+Il chiamante invoca dummy.fooCase2_Propagate()...
+  [Dummy.foo - Caso 2] Tentativo di apertura file (con delega al chiamante): file_inesistente_per_test.txt
+-> Eccezione intercettata dal chiamante (nel main): file_inesistente_per_test.txt (File o directory non esistente)
+-> Il metodo foo non l'ha gestita: l'ha delegata interamente a monte!
+
+--- Caso 3 (Slide 19): Cattura e Rilancio (Catch and Re-throw) ---
+Il chiamante invoca dummy.fooCase3_CatchAndRethrow()...
+  [Dummy.foo - Caso 3] Tentativo di apertura file (cattura locale + re-throw): file_inesistente_per_test.txt
+  [Dummy.foo - Caso 3] -> Intercettata localmente per log di diagnostica!
+  [Dummy.foo - Caso 3] -> Ora rilancio l'eccezione al chiamante con 'throw fnf'...
+-> Eccezione rilanciata intercettata dal chiamante (nel main): file_inesistente_per_test.txt (File o directory non esistente)
+-> Il metodo foo ha eseguito log/cleanup locale e poi ha rilanciato con 'throw fnf'.
+
+--- Caso Happy Path: Quando il file ESISTE ---
+Creato file temporaneo: demo_es27_8261081947128923643.txt
+  [Dummy.foo - Caso 1] Tentativo di apertura file: /tmp/demo_es27_8261081947128923643.txt
+  [Dummy.foo - Caso 1] File aperto con successo!
+  [Dummy.foo - Caso 2] Tentativo di apertura file (con delega al chiamante): /tmp/demo_es27_8261081947128923643.txt
+  [Dummy.foo - Caso 3] Tentativo di apertura file (cattura locale + re-throw): /tmp/demo_es27_8261081947128923643.txt
+-> Tutti e 3 i metodi sono stati eseguiti con successo senza sollevare eccezioni.
+=== es27.pkg6: Le 3 Strategie di Gestione delle Eccezioni (Slide T17 p.17-19) ===
+
+--- Caso 1 (Slide 17): Cattura Diretta (Directly Catch) ---
+Il chiamante invoca dummy.fooCase1_DirectCatch()...
+  [Dummy.foo - Caso 1] Tentativo di apertura file: file_inesistente_per_test.txt
+  [Dummy.foo - Caso 1] -> Eccezione catturata localmente: file_inesistente_per_test.txt (File o directory non esistente)
+  [Dummy.foo - Caso 1] -> Gestione completata: nessuna eccezione propagata al chiamante.
+-> Il chiamante continua regolarmente senza interruzioni.
+
+--- Caso 2 (Slide 18): Propagazione al Chiamante (Propagate to Caller) ---
+Il chiamante invoca dummy.fooCase2_Propagate()...
+  [Dummy.foo - Caso 2] Tentativo di apertura file (con delega al chiamante): file_inesistente_per_test.txt
+-> Eccezione intercettata dal chiamante (nel main): file_inesistente_per_test.txt (File o directory non esistente)
+-> Il metodo foo non l'ha gestita: l'ha delegata interamente a monte!
+
+--- Caso 3 (Slide 19): Cattura e Rilancio (Catch and Re-throw) ---
+Il chiamante invoca dummy.fooCase3_CatchAndRethrow()...
+  [Dummy.foo - Caso 3] Tentativo di apertura file (cattura locale + re-throw): file_inesistente_per_test.txt
+  [Dummy.foo - Caso 3] -> Intercettata localmente per log di diagnostica!
+  [Dummy.foo - Caso 3] -> Ora rilancio l'eccezione al chiamante con 'throw fnf'...
+-> Eccezione rilanciata intercettata dal chiamante (nel main): file_inesistente_per_test.txt (File o directory non esistente)
+-> Il metodo foo ha eseguito log/cleanup locale e poi ha rilanciato con 'throw fnf'.
+
+--- Caso Happy Path: Quando il file ESISTE ---
+Creato file temporaneo: demo_es27_9571535293808487149.txt
+  [Dummy.foo - Caso 1] Tentativo di apertura file: /tmp/demo_es27_9571535293808487149.txt
+  [Dummy.foo - Caso 1] File aperto con successo!
+  [Dummy.foo - Caso 2] Tentativo di apertura file (con delega al chiamante): /tmp/demo_es27_9571535293808487149.txt
+  [Dummy.foo - Caso 3] Tentativo di apertura file (cattura locale + re-throw): /tmp/demo_es27_9571535293808487149.txt
+-> Tutti e 3 i metodi sono stati eseguiti con successo senza sollevare eccezioni.
+]]></system-out>
+  </testcase>
+  <testcase name="testHappyPathWithExistingFile" classname="es27.pkg6.MainTest" time="0.021">
+    <system-out><![CDATA[  [Dummy.foo - Caso 1] Tentativo di apertura file: /tmp/test_happy_path_12062469356214151629.txt
+  [Dummy.foo - Caso 1] File aperto con successo!
+  [Dummy.foo - Caso 2] Tentativo di apertura file (con delega al chiamante): /tmp/test_happy_path_12062469356214151629.txt
+  [Dummy.foo - Caso 3] Tentativo di apertura file (cattura locale + re-throw): /tmp/test_happy_path_12062469356214151629.txt
+]]></system-out>
+  </testcase>
+  <testcase name="testMyClassThrowsWhenDefaultFileNotFound" classname="es27.pkg6.MainTest" time="0.008">
+    <system-out><![CDATA[  [Dummy.foo - Caso 2] Tentativo di apertura file (con delega al chiamante): file.txt
+]]></system-out>
+  </testcase>
+</testsuite>

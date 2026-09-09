@@ -5,5 +5,12 @@
     <artifactId>codice-wally-teoria</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <artifactId>it.univr-es20</artifactId>
+    <artifactId>es20</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

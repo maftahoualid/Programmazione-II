@@ -35,12 +35,15 @@
         <module>es17</module>
         <module>es18</module>
         <module>es19</module>
-        <module>it.univr-es19</module>
-        <module>it.univr-es20</module>
         <module>es20</module>
-        <module>es-20</module>
         <module>es21</module>
-        <module>it.univr-es21</module>
+        <module>es22</module>
+        <module>es23</module>
+        <module>es24</module>
+        <module>es25</module>
+        <module>es26</module>
+        <module>es27</module>
+        <module>es28</module>
     </modules>
 
     <dependencyManagement>

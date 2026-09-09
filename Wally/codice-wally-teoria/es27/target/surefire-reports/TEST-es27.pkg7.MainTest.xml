@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="es27.pkg7.MainTest" time="0.057" tests="5" errors="0" skipped="0" failures="0">
+  <properties>
+    <property name="java.specification.version" value="25"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.class.path" value="/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/test-classes:/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/classes:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.0/junit-jupiter-5.10.0.jar:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.0/junit-jupiter-api-5.10.0.jar:/home/wally/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/wally/.m2/repository/org/junit/platform/junit-platform-commons/1.10.0/junit-platform-commons-1.10.0.jar:/home/wally/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.0/junit-jupiter-params-5.10.0.jar:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.0/junit-jupiter-engine-5.10.0.jar:/home/wally/.m2/repository/org/junit/platform/junit-platform-engine/1.10.0/junit-platform-engine-1.10.0.jar:"/>
+    <property name="java.vm.vendor" value="Ubuntu"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.vendor.url" value="https://ubuntu.com/"/>
+    <property name="os.name" value="Linux"/>
+    <property name="java.vm.specification.version" value="25"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="user.country" value="IT"/>
+    <property name="sun.boot.library.path" value="/usr/lib/jvm/java-25-openjdk-amd64/lib"/>
+    <property name="sun.java.command" value="/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/surefire/surefirebooter-20260909222211108_113.jar /home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/surefire 2026-09-09T22-21-36_599-jvmRun1 surefire-20260909222211108_111tmp surefire_22-20260909222211108_112tmp"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="surefire.test.class.path" value="/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/test-classes:/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/classes:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.0/junit-jupiter-5.10.0.jar:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.0/junit-jupiter-api-5.10.0.jar:/home/wally/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/wally/.m2/repository/org/junit/platform/junit-platform-commons/1.10.0/junit-platform-commons-1.10.0.jar:/home/wally/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.0/junit-jupiter-params-5.10.0.jar:/home/wally/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.0/junit-jupiter-engine-5.10.0.jar:/home/wally/.m2/repository/org/junit/platform/junit-platform-engine/1.10.0/junit-platform-engine-1.10.0.jar:"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="user.home" value="/home/wally"/>
+    <property name="user.language" value="it"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.version.date" value="2026-07-21"/>
+    <property name="java.home" value="/usr/lib/jvm/java-25-openjdk-amd64"/>
+    <property name="file.separator" value="/"/>
+    <property name="basedir" value="/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27"/>
+    <property name="java.vm.compressedOopsMode" value="Zero based"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="surefire.real.class.path" value="/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27/target/surefire/surefirebooter-20260909222211108_113.jar"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="java.runtime.version" value="25.0.4+7-1-26.04-Ubuntu"/>
+    <property name="user.name" value="wally"/>
+    <property name="stdout.encoding" value="UTF-8"/>
+    <property name="path.separator" value=":"/>
+    <property name="os.version" value="7.0.0-31-generic"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="localRepository" value="/home/wally/.m2/repository"/>
+    <property name="java.vendor.url.bug" value="https://bugs.launchpad.net/ubuntu/+source/openjdk-25"/>
+    <property name="java.io.tmpdir" value="/tmp"/>
+    <property name="java.version" value="25.0.4"/>
+    <property name="user.dir" value="/home/wally/Documenti/GitHub/Programmazione-II/Wally/codice-wally-teoria/es27"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="native.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib"/>
+    <property name="java.vm.info" value="mixed mode, sharing"/>
+    <property name="stderr.encoding" value="UTF-8"/>
+    <property name="java.vendor" value="Ubuntu"/>
+    <property name="java.vm.version" value="25.0.4+7-1-26.04-Ubuntu"/>
+    <property name="stdin.encoding" value="UTF-8"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="69.0"/>
+  </properties>
+  <testcase name="testSlide27_TryInsideLoopSkipsFailedItemAndContinues" classname="es27.pkg7.MainTest" time="0.004">
+    <system-out><![CDATA[  [Dentro Loop] Iterazione 0: elemento '1' elaborato con successo.
+  [Dentro Loop] Iterazione 1: elemento '2' elaborato con successo.
+  [Dentro Loop] Iterazione 2: ERRORE LOCALE intercettato (Dato non valido o corrotto: 'ERRORE'). Elemento scartato, si prosegue!
+  [Dentro Loop] Iterazione 3: elemento '4' elaborato con successo.
+  [Dentro Loop] Iterazione 4: elemento '5' elaborato con successo.
+]]></system-out>
+  </testcase>
+  <testcase name="testSlide28_TryOutsideLoopAbortsEntireLoopOnException" classname="es27.pkg7.MainTest" time="0.001">
+    <system-out><![CDATA[  [Fuori Loop] Iterazione 0: elemento '1' elaborato con successo.
+  [Fuori Loop] Iterazione 1: elemento '2' elaborato con successo.
+  [Fuori Loop] ERRORE GLOBALE intercettato all'iterazione 2 (Dato non valido o corrotto: 'ERRORE')!
+  [Fuori Loop] Il ciclo while è stato INTERROTTO DEFINITIVAMENTE. Gli elementi successivi vengono ignorati.
+]]></system-out>
+  </testcase>
+  <testcase name="testRiskyOperation" classname="es27.pkg7.MainTest" time="0.003"/>
+  <testcase name="testMainExecution" classname="es27.pkg7.MainTest" time="0.007">
+    <system-out><![CDATA[=== es27.pkg7: Exceptions and Loops (Slide T17 p. 27-28) ===
+Dataset in input: [Dato_1, Dato_2, ERRORE, Dato_4, Dato_5]
+
+--- 1. Slide 27: Try DENTRO il ciclo (recupero iterazione per iterazione) ---
+  [Dentro Loop] Iterazione 0: elemento 'Dato_1' elaborato con successo.
+  [Dentro Loop] Iterazione 1: elemento 'Dato_2' elaborato con successo.
+  [Dentro Loop] Iterazione 2: ERRORE LOCALE intercettato (Dato non valido o corrotto: 'ERRORE'). Elemento scartato, si prosegue!
+  [Dentro Loop] Iterazione 3: elemento 'Dato_4' elaborato con successo.
+  [Dentro Loop] Iterazione 4: elemento 'Dato_5' elaborato con successo.
+-> Risultato finale Slide 27: [Dato_1, Dato_2, Dato_4, Dato_5]
+   (Nota: 'ERRORE' è stato saltato, ma 'Dato_4' e 'Dato_5' sono stati elaborati!)
+
+--- 2. Slide 28: Try FUORI dal ciclo (errore critico per l'intero ciclo) ---
+  [Fuori Loop] Iterazione 0: elemento 'Dato_1' elaborato con successo.
+  [Fuori Loop] Iterazione 1: elemento 'Dato_2' elaborato con successo.
+  [Fuori Loop] ERRORE GLOBALE intercettato all'iterazione 2 (Dato non valido o corrotto: 'ERRORE')!
+  [Fuori Loop] Il ciclo while è stato INTERROTTO DEFINITIVAMENTE. Gli elementi successivi vengono ignorati.
+-> Risultato finale Slide 28: [Dato_1, Dato_2]
+   (Nota: il ciclo si è fermato a 'ERRORE'; 'Dato_4' e 'Dato_5' NON sono mai stati esaminati!)
+
+--- 3. Slide 27: Pattern 'while (true)' con tentativi ripetuti ---
+  [Retry while(true)] Tentativo con input: 'FAIL'
+  [Retry while(true)] Fallito (Dato non valido o corrotto: 'FAIL'), riprovo al prossimo ciclo...
+  [Retry while(true)] Tentativo con input: 'ERRORE'
+  [Retry while(true)] Fallito (Dato non valido o corrotto: 'ERRORE'), riprovo al prossimo ciclo...
+  [Retry while(true)] Tentativo con input: 'DATO_CORRETTO'
+  [Retry while(true)] Successo! Esco dal ciclo con break.
+-> Valore ottenuto con successo: DATO_CORRETTO
+=== es27.pkg7: Exceptions and Loops (Slide T17 p. 27-28) ===
+Dataset in input: [Dato_1, Dato_2, ERRORE, Dato_4, Dato_5]
+
+--- 1. Slide 27: Try DENTRO il ciclo (recupero iterazione per iterazione) ---
+  [Dentro Loop] Iterazione 0: elemento 'Dato_1' elaborato con successo.
+  [Dentro Loop] Iterazione 1: elemento 'Dato_2' elaborato con successo.
+  [Dentro Loop] Iterazione 2: ERRORE LOCALE intercettato (Dato non valido o corrotto: 'ERRORE'). Elemento scartato, si prosegue!
+  [Dentro Loop] Iterazione 3: elemento 'Dato_4' elaborato con successo.
+  [Dentro Loop] Iterazione 4: elemento 'Dato_5' elaborato con successo.
+-> Risultato finale Slide 27: [Dato_1, Dato_2, Dato_4, Dato_5]
+   (Nota: 'ERRORE' è stato saltato, ma 'Dato_4' e 'Dato_5' sono stati elaborati!)
+
+--- 2. Slide 28: Try FUORI dal ciclo (errore critico per l'intero ciclo) ---
+  [Fuori Loop] Iterazione 0: elemento 'Dato_1' elaborato con successo.
+  [Fuori Loop] Iterazione 1: elemento 'Dato_2' elaborato con successo.
+  [Fuori Loop] ERRORE GLOBALE intercettato all'iterazione 2 (Dato non valido o corrotto: 'ERRORE')!
+  [Fuori Loop] Il ciclo while è stato INTERROTTO DEFINITIVAMENTE. Gli elementi successivi vengono ignorati.
+-> Risultato finale Slide 28: [Dato_1, Dato_2]
+   (Nota: il ciclo si è fermato a 'ERRORE'; 'Dato_4' e 'Dato_5' NON sono mai stati esaminati!)
+
+--- 3. Slide 27: Pattern 'while (true)' con tentativi ripetuti ---
+  [Retry while(true)] Tentativo con input: 'FAIL'
+  [Retry while(true)] Fallito (Dato non valido o corrotto: 'FAIL'), riprovo al prossimo ciclo...
+  [Retry while(true)] Tentativo con input: 'ERRORE'
+  [Retry while(true)] Fallito (Dato non valido o corrotto: 'ERRORE'), riprovo al prossimo ciclo...
+  [Retry while(true)] Tentativo con input: 'DATO_CORRETTO'
+  [Retry while(true)] Successo! Esco dal ciclo con break.
+-> Valore ottenuto con successo: DATO_CORRETTO
+]]></system-out>
+  </testcase>
+  <testcase name="testRetryUntilSuccess" classname="es27.pkg7.MainTest" time="0.002">
+    <system-out><![CDATA[  [Retry while(true)] Tentativo con input: 'FAIL'
+  [Retry while(true)] Fallito (Dato non valido o corrotto: 'FAIL'), riprovo al prossimo ciclo...
+  [Retry while(true)] Tentativo con input: 'ERRORE'
+  [Retry while(true)] Fallito (Dato non valido o corrotto: 'ERRORE'), riprovo al prossimo ciclo...
+  [Retry while(true)] Tentativo con input: 'VALORE_VALIDO'
+  [Retry while(true)] Successo! Esco dal ciclo con break.
+]]></system-out>
+  </testcase>
+</testsuite>

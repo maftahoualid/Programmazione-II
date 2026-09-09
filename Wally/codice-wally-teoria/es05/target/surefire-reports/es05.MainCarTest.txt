@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: es05.MainCarTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.733 s -- in es05.MainCarTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.087 s -- in es05.MainCarTest
