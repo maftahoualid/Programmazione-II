@@ -44,6 +44,7 @@
         <module>es26</module>
         <module>es27</module>
         <module>es28</module>
+        <module>es29</module>
     </modules>
 
     <dependencyManagement>
